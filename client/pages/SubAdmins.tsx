@@ -123,6 +123,11 @@ export default function SubAdmins() {
       }
 
       if (!response.ok) {
+        // Handle validation errors with details
+        if (data.details && Array.isArray(data.details)) {
+          setFormErrors(data.details);
+          return;
+        }
         throw new Error(data.error || 'Failed to create sub-admin');
       }
       setSubAdmins(prev => [...prev, data.subAdmin]);
@@ -165,6 +170,11 @@ export default function SubAdmins() {
       }
 
       if (!response.ok) {
+        // Handle validation errors with details
+        if (data.details && Array.isArray(data.details)) {
+          setFormErrors(data.details);
+          return;
+        }
         throw new Error(data.error || 'Failed to update sub-admin');
       }
       setSubAdmins(prev => prev.map(admin => 
