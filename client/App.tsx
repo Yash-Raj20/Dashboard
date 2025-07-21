@@ -15,6 +15,7 @@ import SubAdmins from "./pages/SubAdmins";
 import Analytics from "./pages/Analytics";
 import Users from "./pages/Users";
 import AuditLogs from "./pages/AuditLogs";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -67,6 +68,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requiredPermission="view_audit_logs">
                     <AuditLogs />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/settings"
+                element={
+                  <ProtectedRoute requiredPermission="edit_profile">
+                    <Settings />
                   </ProtectedRoute>
                 }
               />
