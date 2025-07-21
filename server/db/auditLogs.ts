@@ -1,4 +1,4 @@
-import { AuditLog, Role } from '@shared/auth';
+import { AuditLog, Role } from '../../shared/auth.js';
 
 // In-memory audit logs storage
 // In production, replace with a real database
