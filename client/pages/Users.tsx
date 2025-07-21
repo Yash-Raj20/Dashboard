@@ -1,14 +1,20 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { User, CreateUserRequest, UpdateUserRequest } from '@shared/auth';
-import DashboardLayout from '@/components/DashboardLayout';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { User, CreateUserRequest, UpdateUserRequest } from "@shared/auth";
+import DashboardLayout from "@/components/DashboardLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -25,14 +31,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Checkbox } from '@/components/ui/checkbox';
+} from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   UserPlus,
   MoreHorizontal,
@@ -43,9 +49,9 @@ import {
   CheckCircle,
   XCircle,
   Loader2,
-  Users as UsersIcon
-} from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+  Users as UsersIcon,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Users() {
   const { hasPermission } = useAuth();
@@ -59,9 +65,9 @@ export default function Users() {
 
   // Form states
   const [createForm, setCreateForm] = useState<CreateUserRequest>({
-    email: '',
-    name: '',
-    password: ''
+    email: "",
+    name: "",
+    password: "",
   });
   const [updateForm, setUpdateForm] = useState<UpdateUserRequest>({});
   const [formLoading, setFormLoading] = useState(false);
@@ -76,14 +82,14 @@ export default function Users() {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem("auth_token");
       if (!token) {
-        throw new Error('No authentication token. Please log in.');
+        throw new Error("No authentication token. Please log in.");
       }
 
-      const response = await fetch('/api/users', {
+      const response = await fetch("/api/users", {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -91,34 +97,39 @@ export default function Users() {
       try {
         const text = await response.text();
         if (!text.trim()) {
-          throw new Error('Empty response from server');
+          throw new Error("Empty response from server");
         }
 
-        if (text.trim().startsWith('<')) {
+        if (text.trim().startsWith("<")) {
           if (response.status === 401) {
-            throw new Error('Session expired. Please log in again.');
+            throw new Error("Session expired. Please log in again.");
           }
-          throw new Error(`Server returned HTML instead of JSON (${response.status})`);
+          throw new Error(
+            `Server returned HTML instead of JSON (${response.status})`,
+          );
         }
 
         data = JSON.parse(text);
       } catch (parseError) {
-        if (parseError instanceof Error && parseError.message.includes('log in again')) {
+        if (
+          parseError instanceof Error &&
+          parseError.message.includes("log in again")
+        ) {
           throw parseError;
         }
         if (response.status === 401) {
-          throw new Error('Session expired. Please log in again.');
+          throw new Error("Session expired. Please log in again.");
         }
         throw new Error(`Invalid response format (${response.status})`);
       }
 
       if (!response.ok) {
-        throw new Error(data.error || 'Failed to fetch users');
+        throw new Error(data.error || "Failed to fetch users");
       }
 
       setUsers(data.users || []);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -131,12 +142,12 @@ export default function Users() {
       setFormLoading(true);
       setFormErrors([]);
 
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('/api/users', {
-        method: 'POST',
+      const token = localStorage.getItem("auth_token");
+      const response = await fetch("/api/users", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(createForm),
       });
@@ -145,24 +156,27 @@ export default function Users() {
       try {
         const text = await response.text();
         if (!text.trim()) {
-          throw new Error('Empty response from server');
+          throw new Error("Empty response from server");
         }
 
         // Check if response is HTML (likely an error page)
-        if (text.trim().startsWith('<')) {
+        if (text.trim().startsWith("<")) {
           if (response.status === 401) {
-            throw new Error('Session expired. Please log in again.');
+            throw new Error("Session expired. Please log in again.");
           }
           throw new Error(`Server error (${response.status})`);
         }
 
         data = JSON.parse(text);
       } catch (parseError) {
-        if (parseError instanceof Error && parseError.message.includes('log in again')) {
+        if (
+          parseError instanceof Error &&
+          parseError.message.includes("log in again")
+        ) {
           throw parseError;
         }
         if (response.status === 401) {
-          throw new Error('Session expired. Please log in again.');
+          throw new Error("Session expired. Please log in again.");
         }
         throw new Error(`Invalid response from server (${response.status})`);
       }
@@ -173,18 +187,18 @@ export default function Users() {
           setFormErrors(data.details);
           return;
         }
-        throw new Error(data.error || 'Failed to create user');
+        throw new Error(data.error || "Failed to create user");
       }
-      setUsers(prev => [...prev, data.user]);
+      setUsers((prev) => [...prev, data.user]);
       setCreateDialogOpen(false);
       resetCreateForm();
-      
+
       toast({
         title: "Success",
         description: "User created successfully",
       });
     } catch (err) {
-      setFormErrors([err instanceof Error ? err.message : 'An error occurred']);
+      setFormErrors([err instanceof Error ? err.message : "An error occurred"]);
     } finally {
       setFormLoading(false);
     }
@@ -197,12 +211,12 @@ export default function Users() {
       setFormLoading(true);
       setFormErrors([]);
 
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem("auth_token");
       const response = await fetch(`/api/users/${selectedUser.id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(updateForm),
       });
@@ -211,23 +225,26 @@ export default function Users() {
       try {
         const text = await response.text();
         if (!text.trim()) {
-          throw new Error('Empty response from server');
+          throw new Error("Empty response from server");
         }
 
-        if (text.trim().startsWith('<')) {
+        if (text.trim().startsWith("<")) {
           if (response.status === 401) {
-            throw new Error('Session expired. Please log in again.');
+            throw new Error("Session expired. Please log in again.");
           }
           throw new Error(`Server error (${response.status})`);
         }
 
         data = JSON.parse(text);
       } catch (parseError) {
-        if (parseError instanceof Error && parseError.message.includes('log in again')) {
+        if (
+          parseError instanceof Error &&
+          parseError.message.includes("log in again")
+        ) {
           throw parseError;
         }
         if (response.status === 401) {
-          throw new Error('Session expired. Please log in again.');
+          throw new Error("Session expired. Please log in again.");
         }
         throw new Error(`Invalid response from server (${response.status})`);
       }
@@ -238,21 +255,21 @@ export default function Users() {
           setFormErrors(data.details);
           return;
         }
-        throw new Error(data.error || 'Failed to update user');
+        throw new Error(data.error || "Failed to update user");
       }
-      setUsers(prev => prev.map(user => 
-        user.id === selectedUser.id ? data.user : user
-      ));
+      setUsers((prev) =>
+        prev.map((user) => (user.id === selectedUser.id ? data.user : user)),
+      );
       setEditDialogOpen(false);
       setSelectedUser(null);
       setUpdateForm({});
-      
+
       toast({
         title: "Success",
         description: "User updated successfully",
       });
     } catch (err) {
-      setFormErrors([err instanceof Error ? err.message : 'An error occurred']);
+      setFormErrors([err instanceof Error ? err.message : "An error occurred"]);
     } finally {
       setFormLoading(false);
     }
@@ -264,11 +281,11 @@ export default function Users() {
     }
 
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem("auth_token");
       const response = await fetch(`/api/users/${user.id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -277,13 +294,13 @@ export default function Users() {
         try {
           errorData = await response.json();
         } catch (parseError) {
-          throw new Error('Failed to delete user');
+          throw new Error("Failed to delete user");
         }
-        throw new Error(errorData.error || 'Failed to delete user');
+        throw new Error(errorData.error || "Failed to delete user");
       }
 
-      setUsers(prev => prev.filter(u => u.id !== user.id));
-      
+      setUsers((prev) => prev.filter((u) => u.id !== user.id));
+
       toast({
         title: "Success",
         description: "User deleted successfully",
@@ -291,7 +308,8 @@ export default function Users() {
     } catch (err) {
       toast({
         title: "Error",
-        description: err instanceof Error ? err.message : 'Failed to delete user',
+        description:
+          err instanceof Error ? err.message : "Failed to delete user",
         variant: "destructive",
       });
     }
@@ -301,19 +319,19 @@ export default function Users() {
     const errors: string[] = [];
 
     if (!createForm.email.trim()) {
-      errors.push('Email is required');
+      errors.push("Email is required");
     } else if (!/\S+@\S+\.\S+/.test(createForm.email)) {
-      errors.push('Please enter a valid email address');
+      errors.push("Please enter a valid email address");
     }
 
     if (!createForm.name.trim()) {
-      errors.push('Name is required');
+      errors.push("Name is required");
     }
 
     if (!createForm.password.trim()) {
-      errors.push('Password is required');
+      errors.push("Password is required");
     } else if (createForm.password.length < 8) {
-      errors.push('Password must be at least 8 characters long');
+      errors.push("Password must be at least 8 characters long");
     }
 
     setFormErrors(errors);
@@ -322,9 +340,9 @@ export default function Users() {
 
   const resetCreateForm = () => {
     setCreateForm({
-      email: '',
-      name: '',
-      password: ''
+      email: "",
+      name: "",
+      password: "",
     });
     setFormErrors([]);
   };
@@ -333,22 +351,22 @@ export default function Users() {
     setSelectedUser(user);
     setUpdateForm({
       name: user.name,
-      isActive: user.isActive
+      isActive: user.isActive,
     });
     setFormErrors([]);
     setEditDialogOpen(true);
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
   // Filter to show only regular users (not admins)
-  const regularUsers = users.filter(user => user.role === 'user');
+  const regularUsers = users.filter((user) => user.role === "user");
 
   return (
     <DashboardLayout>
@@ -356,12 +374,14 @@ export default function Users() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              User Management
+            </h1>
             <p className="text-muted-foreground">
               View and manage registered users
             </p>
           </div>
-          {hasPermission('edit_user') && (
+          {hasPermission("edit_user") && (
             <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
@@ -376,7 +396,7 @@ export default function Users() {
                     Create a new user account
                   </DialogDescription>
                 </DialogHeader>
-                
+
                 {formErrors.length > 0 && (
                   <Alert variant="destructive">
                     <AlertDescription>
@@ -397,7 +417,12 @@ export default function Users() {
                       type="email"
                       placeholder="user@example.com"
                       value={createForm.email}
-                      onChange={(e) => setCreateForm(prev => ({ ...prev, email: e.target.value }))}
+                      onChange={(e) =>
+                        setCreateForm((prev) => ({
+                          ...prev,
+                          email: e.target.value,
+                        }))
+                      }
                       disabled={formLoading}
                     />
                   </div>
@@ -408,7 +433,12 @@ export default function Users() {
                       id="create-name"
                       placeholder="John Doe"
                       value={createForm.name}
-                      onChange={(e) => setCreateForm(prev => ({ ...prev, name: e.target.value }))}
+                      onChange={(e) =>
+                        setCreateForm((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
                       disabled={formLoading}
                     />
                   </div>
@@ -420,7 +450,12 @@ export default function Users() {
                       type="password"
                       placeholder="Minimum 8 characters"
                       value={createForm.password}
-                      onChange={(e) => setCreateForm(prev => ({ ...prev, password: e.target.value }))}
+                      onChange={(e) =>
+                        setCreateForm((prev) => ({
+                          ...prev,
+                          password: e.target.value,
+                        }))
+                      }
                       disabled={formLoading}
                     />
                   </div>
@@ -444,7 +479,7 @@ export default function Users() {
                         Creating...
                       </>
                     ) : (
-                      'Create User'
+                      "Create User"
                     )}
                   </Button>
                 </DialogFooter>
@@ -457,7 +492,12 @@ export default function Users() {
         {error && (
           <Alert variant="destructive">
             <AlertDescription>
-              {error}. <Button variant="link" onClick={fetchUsers} className="p-0 h-auto">
+              {error}.{" "}
+              <Button
+                variant="link"
+                onClick={fetchUsers}
+                className="p-0 h-auto"
+              >
                 Try again
               </Button>
             </AlertDescription>
@@ -512,7 +552,11 @@ export default function Users() {
                         <div className="flex items-center space-x-2">
                           <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
                             <span className="text-xs text-primary-foreground font-medium">
-                              {user.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                              {user.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .toUpperCase()}
                             </span>
                           </div>
                           <span>{user.name}</span>
@@ -525,7 +569,9 @@ export default function Users() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={user.isActive ? "default" : "destructive"}>
+                        <Badge
+                          variant={user.isActive ? "default" : "destructive"}
+                        >
                           {user.isActive ? (
                             <>
                               <CheckCircle className="h-3 w-3 mr-1" />
@@ -542,12 +588,16 @@ export default function Users() {
                       <TableCell>
                         <div className="flex items-center space-x-1">
                           <Calendar className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-sm">{formatDate(user.createdAt)}</span>
+                          <span className="text-sm">
+                            {formatDate(user.createdAt)}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <span className="text-sm text-muted-foreground">
-                          {user.lastLogin ? formatDate(user.lastLogin) : 'Never'}
+                          {user.lastLogin
+                            ? formatDate(user.lastLogin)
+                            : "Never"}
                         </span>
                       </TableCell>
                       <TableCell className="text-right">
@@ -558,14 +608,16 @@ export default function Users() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            {hasPermission('edit_user') && (
-                              <DropdownMenuItem onClick={() => openEditDialog(user)}>
+                            {hasPermission("edit_user") && (
+                              <DropdownMenuItem
+                                onClick={() => openEditDialog(user)}
+                              >
                                 <Edit2 className="mr-2 h-4 w-4" />
                                 Edit
                               </DropdownMenuItem>
                             )}
-                            {hasPermission('delete_user') && (
-                              <DropdownMenuItem 
+                            {hasPermission("delete_user") && (
+                              <DropdownMenuItem
                                 onClick={() => handleDeleteUser(user)}
                                 className="text-destructive"
                               >
@@ -593,7 +645,7 @@ export default function Users() {
                 Update user details and status
               </DialogDescription>
             </DialogHeader>
-            
+
             {formErrors.length > 0 && (
               <Alert variant="destructive">
                 <AlertDescription>
@@ -612,8 +664,13 @@ export default function Users() {
                   <Label htmlFor="edit-name">Full Name</Label>
                   <Input
                     id="edit-name"
-                    value={updateForm.name || ''}
-                    onChange={(e) => setUpdateForm(prev => ({ ...prev, name: e.target.value }))}
+                    value={updateForm.name || ""}
+                    onChange={(e) =>
+                      setUpdateForm((prev) => ({
+                        ...prev,
+                        name: e.target.value,
+                      }))
+                    }
                     disabled={formLoading}
                   />
                 </div>
@@ -622,7 +679,12 @@ export default function Users() {
                   <Checkbox
                     id="edit-active"
                     checked={updateForm.isActive ?? true}
-                    onCheckedChange={(checked) => setUpdateForm(prev => ({ ...prev, isActive: !!checked }))}
+                    onCheckedChange={(checked) =>
+                      setUpdateForm((prev) => ({
+                        ...prev,
+                        isActive: !!checked,
+                      }))
+                    }
                     disabled={formLoading}
                   />
                   <Label htmlFor="edit-active">Active Account</Label>
@@ -650,7 +712,7 @@ export default function Users() {
                     Updating...
                   </>
                 ) : (
-                  'Update User'
+                  "Update User"
                 )}
               </Button>
             </DialogFooter>

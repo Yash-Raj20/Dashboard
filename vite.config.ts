@@ -29,17 +29,17 @@ function expressPlugin(): Plugin {
     async buildStart() {
       // Initialize Express app once during build start
       try {
-        const { createServer } = await import('./server/index.js');
+        const { createServer } = await import("./server/index.js");
         expressApp = createServer();
-        console.log('Express server initialized');
+        console.log("Express server initialized");
       } catch (error) {
-        console.error('Failed to initialize Express server:', error);
+        console.error("Failed to initialize Express server:", error);
       }
     },
     configureServer(server) {
       // Add Express app as middleware to Vite dev server
       server.middlewares.use((req, res, next) => {
-        if (req.url?.startsWith('/api/') && expressApp) {
+        if (req.url?.startsWith("/api/") && expressApp) {
           expressApp(req, res, next);
         } else {
           next();

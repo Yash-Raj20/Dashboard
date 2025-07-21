@@ -14,37 +14,41 @@ const slides: SlideData[] = [
     id: 1,
     url: "https://images.pexels.com/photos/33085586/pexels-photo-33085586.jpeg",
     title: "Winter Serenity",
-    description: "A picturesque winter sunset over snowy mountains and a serene lake, capturing nature's tranquil beauty.",
-    category: "Nature"
+    description:
+      "A picturesque winter sunset over snowy mountains and a serene lake, capturing nature's tranquil beauty.",
+    category: "Nature",
   },
   {
     id: 2,
     url: "https://images.pexels.com/photos/33090358/pexels-photo-33090358.jpeg",
     title: "Urban Twilight",
-    description: "Scenic view of a river ferry and an illuminated bridge in a vibrant cityscape at dusk.",
-    category: "Urban"
+    description:
+      "Scenic view of a river ferry and an illuminated bridge in a vibrant cityscape at dusk.",
+    category: "Urban",
   },
   {
     id: 3,
     url: "https://images.pexels.com/photos/33077852/pexels-photo-33077852.jpeg",
     title: "Coastal Paradise",
-    description: "Crystal clear waters and pristine beaches create the perfect tropical escape.",
-    category: "Travel"
+    description:
+      "Crystal clear waters and pristine beaches create the perfect tropical escape.",
+    category: "Travel",
   },
   {
     id: 4,
     url: "https://images.pexels.com/photos/33092349/pexels-photo-33092349.png",
     title: "Forest Depths",
     description: "Deep into the emerald embrace of ancient evergreen forests.",
-    category: "Nature"
+    category: "Nature",
   },
   {
     id: 5,
     url: "https://images.pexels.com/photos/785744/pexels-photo-785744.jpeg",
     title: "Desert Dreams",
-    description: "Traveler admiring Morocco's striking sand dunes under golden sunlight.",
-    category: "Adventure"
-  }
+    description:
+      "Traveler admiring Morocco's striking sand dunes under golden sunlight.",
+    category: "Adventure",
+  },
 ];
 
 export default function ImageSlider() {
@@ -101,10 +105,10 @@ export default function ImageSlider() {
               className="w-full h-full object-cover"
               loading={index === 0 ? "eager" : "lazy"}
             />
-            
+
             {/* Gradient Overlay */}
             <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-            
+
             {/* Content Overlay */}
             <div className="absolute inset-0 flex items-end">
               <div className="p-4 sm:p-6 md:p-8 lg:p-16 max-w-4xl w-full">

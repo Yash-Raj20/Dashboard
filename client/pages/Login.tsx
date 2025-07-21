@@ -1,18 +1,24 @@
-import { useState } from 'react';
-import { Navigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Lock, Mail } from 'lucide-react';
+import { useState } from "react";
+import { Navigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Loader2, Lock, Mail } from "lucide-react";
 
 export default function Login() {
   const { login, isAuthenticated, isLoading } = useAuth();
   const [formData, setFormData] = useState({
-    email: '',
-    password: '',
+    email: "",
+    password: "",
   });
   const [errors, setErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -23,7 +29,7 @@ export default function Login() {
   }
 
   const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
     // Clear errors when user starts typing
     if (errors.length > 0) {
       setErrors([]);
@@ -34,13 +40,13 @@ export default function Login() {
     const newErrors: string[] = [];
 
     if (!formData.email.trim()) {
-      newErrors.push('Email is required');
+      newErrors.push("Email is required");
     } else if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      newErrors.push('Please enter a valid email address');
+      newErrors.push("Please enter a valid email address");
     }
 
     if (!formData.password.trim()) {
-      newErrors.push('Password is required');
+      newErrors.push("Password is required");
     }
 
     setErrors(newErrors);
@@ -49,7 +55,7 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!validateForm()) {
       return;
     }
@@ -62,10 +68,10 @@ export default function Login() {
       });
 
       if (!success) {
-        setErrors(['Invalid email or password. Please try again.']);
+        setErrors(["Invalid email or password. Please try again."]);
       }
     } catch (error) {
-      setErrors(['An unexpected error occurred. Please try again.']);
+      setErrors(["An unexpected error occurred. Please try again."]);
     } finally {
       setIsSubmitting(false);
     }
@@ -120,7 +126,7 @@ export default function Login() {
                     type="email"
                     placeholder="admin@example.com"
                     value={formData.email}
-                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    onChange={(e) => handleInputChange("email", e.target.value)}
                     className="pl-10"
                     disabled={isSubmitting}
                     autoComplete="email"
@@ -138,7 +144,9 @@ export default function Login() {
                     type="password"
                     placeholder="Enter your password"
                     value={formData.password}
-                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    onChange={(e) =>
+                      handleInputChange("password", e.target.value)
+                    }
                     className="pl-10"
                     disabled={isSubmitting}
                     autoComplete="current-password"
@@ -146,18 +154,14 @@ export default function Login() {
                 </div>
               </div>
 
-              <Button
-                type="submit"
-                className="w-full"
-                disabled={isSubmitting}
-              >
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Signing in...
                   </>
                 ) : (
-                  'Sign In'
+                  "Sign In"
                 )}
               </Button>
             </form>
@@ -165,8 +169,12 @@ export default function Login() {
             <div className="mt-6 p-4 bg-muted rounded-lg">
               <h4 className="text-sm font-medium mb-2">Demo Credentials:</h4>
               <div className="text-xs text-muted-foreground space-y-1">
-                <div><strong>Email:</strong> admin@example.com</div>
-                <div><strong>Password:</strong> Admin123!</div>
+                <div>
+                  <strong>Email:</strong> admin@example.com
+                </div>
+                <div>
+                  <strong>Password:</strong> Admin123!
+                </div>
               </div>
             </div>
           </CardContent>

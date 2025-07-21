@@ -1,10 +1,10 @@
-import React from 'react';
-import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { Permission, Role } from '@shared/auth';
-import { Loader2 } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Button } from '@/components/ui/button';
+import React from "react";
+import { Navigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Permission, Role } from "@shared/auth";
+import { Loader2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -21,9 +21,17 @@ export default function ProtectedRoute({
   requiredPermission,
   requiredPermissions,
   requireAll = false,
-  fallback
+  fallback,
 }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading, user, logout, hasPermission, hasAnyPermission, hasRole } = useAuth();
+  const {
+    isAuthenticated,
+    isLoading,
+    user,
+    logout,
+    hasPermission,
+    hasAnyPermission,
+    hasRole,
+  } = useAuth();
   const location = useLocation();
 
   // Show loading spinner while checking authentication
@@ -45,44 +53,45 @@ export default function ProtectedRoute({
 
   // Check role requirements
   if (requiredRole) {
-    const allowedRoles = Array.isArray(requiredRole) ? requiredRole : [requiredRole];
-    if (!allowedRoles.some(role => hasRole(role))) {
-      return fallback || (
-        <AccessDenied 
-          message="You don't have the required role to access this page."
-          onLogout={logout}
-        />
+    const allowedRoles = Array.isArray(requiredRole)
+      ? requiredRole
+      : [requiredRole];
+    if (!allowedRoles.some((role) => hasRole(role))) {
+      return (
+        fallback || (
+          <AccessDenied
+            message="You don't have the required role to access this page."
+            onLogout={logout}
+          />
+        )
       );
     }
   }
 
   // Check single permission requirement
   if (requiredPermission && !hasPermission(requiredPermission)) {
-    return fallback || (
-      <AccessDenied 
-        message="You don't have the required permission to access this page."
-        onLogout={logout}
-      />
+    return (
+      fallback || (
+        <AccessDenied
+          message="You don't have the required permission to access this page."
+          onLogout={logout}
+        />
+      )
     );
   }
 
   // Check multiple permissions requirement
   if (requiredPermissions && requiredPermissions.length > 0) {
     const hasRequiredPerms = requireAll
-      ? requiredPermissions.every(perm => hasPermission(perm))
+      ? requiredPermissions.every((perm) => hasPermission(perm))
       : hasAnyPermission(requiredPermissions);
 
     if (!hasRequiredPerms) {
       const message = requireAll
         ? "You don't have all the required permissions to access this page."
         : "You don't have any of the required permissions to access this page.";
-      
-      return fallback || (
-        <AccessDenied 
-          message={message}
-          onLogout={logout}
-        />
-      );
+
+      return fallback || <AccessDenied message={message} onLogout={logout} />;
     }
   }
 
@@ -101,24 +110,18 @@ function AccessDenied({ message, onLogout }: AccessDeniedProps) {
       <div className="max-w-md w-full">
         <Alert variant="destructive">
           <AlertTitle>Access Denied</AlertTitle>
-          <AlertDescription className="mt-2">
-            {message}
-          </AlertDescription>
+          <AlertDescription className="mt-2">{message}</AlertDescription>
         </Alert>
-        
+
         <div className="mt-6 flex flex-col space-y-3">
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => window.history.back()}
             className="w-full"
           >
             Go Back
           </Button>
-          <Button 
-            variant="destructive" 
-            onClick={onLogout}
-            className="w-full"
-          >
+          <Button variant="destructive" onClick={onLogout} className="w-full">
             Logout
           </Button>
         </div>
@@ -129,11 +132,7 @@ function AccessDenied({ message, onLogout }: AccessDeniedProps) {
 
 // Convenience wrapper components for common use cases
 export function MainAdminRoute({ children }: { children: React.ReactNode }) {
-  return (
-    <ProtectedRoute requiredRole="main-admin">
-      {children}
-    </ProtectedRoute>
-  );
+  return <ProtectedRoute requiredRole="main-admin">{children}</ProtectedRoute>;
 }
 
 export function AdminRoute({ children }: { children: React.ReactNode }) {
@@ -144,10 +143,10 @@ export function AdminRoute({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function AuthenticatedRoute({ children }: { children: React.ReactNode }) {
-  return (
-    <ProtectedRoute>
-      {children}
-    </ProtectedRoute>
-  );
+export function AuthenticatedRoute({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return <ProtectedRoute>{children}</ProtectedRoute>;
 }

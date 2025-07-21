@@ -1,14 +1,26 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { User, CreateSubAdminRequest, UpdateSubAdminRequest, Permission, ROLE_PERMISSIONS } from '@shared/auth';
-import DashboardLayout from '@/components/DashboardLayout';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  User,
+  CreateSubAdminRequest,
+  UpdateSubAdminRequest,
+  Permission,
+  ROLE_PERMISSIONS,
+} from "@shared/auth";
+import DashboardLayout from "@/components/DashboardLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +29,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -25,15 +37,15 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Textarea } from '@/components/ui/textarea';
+} from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Textarea } from "@/components/ui/textarea";
 import {
   UserPlus,
   MoreHorizontal,
@@ -44,9 +56,9 @@ import {
   Calendar,
   CheckCircle,
   XCircle,
-  Loader2
-} from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+  Loader2,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function SubAdmins() {
   const { hasPermission } = useAuth();
@@ -60,10 +72,10 @@ export default function SubAdmins() {
 
   // Form states
   const [createForm, setCreateForm] = useState<CreateSubAdminRequest>({
-    email: '',
-    name: '',
-    password: '',
-    permissions: []
+    email: "",
+    name: "",
+    password: "",
+    permissions: [],
   });
   const [updateForm, setUpdateForm] = useState<UpdateSubAdminRequest>({});
   const [formLoading, setFormLoading] = useState(false);
@@ -77,22 +89,22 @@ export default function SubAdmins() {
     try {
       setLoading(true);
       setError(null);
-      
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('/api/sub-admins', {
+
+      const token = localStorage.getItem("auth_token");
+      const response = await fetch("/api/sub-admins", {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch sub-admins');
+        throw new Error("Failed to fetch sub-admins");
       }
 
       const data = await response.json();
       setSubAdmins(data.subAdmins);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -105,12 +117,12 @@ export default function SubAdmins() {
       setFormLoading(true);
       setFormErrors([]);
 
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('/api/sub-admins', {
-        method: 'POST',
+      const token = localStorage.getItem("auth_token");
+      const response = await fetch("/api/sub-admins", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(createForm),
       });
@@ -119,7 +131,7 @@ export default function SubAdmins() {
       try {
         data = await response.json();
       } catch (parseError) {
-        throw new Error('Invalid response from server');
+        throw new Error("Invalid response from server");
       }
 
       if (!response.ok) {
@@ -128,18 +140,18 @@ export default function SubAdmins() {
           setFormErrors(data.details);
           return;
         }
-        throw new Error(data.error || 'Failed to create sub-admin');
+        throw new Error(data.error || "Failed to create sub-admin");
       }
-      setSubAdmins(prev => [...prev, data.subAdmin]);
+      setSubAdmins((prev) => [...prev, data.subAdmin]);
       setCreateDialogOpen(false);
       resetCreateForm();
-      
+
       toast({
         title: "Success",
         description: "Sub-admin created successfully",
       });
     } catch (err) {
-      setFormErrors([err instanceof Error ? err.message : 'An error occurred']);
+      setFormErrors([err instanceof Error ? err.message : "An error occurred"]);
     } finally {
       setFormLoading(false);
     }
@@ -152,12 +164,12 @@ export default function SubAdmins() {
       setFormLoading(true);
       setFormErrors([]);
 
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem("auth_token");
       const response = await fetch(`/api/sub-admins/${selectedSubAdmin.id}`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(updateForm),
       });
@@ -166,7 +178,7 @@ export default function SubAdmins() {
       try {
         data = await response.json();
       } catch (parseError) {
-        throw new Error('Invalid response from server');
+        throw new Error("Invalid response from server");
       }
 
       if (!response.ok) {
@@ -175,37 +187,41 @@ export default function SubAdmins() {
           setFormErrors(data.details);
           return;
         }
-        throw new Error(data.error || 'Failed to update sub-admin');
+        throw new Error(data.error || "Failed to update sub-admin");
       }
-      setSubAdmins(prev => prev.map(admin => 
-        admin.id === selectedSubAdmin.id ? data.subAdmin : admin
-      ));
+      setSubAdmins((prev) =>
+        prev.map((admin) =>
+          admin.id === selectedSubAdmin.id ? data.subAdmin : admin,
+        ),
+      );
       setEditDialogOpen(false);
       setSelectedSubAdmin(null);
       setUpdateForm({});
-      
+
       toast({
         title: "Success",
         description: "Sub-admin updated successfully",
       });
     } catch (err) {
-      setFormErrors([err instanceof Error ? err.message : 'An error occurred']);
+      setFormErrors([err instanceof Error ? err.message : "An error occurred"]);
     } finally {
       setFormLoading(false);
     }
   };
 
   const handleDeleteSubAdmin = async (subAdmin: User) => {
-    if (!confirm(`Are you sure you want to delete sub-admin "${subAdmin.name}"?`)) {
+    if (
+      !confirm(`Are you sure you want to delete sub-admin "${subAdmin.name}"?`)
+    ) {
       return;
     }
 
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem("auth_token");
       const response = await fetch(`/api/sub-admins/${subAdmin.id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -214,13 +230,13 @@ export default function SubAdmins() {
         try {
           errorData = await response.json();
         } catch (parseError) {
-          throw new Error('Failed to delete sub-admin');
+          throw new Error("Failed to delete sub-admin");
         }
-        throw new Error(errorData.error || 'Failed to delete sub-admin');
+        throw new Error(errorData.error || "Failed to delete sub-admin");
       }
 
-      setSubAdmins(prev => prev.filter(admin => admin.id !== subAdmin.id));
-      
+      setSubAdmins((prev) => prev.filter((admin) => admin.id !== subAdmin.id));
+
       toast({
         title: "Success",
         description: "Sub-admin deleted successfully",
@@ -228,7 +244,8 @@ export default function SubAdmins() {
     } catch (err) {
       toast({
         title: "Error",
-        description: err instanceof Error ? err.message : 'Failed to delete sub-admin',
+        description:
+          err instanceof Error ? err.message : "Failed to delete sub-admin",
         variant: "destructive",
       });
     }
@@ -238,23 +255,23 @@ export default function SubAdmins() {
     const errors: string[] = [];
 
     if (!createForm.email.trim()) {
-      errors.push('Email is required');
+      errors.push("Email is required");
     } else if (!/\S+@\S+\.\S+/.test(createForm.email)) {
-      errors.push('Please enter a valid email address');
+      errors.push("Please enter a valid email address");
     }
 
     if (!createForm.name.trim()) {
-      errors.push('Name is required');
+      errors.push("Name is required");
     }
 
     if (!createForm.password.trim()) {
-      errors.push('Password is required');
+      errors.push("Password is required");
     } else if (createForm.password.length < 8) {
-      errors.push('Password must be at least 8 characters long');
+      errors.push("Password must be at least 8 characters long");
     }
 
     if (createForm.permissions.length === 0) {
-      errors.push('At least one permission must be selected');
+      errors.push("At least one permission must be selected");
     }
 
     setFormErrors(errors);
@@ -263,10 +280,10 @@ export default function SubAdmins() {
 
   const resetCreateForm = () => {
     setCreateForm({
-      email: '',
-      name: '',
-      password: '',
-      permissions: []
+      email: "",
+      name: "",
+      password: "",
+      permissions: [],
     });
     setFormErrors([]);
   };
@@ -276,37 +293,40 @@ export default function SubAdmins() {
     setUpdateForm({
       name: subAdmin.name,
       permissions: subAdmin.permissions,
-      isActive: subAdmin.isActive
+      isActive: subAdmin.isActive,
     });
     setFormErrors([]);
     setEditDialogOpen(true);
   };
 
-  const handlePermissionToggle = (permission: Permission, isCreate: boolean = true) => {
+  const handlePermissionToggle = (
+    permission: Permission,
+    isCreate: boolean = true,
+  ) => {
     if (isCreate) {
-      setCreateForm(prev => ({
+      setCreateForm((prev) => ({
         ...prev,
         permissions: prev.permissions.includes(permission)
-          ? prev.permissions.filter(p => p !== permission)
-          : [...prev.permissions, permission]
+          ? prev.permissions.filter((p) => p !== permission)
+          : [...prev.permissions, permission],
       }));
     } else {
-      setUpdateForm(prev => ({
+      setUpdateForm((prev) => ({
         ...prev,
         permissions: (prev.permissions || []).includes(permission)
-          ? (prev.permissions || []).filter(p => p !== permission)
-          : [...(prev.permissions || []), permission]
+          ? (prev.permissions || []).filter((p) => p !== permission)
+          : [...(prev.permissions || []), permission],
       }));
     }
   };
 
-  const availablePermissions = ROLE_PERMISSIONS['sub-admin'];
+  const availablePermissions = ROLE_PERMISSIONS["sub-admin"];
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
     });
   };
 
@@ -316,12 +336,14 @@ export default function SubAdmins() {
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Sub-Admin Management</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Sub-Admin Management
+            </h1>
             <p className="text-muted-foreground">
               Create and manage sub-administrators with specific permissions
             </p>
           </div>
-          {hasPermission('create_sub_admin') && (
+          {hasPermission("create_sub_admin") && (
             <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
               <DialogTrigger asChild>
                 <Button>
@@ -336,7 +358,7 @@ export default function SubAdmins() {
                     Create a new sub-administrator with specific permissions
                   </DialogDescription>
                 </DialogHeader>
-                
+
                 {formErrors.length > 0 && (
                   <Alert variant="destructive">
                     <AlertDescription>
@@ -358,7 +380,12 @@ export default function SubAdmins() {
                         type="email"
                         placeholder="admin@example.com"
                         value={createForm.email}
-                        onChange={(e) => setCreateForm(prev => ({ ...prev, email: e.target.value }))}
+                        onChange={(e) =>
+                          setCreateForm((prev) => ({
+                            ...prev,
+                            email: e.target.value,
+                          }))
+                        }
                         disabled={formLoading}
                       />
                     </div>
@@ -368,7 +395,12 @@ export default function SubAdmins() {
                         id="create-name"
                         placeholder="John Doe"
                         value={createForm.name}
-                        onChange={(e) => setCreateForm(prev => ({ ...prev, name: e.target.value }))}
+                        onChange={(e) =>
+                          setCreateForm((prev) => ({
+                            ...prev,
+                            name: e.target.value,
+                          }))
+                        }
                         disabled={formLoading}
                       />
                     </div>
@@ -381,7 +413,12 @@ export default function SubAdmins() {
                       type="password"
                       placeholder="Minimum 8 characters"
                       value={createForm.password}
-                      onChange={(e) => setCreateForm(prev => ({ ...prev, password: e.target.value }))}
+                      onChange={(e) =>
+                        setCreateForm((prev) => ({
+                          ...prev,
+                          password: e.target.value,
+                        }))
+                      }
                       disabled={formLoading}
                     />
                   </div>
@@ -390,18 +427,27 @@ export default function SubAdmins() {
                     <Label>Permissions</Label>
                     <div className="grid grid-cols-2 gap-3">
                       {availablePermissions.map((permission) => (
-                        <div key={permission} className="flex items-center space-x-2">
+                        <div
+                          key={permission}
+                          className="flex items-center space-x-2"
+                        >
                           <Checkbox
                             id={`create-${permission}`}
-                            checked={createForm.permissions.includes(permission)}
-                            onCheckedChange={() => handlePermissionToggle(permission, true)}
+                            checked={createForm.permissions.includes(
+                              permission,
+                            )}
+                            onCheckedChange={() =>
+                              handlePermissionToggle(permission, true)
+                            }
                             disabled={formLoading}
                           />
-                          <Label 
-                            htmlFor={`create-${permission}`} 
+                          <Label
+                            htmlFor={`create-${permission}`}
                             className="text-sm font-normal cursor-pointer"
                           >
-                            {permission.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                            {permission
+                              .replace("_", " ")
+                              .replace(/\b\w/g, (l) => l.toUpperCase())}
                           </Label>
                         </div>
                       ))}
@@ -427,7 +473,7 @@ export default function SubAdmins() {
                         Creating...
                       </>
                     ) : (
-                      'Create Sub-Admin'
+                      "Create Sub-Admin"
                     )}
                   </Button>
                 </DialogFooter>
@@ -440,7 +486,12 @@ export default function SubAdmins() {
         {error && (
           <Alert variant="destructive">
             <AlertDescription>
-              {error}. <Button variant="link" onClick={fetchSubAdmins} className="p-0 h-auto">
+              {error}.{" "}
+              <Button
+                variant="link"
+                onClick={fetchSubAdmins}
+                className="p-0 h-auto"
+              >
                 Try again
               </Button>
             </AlertDescription>
@@ -474,7 +525,9 @@ export default function SubAdmins() {
               <div className="text-center py-6 text-muted-foreground">
                 <UserPlus className="h-12 w-12 mx-auto mb-2 opacity-50" />
                 <p>No sub-administrators found</p>
-                <p className="text-sm">Create your first sub-admin to get started</p>
+                <p className="text-sm">
+                  Create your first sub-admin to get started
+                </p>
               </div>
             ) : (
               <Table>
@@ -495,7 +548,11 @@ export default function SubAdmins() {
                         <div className="flex items-center space-x-2">
                           <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
                             <span className="text-xs text-primary-foreground font-medium">
-                              {subAdmin.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                              {subAdmin.name
+                                .split(" ")
+                                .map((n) => n[0])
+                                .join("")
+                                .toUpperCase()}
                             </span>
                           </div>
                           <span>{subAdmin.name}</span>
@@ -508,7 +565,11 @@ export default function SubAdmins() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={subAdmin.isActive ? "default" : "destructive"}>
+                        <Badge
+                          variant={
+                            subAdmin.isActive ? "default" : "destructive"
+                          }
+                        >
                           {subAdmin.isActive ? (
                             <>
                               <CheckCircle className="h-3 w-3 mr-1" />
@@ -530,7 +591,9 @@ export default function SubAdmins() {
                       <TableCell>
                         <div className="flex items-center space-x-1">
                           <Calendar className="h-3 w-3 text-muted-foreground" />
-                          <span className="text-sm">{formatDate(subAdmin.createdAt)}</span>
+                          <span className="text-sm">
+                            {formatDate(subAdmin.createdAt)}
+                          </span>
                         </div>
                       </TableCell>
                       <TableCell className="text-right">
@@ -541,14 +604,16 @@ export default function SubAdmins() {
                             </Button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end">
-                            {hasPermission('edit_sub_admin') && (
-                              <DropdownMenuItem onClick={() => openEditDialog(subAdmin)}>
+                            {hasPermission("edit_sub_admin") && (
+                              <DropdownMenuItem
+                                onClick={() => openEditDialog(subAdmin)}
+                              >
                                 <Edit2 className="mr-2 h-4 w-4" />
                                 Edit
                               </DropdownMenuItem>
                             )}
-                            {hasPermission('delete_sub_admin') && (
-                              <DropdownMenuItem 
+                            {hasPermission("delete_sub_admin") && (
+                              <DropdownMenuItem
                                 onClick={() => handleDeleteSubAdmin(subAdmin)}
                                 className="text-destructive"
                               >
@@ -576,7 +641,7 @@ export default function SubAdmins() {
                 Update sub-administrator details and permissions
               </DialogDescription>
             </DialogHeader>
-            
+
             {formErrors.length > 0 && (
               <Alert variant="destructive">
                 <AlertDescription>
@@ -595,8 +660,13 @@ export default function SubAdmins() {
                   <Label htmlFor="edit-name">Full Name</Label>
                   <Input
                     id="edit-name"
-                    value={updateForm.name || ''}
-                    onChange={(e) => setUpdateForm(prev => ({ ...prev, name: e.target.value }))}
+                    value={updateForm.name || ""}
+                    onChange={(e) =>
+                      setUpdateForm((prev) => ({
+                        ...prev,
+                        name: e.target.value,
+                      }))
+                    }
                     disabled={formLoading}
                   />
                 </div>
@@ -605,7 +675,12 @@ export default function SubAdmins() {
                   <Checkbox
                     id="edit-active"
                     checked={updateForm.isActive ?? true}
-                    onCheckedChange={(checked) => setUpdateForm(prev => ({ ...prev, isActive: !!checked }))}
+                    onCheckedChange={(checked) =>
+                      setUpdateForm((prev) => ({
+                        ...prev,
+                        isActive: !!checked,
+                      }))
+                    }
                     disabled={formLoading}
                   />
                   <Label htmlFor="edit-active">Active Account</Label>
@@ -615,18 +690,27 @@ export default function SubAdmins() {
                   <Label>Permissions</Label>
                   <div className="grid grid-cols-2 gap-3">
                     {availablePermissions.map((permission) => (
-                      <div key={permission} className="flex items-center space-x-2">
+                      <div
+                        key={permission}
+                        className="flex items-center space-x-2"
+                      >
                         <Checkbox
                           id={`edit-${permission}`}
-                          checked={(updateForm.permissions || []).includes(permission)}
-                          onCheckedChange={() => handlePermissionToggle(permission, false)}
+                          checked={(updateForm.permissions || []).includes(
+                            permission,
+                          )}
+                          onCheckedChange={() =>
+                            handlePermissionToggle(permission, false)
+                          }
                           disabled={formLoading}
                         />
-                        <Label 
-                          htmlFor={`edit-${permission}`} 
+                        <Label
+                          htmlFor={`edit-${permission}`}
                           className="text-sm font-normal cursor-pointer"
                         >
-                          {permission.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                          {permission
+                            .replace("_", " ")
+                            .replace(/\b\w/g, (l) => l.toUpperCase())}
                         </Label>
                       </div>
                     ))}
@@ -655,7 +739,7 @@ export default function SubAdmins() {
                     Updating...
                   </>
                 ) : (
-                  'Update Sub-Admin'
+                  "Update Sub-Admin"
                 )}
               </Button>
             </DialogFooter>

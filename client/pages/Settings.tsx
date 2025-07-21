@@ -1,14 +1,20 @@
-import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { ChangePasswordRequest } from '@shared/auth';
-import DashboardLayout from '@/components/DashboardLayout';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Separator } from '@/components/ui/separator';
+import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { ChangePasswordRequest } from "@shared/auth";
+import DashboardLayout from "@/components/DashboardLayout";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
   DialogContent,
@@ -17,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Settings as SettingsIcon,
   User,
@@ -27,28 +33,28 @@ import {
   Mail,
   Save,
   Loader2,
-  AlertTriangle
-} from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+  AlertTriangle,
+} from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Settings() {
   const { user, logout } = useAuth();
   const { toast } = useToast();
-  
+
   // Profile form state
   const [profileForm, setProfileForm] = useState({
-    name: user?.name || '',
-    email: user?.email || ''
+    name: user?.name || "",
+    email: user?.email || "",
   });
   const [profileLoading, setProfileLoading] = useState(false);
   const [profileErrors, setProfileErrors] = useState<string[]>([]);
 
   // Password form state
   const [passwordForm, setPasswordForm] = useState<ChangePasswordRequest>({
-    currentPassword: '',
-    newPassword: ''
+    currentPassword: "",
+    newPassword: "",
   });
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordLoading, setPasswordLoading] = useState(false);
   const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
@@ -60,21 +66,21 @@ export default function Settings() {
       setProfileLoading(true);
       setProfileErrors([]);
 
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem("auth_token");
       const response = await fetch(`/api/profile/update`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          name: profileForm.name
+          name: profileForm.name,
         }),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to update profile');
+        throw new Error(error.error || "Failed to update profile");
       }
 
       toast({
@@ -82,7 +88,9 @@ export default function Settings() {
         description: "Profile updated successfully",
       });
     } catch (err) {
-      setProfileErrors([err instanceof Error ? err.message : 'An error occurred']);
+      setProfileErrors([
+        err instanceof Error ? err.message : "An error occurred",
+      ]);
     } finally {
       setProfileLoading(false);
     }
@@ -95,24 +103,24 @@ export default function Settings() {
       setPasswordLoading(true);
       setPasswordErrors([]);
 
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem("auth_token");
       const response = await fetch(`/api/profile/change-password`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify(passwordForm),
       });
 
       if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.error || 'Failed to change password');
+        throw new Error(error.error || "Failed to change password");
       }
 
       setPasswordDialogOpen(false);
       resetPasswordForm();
-      
+
       toast({
         title: "Success",
         description: "Password changed successfully. Please log in again.",
@@ -123,7 +131,9 @@ export default function Settings() {
         logout();
       }, 2000);
     } catch (err) {
-      setPasswordErrors([err instanceof Error ? err.message : 'An error occurred']);
+      setPasswordErrors([
+        err instanceof Error ? err.message : "An error occurred",
+      ]);
     } finally {
       setPasswordLoading(false);
     }
@@ -133,7 +143,7 @@ export default function Settings() {
     const errors: string[] = [];
 
     if (!profileForm.name.trim()) {
-      errors.push('Name is required');
+      errors.push("Name is required");
     }
 
     setProfileErrors(errors);
@@ -144,25 +154,25 @@ export default function Settings() {
     const errors: string[] = [];
 
     if (!passwordForm.currentPassword) {
-      errors.push('Current password is required');
+      errors.push("Current password is required");
     }
 
     if (!passwordForm.newPassword) {
-      errors.push('New password is required');
+      errors.push("New password is required");
     } else if (passwordForm.newPassword.length < 8) {
-      errors.push('New password must be at least 8 characters long');
+      errors.push("New password must be at least 8 characters long");
     } else if (!/[A-Z]/.test(passwordForm.newPassword)) {
-      errors.push('New password must contain at least one uppercase letter');
+      errors.push("New password must contain at least one uppercase letter");
     } else if (!/[a-z]/.test(passwordForm.newPassword)) {
-      errors.push('New password must contain at least one lowercase letter');
+      errors.push("New password must contain at least one lowercase letter");
     } else if (!/\d/.test(passwordForm.newPassword)) {
-      errors.push('New password must contain at least one number');
+      errors.push("New password must contain at least one number");
     } else if (!/[!@#$%^&*(),.?":{}|<>]/.test(passwordForm.newPassword)) {
-      errors.push('New password must contain at least one special character');
+      errors.push("New password must contain at least one special character");
     }
 
     if (passwordForm.newPassword !== confirmPassword) {
-      errors.push('New password and confirmation do not match');
+      errors.push("New password and confirmation do not match");
     }
 
     setPasswordErrors(errors);
@@ -171,32 +181,32 @@ export default function Settings() {
 
   const resetPasswordForm = () => {
     setPasswordForm({
-      currentPassword: '',
-      newPassword: ''
+      currentPassword: "",
+      newPassword: "",
     });
-    setConfirmPassword('');
+    setConfirmPassword("");
     setPasswordErrors([]);
   };
 
   const formatDate = (dateString?: string) => {
-    if (!dateString) return 'Never';
-    return new Date(dateString).toLocaleDateString('en-US', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    if (!dateString) return "Never";
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const getRoleDisplayName = (role: string) => {
     switch (role) {
-      case 'main-admin':
-        return 'Main Administrator';
-      case 'sub-admin':
-        return 'Sub Administrator';
-      case 'user':
-        return 'User';
+      case "main-admin":
+        return "Main Administrator";
+      case "sub-admin":
+        return "Sub Administrator";
+      case "user":
+        return "User";
       default:
         return role;
     }
@@ -204,14 +214,14 @@ export default function Settings() {
 
   const getRoleBadgeVariant = (role: string) => {
     switch (role) {
-      case 'main-admin':
-        return 'destructive';
-      case 'sub-admin':
-        return 'default';
-      case 'user':
-        return 'secondary';
+      case "main-admin":
+        return "destructive";
+      case "sub-admin":
+        return "default";
+      case "user":
+        return "secondary";
       default:
-        return 'outline';
+        return "outline";
     }
   };
 
@@ -256,7 +266,12 @@ export default function Settings() {
                 <Input
                   id="name"
                   value={profileForm.name}
-                  onChange={(e) => setProfileForm(prev => ({ ...prev, name: e.target.value }))}
+                  onChange={(e) =>
+                    setProfileForm((prev) => ({
+                      ...prev,
+                      name: e.target.value,
+                    }))
+                  }
                   disabled={profileLoading}
                 />
               </div>
@@ -275,8 +290,8 @@ export default function Settings() {
                 </p>
               </div>
 
-              <Button 
-                onClick={handleUpdateProfile} 
+              <Button
+                onClick={handleUpdateProfile}
                 disabled={profileLoading}
                 className="w-full"
               >
@@ -310,15 +325,15 @@ export default function Settings() {
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Role</span>
-                  <Badge variant={getRoleBadgeVariant(user?.role || '')}>
-                    {getRoleDisplayName(user?.role || '')}
+                  <Badge variant={getRoleBadgeVariant(user?.role || "")}>
+                    {getRoleDisplayName(user?.role || "")}
                   </Badge>
                 </div>
 
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-medium">Status</span>
                   <Badge variant={user?.isActive ? "default" : "destructive"}>
-                    {user?.isActive ? 'Active' : 'Inactive'}
+                    {user?.isActive ? "Active" : "Inactive"}
                   </Badge>
                 </div>
 
@@ -372,7 +387,10 @@ export default function Settings() {
                     Change your password to keep your account secure
                   </p>
                 </div>
-                <Dialog open={passwordDialogOpen} onOpenChange={setPasswordDialogOpen}>
+                <Dialog
+                  open={passwordDialogOpen}
+                  onOpenChange={setPasswordDialogOpen}
+                >
                   <DialogTrigger asChild>
                     <Button variant="outline">
                       <Key className="mr-2 h-4 w-4" />
@@ -402,15 +420,19 @@ export default function Settings() {
 
                     <div className="grid gap-4 py-4">
                       <div className="space-y-2">
-                        <Label htmlFor="current-password">Current Password</Label>
+                        <Label htmlFor="current-password">
+                          Current Password
+                        </Label>
                         <Input
                           id="current-password"
                           type="password"
                           value={passwordForm.currentPassword}
-                          onChange={(e) => setPasswordForm(prev => ({ 
-                            ...prev, 
-                            currentPassword: e.target.value 
-                          }))}
+                          onChange={(e) =>
+                            setPasswordForm((prev) => ({
+                              ...prev,
+                              currentPassword: e.target.value,
+                            }))
+                          }
                           disabled={passwordLoading}
                         />
                       </div>
@@ -421,16 +443,20 @@ export default function Settings() {
                           id="new-password"
                           type="password"
                           value={passwordForm.newPassword}
-                          onChange={(e) => setPasswordForm(prev => ({ 
-                            ...prev, 
-                            newPassword: e.target.value 
-                          }))}
+                          onChange={(e) =>
+                            setPasswordForm((prev) => ({
+                              ...prev,
+                              newPassword: e.target.value,
+                            }))
+                          }
                           disabled={passwordLoading}
                         />
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="confirm-password">Confirm New Password</Label>
+                        <Label htmlFor="confirm-password">
+                          Confirm New Password
+                        </Label>
                         <Input
                           id="confirm-password"
                           type="password"
@@ -452,14 +478,17 @@ export default function Settings() {
                       >
                         Cancel
                       </Button>
-                      <Button onClick={handleChangePassword} disabled={passwordLoading}>
+                      <Button
+                        onClick={handleChangePassword}
+                        disabled={passwordLoading}
+                      >
                         {passwordLoading ? (
                           <>
                             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                             Changing...
                           </>
                         ) : (
-                          'Change Password'
+                          "Change Password"
                         )}
                       </Button>
                     </DialogFooter>
@@ -484,8 +513,14 @@ export default function Settings() {
               <CardContent>
                 <div className="grid gap-2 md:grid-cols-3">
                   {user.permissions.map((permission) => (
-                    <Badge key={permission} variant="outline" className="justify-center py-2">
-                      {permission.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                    <Badge
+                      key={permission}
+                      variant="outline"
+                      className="justify-center py-2"
+                    >
+                      {permission
+                        .replace("_", " ")
+                        .replace(/\b\w/g, (l) => l.toUpperCase())}
                     </Badge>
                   ))}
                 </div>

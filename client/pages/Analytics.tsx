@@ -1,20 +1,26 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { DashboardStats } from '@shared/auth';
-import DashboardLayout from '@/components/DashboardLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
-import { 
-  BarChart3, 
-  TrendingUp, 
-  Users, 
-  UserCog, 
-  Activity, 
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { DashboardStats } from "@shared/auth";
+import DashboardLayout from "@/components/DashboardLayout";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import {
+  BarChart3,
+  TrendingUp,
+  Users,
+  UserCog,
+  Activity,
   Clock,
   Calendar,
-  Shield
-} from 'lucide-react';
+  Shield,
+} from "lucide-react";
 
 export default function Analytics() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -30,44 +36,49 @@ export default function Analytics() {
       setLoading(true);
       setError(null);
 
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem("auth_token");
       if (!token) {
-        throw new Error('No authentication token found. Please log in again.');
+        throw new Error("No authentication token found. Please log in again.");
       }
 
-      const response = await fetch('/api/dashboard/stats', {
+      const response = await fetch("/api/dashboard/stats", {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
         if (response.status === 401) {
-          throw new Error('Session expired. Please log in again.');
+          throw new Error("Session expired. Please log in again.");
         } else if (response.status === 403) {
-          throw new Error('Access denied. You do not have permission to view analytics.');
+          throw new Error(
+            "Access denied. You do not have permission to view analytics.",
+          );
         } else {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error || `Failed to fetch analytics data (${response.status})`);
+          throw new Error(
+            errorData.error ||
+              `Failed to fetch analytics data (${response.status})`,
+          );
         }
       }
 
       const data = await response.json();
       setStats(data);
     } catch (err) {
-      console.error('Analytics fetch error:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      console.error("Analytics fetch error:", err);
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
   };
 
-  const MetricCard = ({ 
-    title, 
-    value, 
-    description, 
-    icon: Icon, 
-    trend 
+  const MetricCard = ({
+    title,
+    value,
+    description,
+    icon: Icon,
+    trend,
   }: {
     title: string;
     value: string | number;
@@ -84,11 +95,14 @@ export default function Analytics() {
         <div className="text-2xl font-bold">{value}</div>
         <p className="text-xs text-muted-foreground mt-1">{description}</p>
         {trend && (
-          <div className={`flex items-center mt-2 text-xs ${
-            trend.isPositive ? 'text-green-600' : 'text-red-600'
-          }`}>
+          <div
+            className={`flex items-center mt-2 text-xs ${
+              trend.isPositive ? "text-green-600" : "text-red-600"
+            }`}
+          >
             <TrendingUp className="h-3 w-3 mr-1" />
-            {trend.isPositive ? '+' : ''}{trend.value}% from last period
+            {trend.isPositive ? "+" : ""}
+            {trend.value}% from last period
           </div>
         )}
       </CardContent>
@@ -110,8 +124,9 @@ export default function Analytics() {
         {error && (
           <Alert variant="destructive">
             <AlertDescription>
-              {error}. <button 
-                onClick={fetchAnalytics} 
+              {error}.{" "}
+              <button
+                onClick={fetchAnalytics}
                 className="underline hover:no-underline"
               >
                 Try again
@@ -177,13 +192,17 @@ export default function Analytics() {
                 <BarChart3 className="h-5 w-5" />
                 User Growth
               </CardTitle>
-              <CardDescription>User registration trends over time</CardDescription>
+              <CardDescription>
+                User registration trends over time
+              </CardDescription>
             </CardHeader>
             <CardContent>
               <div className="text-center py-8 text-muted-foreground">
                 <BarChart3 className="h-12 w-12 mx-auto mb-2 opacity-50" />
                 <p>Chart visualization would go here</p>
-                <p className="text-sm">Connect to recharts for detailed analytics</p>
+                <p className="text-sm">
+                  Connect to recharts for detailed analytics
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -231,22 +250,28 @@ export default function Analytics() {
             ) : stats?.recentActions && stats.recentActions.length > 0 ? (
               <div className="space-y-3">
                 {stats.recentActions.slice(0, 5).map((action) => (
-                  <div key={action.id} className="flex items-center justify-between p-3 rounded-lg border">
+                  <div
+                    key={action.id}
+                    className="flex items-center justify-between p-3 rounded-lg border"
+                  >
                     <div className="flex items-center space-x-3">
                       <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
                         <Shield className="h-4 w-4" />
                       </div>
                       <div>
                         <p className="text-sm font-medium">
-                          {action.userName} • {action.action.replace('_', ' ')}
+                          {action.userName} • {action.action.replace("_", " ")}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {new Date(action.timestamp).toLocaleDateString('en-US', {
-                            month: 'short',
-                            day: 'numeric',
-                            hour: '2-digit',
-                            minute: '2-digit'
-                          })}
+                          {new Date(action.timestamp).toLocaleDateString(
+                            "en-US",
+                            {
+                              month: "short",
+                              day: "numeric",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
                         </p>
                       </div>
                     </div>

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import React, { useState } from "react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,8 +10,8 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+} from "@/components/ui/dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import {
   LayoutDashboard,
   Users,
@@ -21,9 +21,9 @@ import {
   Settings,
   LogOut,
   Menu,
-  Shield
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+  Shield,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -45,49 +45,49 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
+    navigate("/login");
   };
 
   const navItems: NavItem[] = [
     {
-      label: 'Dashboard',
-      href: '/dashboard',
+      label: "Dashboard",
+      href: "/dashboard",
       icon: LayoutDashboard,
     },
     {
-      label: 'Analytics',
-      href: '/dashboard/analytics',
+      label: "Analytics",
+      href: "/dashboard/analytics",
       icon: BarChart3,
-      permission: 'view_analytics',
+      permission: "view_analytics",
     },
     {
-      label: 'Users',
-      href: '/dashboard/users',
+      label: "Users",
+      href: "/dashboard/users",
       icon: Users,
-      permission: 'view_all_users',
+      permission: "view_all_users",
     },
     {
-      label: 'Sub-Admins',
-      href: '/dashboard/sub-admins',
+      label: "Sub-Admins",
+      href: "/dashboard/sub-admins",
       icon: UserCog,
-      permission: 'create_sub_admin',
+      permission: "create_sub_admin",
     },
     {
-      label: 'Audit Logs',
-      href: '/dashboard/audit-logs',
+      label: "Audit Logs",
+      href: "/dashboard/audit-logs",
       icon: FileText,
-      permission: 'view_audit_logs',
+      permission: "view_audit_logs",
     },
     {
-      label: 'Settings',
-      href: '/dashboard/settings',
+      label: "Settings",
+      href: "/dashboard/settings",
       icon: Settings,
-      permission: 'edit_profile',
+      permission: "edit_profile",
     },
   ];
 
-  const filteredNavItems = navItems.filter(item => 
-    !item.permission || hasPermission(item.permission as any)
+  const filteredNavItems = navItems.filter(
+    (item) => !item.permission || hasPermission(item.permission as any),
   );
 
   const Sidebar = ({ className }: { className?: string }) => (
@@ -96,12 +96,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         <Shield className="h-8 w-8 text-primary" />
         <span className="font-bold text-lg">Admin Portal</span>
       </div>
-      
+
       <nav className="flex-1 px-4 py-6 space-y-2">
         {filteredNavItems.map((item) => {
           const Icon = item.icon;
           const isActive = location.pathname === item.href;
-          
+
           return (
             <Link
               key={item.href}
@@ -111,7 +111,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
                 isActive
                   ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted",
               )}
             >
               <Icon className="h-4 w-4" />
@@ -154,10 +154,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 </Button>
               </SheetTrigger>
             </Sheet>
-            
+
             <div>
               <h1 className="text-lg font-semibold">
-                {navItems.find(item => item.href === location.pathname)?.label || 'Dashboard'}
+                {navItems.find((item) => item.href === location.pathname)
+                  ?.label || "Dashboard"}
               </h1>
               <p className="text-sm text-muted-foreground">
                 Welcome back, {user?.name}
@@ -167,16 +168,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
           <div className="flex items-center gap-4">
             <div className="hidden sm:block text-sm text-muted-foreground">
-              Role: <span className="font-medium capitalize">{user?.role.replace('-', ' ')}</span>
+              Role:{" "}
+              <span className="font-medium capitalize">
+                {user?.role.replace("-", " ")}
+              </span>
             </div>
-            
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Button
+                  variant="ghost"
+                  className="relative h-8 w-8 rounded-full"
+                >
                   <Avatar className="h-8 w-8">
                     <AvatarImage src="" alt={user?.name} />
                     <AvatarFallback>
-                      {user?.name?.split(' ').map(n => n[0]).join('').toUpperCase() || 'U'}
+                      {user?.name
+                        ?.split(" ")
+                        .map((n) => n[0])
+                        .join("")
+                        .toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
                 </Button>
@@ -184,7 +195,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user?.name}</p>
+                    <p className="text-sm font-medium leading-none">
+                      {user?.name}
+                    </p>
                     <p className="text-xs leading-none text-muted-foreground">
                       {user?.email}
                     </p>
@@ -208,9 +221,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 overflow-auto p-4 lg:p-6">
-          {children}
-        </main>
+        <main className="flex-1 overflow-auto p-4 lg:p-6">{children}</main>
       </div>
     </div>
   );

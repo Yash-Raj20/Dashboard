@@ -1,11 +1,17 @@
-import { useState, useEffect } from 'react';
-import { AuthAuditLog } from '@shared/auth';
-import DashboardLayout from '@/components/DashboardLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Button } from '@/components/ui/button';
+import { useState, useEffect } from "react";
+import { AuthAuditLog } from "@shared/auth";
+import DashboardLayout from "@/components/DashboardLayout";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -13,7 +19,7 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
+} from "@/components/ui/table";
 import {
   FileText,
   Activity,
@@ -21,8 +27,8 @@ import {
   Calendar,
   User,
   RefreshCw,
-  Filter
-} from 'lucide-react';
+  Filter,
+} from "lucide-react";
 
 export default function AuditLogs() {
   const [logs, setLogs] = useState<AuthAuditLog[]>([]);
@@ -39,86 +45,95 @@ export default function AuditLogs() {
     try {
       setLoading(true);
       setError(null);
-      
-      const token = localStorage.getItem('auth_token');
+
+      const token = localStorage.getItem("auth_token");
       if (!token) {
-        throw new Error('No authentication token found. Please log in again.');
+        throw new Error("No authentication token found. Please log in again.");
       }
 
-      const response = await fetch(`/api/dashboard/audit-logs?limit=${limit}&offset=${offset}`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
+      const response = await fetch(
+        `/api/dashboard/audit-logs?limit=${limit}&offset=${offset}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         },
-      });
+      );
 
       if (!response.ok) {
         if (response.status === 401) {
-          throw new Error('Session expired. Please log in again.');
+          throw new Error("Session expired. Please log in again.");
         } else if (response.status === 403) {
-          throw new Error('Access denied. You do not have permission to view audit logs.');
+          throw new Error(
+            "Access denied. You do not have permission to view audit logs.",
+          );
         } else {
           const errorData = await response.json().catch(() => ({}));
-          throw new Error(errorData.error || `Failed to fetch audit logs (${response.status})`);
+          throw new Error(
+            errorData.error ||
+              `Failed to fetch audit logs (${response.status})`,
+          );
         }
       }
 
       const data = await response.json();
       setLogs(data.logs);
     } catch (err) {
-      console.error('Audit logs fetch error:', err);
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      console.error("Audit logs fetch error:", err);
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString('en-US', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
+    return new Date(dateString).toLocaleString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
   };
 
   const getActionBadgeVariant = (action: string) => {
     switch (action) {
-      case 'login':
-        return 'default';
-      case 'logout':
-        return 'secondary';
-      case 'create_sub_admin':
-      case 'create_user':
-        return 'default';
-      case 'update_sub_admin':
-      case 'update_user':
-        return 'secondary';
-      case 'delete_sub_admin':
-      case 'delete_user':
-        return 'destructive';
+      case "login":
+        return "default";
+      case "logout":
+        return "secondary";
+      case "create_sub_admin":
+      case "create_user":
+        return "default";
+      case "update_sub_admin":
+      case "update_user":
+        return "secondary";
+      case "delete_sub_admin":
+      case "delete_user":
+        return "destructive";
       default:
-        return 'outline';
+        return "outline";
     }
   };
 
   const formatAction = (action: string) => {
-    return action.split('_').map(word => 
-      word.charAt(0).toUpperCase() + word.slice(1)
-    ).join(' ');
+    return action
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
   };
 
   const getRoleColor = (role: string) => {
     switch (role) {
-      case 'main-admin':
-        return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      case 'sub-admin':
-        return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'user':
-        return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
+      case "main-admin":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      case "sub-admin":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+      case "user":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
       default:
-        return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
     }
   };
 
@@ -134,8 +149,14 @@ export default function AuditLogs() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={fetchAuditLogs} disabled={loading}>
-              <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <Button
+              variant="outline"
+              onClick={fetchAuditLogs}
+              disabled={loading}
+            >
+              <RefreshCw
+                className={`h-4 w-4 mr-2 ${loading ? "animate-spin" : ""}`}
+              />
               Refresh
             </Button>
           </div>
@@ -145,7 +166,9 @@ export default function AuditLogs() {
         <div className="grid gap-4 md:grid-cols-3">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Events</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Total Events
+              </CardTitle>
               <FileText className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
@@ -156,17 +179,22 @@ export default function AuditLogs() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Recent Activity</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Recent Activity
+              </CardTitle>
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {logs.filter(log => {
-                  const logDate = new Date(log.timestamp);
-                  const now = new Date();
-                  const diffHours = Math.abs(now.getTime() - logDate.getTime()) / 36e5;
-                  return diffHours <= 24;
-                }).length}
+                {
+                  logs.filter((log) => {
+                    const logDate = new Date(log.timestamp);
+                    const now = new Date();
+                    const diffHours =
+                      Math.abs(now.getTime() - logDate.getTime()) / 36e5;
+                    return diffHours <= 24;
+                  }).length
+                }
               </div>
               <p className="text-xs text-muted-foreground">Last 24 hours</p>
             </CardContent>
@@ -174,14 +202,24 @@ export default function AuditLogs() {
 
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Active Admins</CardTitle>
+              <CardTitle className="text-sm font-medium">
+                Active Admins
+              </CardTitle>
               <Shield className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {new Set(logs.filter(log => log.userRole !== 'user').map(log => log.userId)).size}
+                {
+                  new Set(
+                    logs
+                      .filter((log) => log.userRole !== "user")
+                      .map((log) => log.userId),
+                  ).size
+                }
               </div>
-              <p className="text-xs text-muted-foreground">Unique administrators</p>
+              <p className="text-xs text-muted-foreground">
+                Unique administrators
+              </p>
             </CardContent>
           </Card>
         </div>
@@ -190,7 +228,12 @@ export default function AuditLogs() {
         {error && (
           <Alert variant="destructive">
             <AlertDescription>
-              {error}. <Button variant="link" onClick={fetchAuditLogs} className="p-0 h-auto">
+              {error}.{" "}
+              <Button
+                variant="link"
+                onClick={fetchAuditLogs}
+                className="p-0 h-auto"
+              >
                 Try again
               </Button>
             </AlertDescription>
@@ -227,7 +270,9 @@ export default function AuditLogs() {
               <div className="text-center py-8 text-muted-foreground">
                 <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
                 <p>No audit logs found</p>
-                <p className="text-sm">System events will appear here as they occur</p>
+                <p className="text-sm">
+                  System events will appear here as they occur
+                </p>
               </div>
             ) : (
               <Table>
@@ -261,11 +306,11 @@ export default function AuditLogs() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge 
-                          variant="outline" 
+                        <Badge
+                          variant="outline"
                           className={getRoleColor(log.userRole)}
                         >
-                          {log.userRole.replace('-', ' ')}
+                          {log.userRole.replace("-", " ")}
                         </Badge>
                       </TableCell>
                       <TableCell>
@@ -277,7 +322,9 @@ export default function AuditLogs() {
                         <div className="text-sm">
                           {log.target && (
                             <div className="flex items-center space-x-1">
-                              <span className="text-muted-foreground">{log.target}</span>
+                              <span className="text-muted-foreground">
+                                {log.target}
+                              </span>
                               {log.targetId && (
                                 <span className="font-mono text-xs bg-muted px-1 rounded">
                                   {log.targetId.slice(-8)}
@@ -285,16 +332,17 @@ export default function AuditLogs() {
                               )}
                             </div>
                           )}
-                          {log.details && typeof log.details === 'object' && (
+                          {log.details && typeof log.details === "object" && (
                             <div className="text-xs text-muted-foreground mt-1">
-                              {log.details.email && `Email: ${log.details.email}`}
+                              {log.details.email &&
+                                `Email: ${log.details.email}`}
                             </div>
                           )}
                         </div>
                       </TableCell>
                       <TableCell>
                         <span className="text-sm font-mono text-muted-foreground">
-                          {log.ipAddress || 'N/A'}
+                          {log.ipAddress || "N/A"}
                         </span>
                       </TableCell>
                     </TableRow>

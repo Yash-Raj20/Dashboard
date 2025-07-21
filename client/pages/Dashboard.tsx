@@ -1,13 +1,19 @@
-import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
-import { DashboardStats } from '@shared/auth';
-import DashboardLayout from '@/components/DashboardLayout';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { DashboardStats } from "@shared/auth";
+import DashboardLayout from "@/components/DashboardLayout";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Users,
   UserCog,
@@ -17,9 +23,9 @@ import {
   Shield,
   Plus,
   Eye,
-  Calendar
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
+  Calendar,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export default function Dashboard() {
   const { user, hasPermission } = useAuth();
@@ -35,63 +41,63 @@ export default function Dashboard() {
     try {
       setLoading(true);
       setError(null);
-      
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('/api/dashboard/stats', {
+
+      const token = localStorage.getItem("auth_token");
+      const response = await fetch("/api/dashboard/stats", {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch dashboard stats');
+        throw new Error("Failed to fetch dashboard stats");
       }
 
       const data = await response.json();
       setStats(data);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const getActionBadgeVariant = (action: string) => {
     switch (action) {
-      case 'login':
-        return 'default';
-      case 'logout':
-        return 'secondary';
-      case 'create_sub_admin':
-      case 'create_user':
-        return 'default';
-      case 'update_sub_admin':
-      case 'update_user':
-        return 'secondary';
-      case 'delete_sub_admin':
-      case 'delete_user':
-        return 'destructive';
+      case "login":
+        return "default";
+      case "logout":
+        return "secondary";
+      case "create_sub_admin":
+      case "create_user":
+        return "default";
+      case "update_sub_admin":
+      case "update_user":
+        return "secondary";
+      case "delete_sub_admin":
+      case "delete_user":
+        return "destructive";
       default:
-        return 'outline';
+        return "outline";
     }
   };
 
-  const StatCard = ({ 
-    title, 
-    value, 
-    description, 
-    icon: Icon, 
+  const StatCard = ({
+    title,
+    value,
+    description,
+    icon: Icon,
     trend,
-    action
+    action,
   }: {
     title: string;
     value: string | number;
@@ -110,10 +116,12 @@ export default function Dashboard() {
         <div className="flex items-center justify-between mt-2">
           <p className="text-xs text-muted-foreground">{description}</p>
           {trend && (
-            <div className={cn(
-              "flex items-center text-xs",
-              trend.isPositive ? "text-green-600" : "text-red-600"
-            )}>
+            <div
+              className={cn(
+                "flex items-center text-xs",
+                trend.isPositive ? "text-green-600" : "text-red-600",
+              )}
+            >
               <TrendingUp className="h-3 w-3 mr-1" />
               {trend.value}%
             </div>
@@ -136,13 +144,14 @@ export default function Dashboard() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-muted-foreground">
-              Welcome back, {user?.name}. Here's what's happening in your admin portal.
+              Welcome back, {user?.name}. Here's what's happening in your admin
+              portal.
             </p>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="capitalize">
               <Shield className="h-3 w-3 mr-1" />
-              {user?.role.replace('-', ' ')}
+              {user?.role.replace("-", " ")}
             </Badge>
           </div>
         </div>
@@ -151,7 +160,12 @@ export default function Dashboard() {
         {error && (
           <Alert variant="destructive">
             <AlertDescription>
-              {error}. <Button variant="link" onClick={fetchDashboardStats} className="p-0 h-auto">
+              {error}.{" "}
+              <Button
+                variant="link"
+                onClick={fetchDashboardStats}
+                className="p-0 h-auto"
+              >
                 Try again
               </Button>
             </AlertDescription>
@@ -180,14 +194,25 @@ export default function Dashboard() {
                 value={stats.totalUsers}
                 description="Registered users"
                 icon={Users}
-                action={hasPermission('view_all_users') ? { label: "View Users", href: "/dashboard/users" } : undefined}
+                action={
+                  hasPermission("view_all_users")
+                    ? { label: "View Users", href: "/dashboard/users" }
+                    : undefined
+                }
               />
               <StatCard
                 title="Sub-Admins"
                 value={stats.totalSubAdmins}
                 description="Active sub-administrators"
                 icon={UserCog}
-                action={hasPermission('create_sub_admin') ? { label: "Manage Sub-Admins", href: "/dashboard/sub-admins" } : undefined}
+                action={
+                  hasPermission("create_sub_admin")
+                    ? {
+                        label: "Manage Sub-Admins",
+                        href: "/dashboard/sub-admins",
+                      }
+                    : undefined
+                }
               />
               <StatCard
                 title="Active Users"
@@ -206,7 +231,7 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        {hasPermission('create_sub_admin') && (
+        {hasPermission("create_sub_admin") && (
           <Card>
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
@@ -220,7 +245,7 @@ export default function Dashboard() {
                     Create Sub-Admin
                   </Link>
                 </Button>
-                {hasPermission('view_all_users') && (
+                {hasPermission("view_all_users") && (
                   <Button variant="outline" asChild>
                     <Link to="/dashboard/users">
                       <Eye className="h-4 w-4 mr-2" />
@@ -228,7 +253,7 @@ export default function Dashboard() {
                     </Link>
                   </Button>
                 )}
-                {hasPermission('view_audit_logs') && (
+                {hasPermission("view_audit_logs") && (
                   <Button variant="outline" asChild>
                     <Link to="/dashboard/audit-logs">
                       <Activity className="h-4 w-4 mr-2" />
@@ -246,13 +271,13 @@ export default function Dashboard() {
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
             <div>
               <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>Latest actions performed by administrators</CardDescription>
+              <CardDescription>
+                Latest actions performed by administrators
+              </CardDescription>
             </div>
-            {hasPermission('view_audit_logs') && (
+            {hasPermission("view_audit_logs") && (
               <Button variant="outline" size="sm" asChild>
-                <Link to="/dashboard/audit-logs">
-                  View All
-                </Link>
+                <Link to="/dashboard/audit-logs">View All</Link>
               </Button>
             )}
           </CardHeader>
@@ -273,7 +298,10 @@ export default function Dashboard() {
             ) : stats?.recentActions && stats.recentActions.length > 0 ? (
               <div className="space-y-3">
                 {stats.recentActions.map((action) => (
-                  <div key={action.id} className="flex items-center justify-between p-3 rounded-lg border">
+                  <div
+                    key={action.id}
+                    className="flex items-center justify-between p-3 rounded-lg border"
+                  >
                     <div className="flex items-center space-x-3">
                       <div className="flex-shrink-0">
                         <div className="h-8 w-8 rounded-full bg-muted flex items-center justify-center">
@@ -282,7 +310,7 @@ export default function Dashboard() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium">
-                          {action.userName} • {action.action.replace('_', ' ')}
+                          {action.userName} • {action.action.replace("_", " ")}
                         </p>
                         <div className="flex items-center space-x-2 mt-1">
                           <p className="text-xs text-muted-foreground">
@@ -296,8 +324,11 @@ export default function Dashboard() {
                         </div>
                       </div>
                     </div>
-                    <Badge variant={getActionBadgeVariant(action.action)} className="text-xs">
-                      {action.action.replace('_', ' ')}
+                    <Badge
+                      variant={getActionBadgeVariant(action.action)}
+                      className="text-xs"
+                    >
+                      {action.action.replace("_", " ")}
                     </Badge>
                   </div>
                 ))}
