@@ -115,12 +115,16 @@ export default function SubAdmins() {
         body: JSON.stringify(createForm),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create sub-admin');
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        throw new Error('Invalid response from server');
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create sub-admin');
+      }
       setSubAdmins(prev => [...prev, data.subAdmin]);
       setCreateDialogOpen(false);
       resetCreateForm();
@@ -153,12 +157,16 @@ export default function SubAdmins() {
         body: JSON.stringify(updateForm),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to update sub-admin');
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        throw new Error('Invalid response from server');
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update sub-admin');
+      }
       setSubAdmins(prev => prev.map(admin => 
         admin.id === selectedSubAdmin.id ? data.subAdmin : admin
       ));
@@ -192,8 +200,13 @@ export default function SubAdmins() {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete sub-admin');
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          throw new Error('Failed to delete sub-admin');
+        }
+        throw new Error(errorData.error || 'Failed to delete sub-admin');
       }
 
       setSubAdmins(prev => prev.filter(admin => admin.id !== subAdmin.id));
