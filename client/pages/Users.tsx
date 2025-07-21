@@ -176,9 +176,27 @@ export default function Users() {
 
       let data;
       try {
-        data = await response.json();
+        const text = await response.text();
+        if (!text.trim()) {
+          throw new Error('Empty response from server');
+        }
+
+        if (text.trim().startsWith('<')) {
+          if (response.status === 401) {
+            throw new Error('Session expired. Please log in again.');
+          }
+          throw new Error(`Server error (${response.status})`);
+        }
+
+        data = JSON.parse(text);
       } catch (parseError) {
-        throw new Error('Invalid response from server');
+        if (parseError instanceof Error && parseError.message.includes('log in again')) {
+          throw parseError;
+        }
+        if (response.status === 401) {
+          throw new Error('Session expired. Please log in again.');
+        }
+        throw new Error(`Invalid response from server (${response.status})`);
       }
 
       if (!response.ok) {
