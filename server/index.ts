@@ -119,5 +119,12 @@ export function createServer() {
     handleDeleteSubAdmin,
   );
 
+  // Notification routes
+  app.get("/api/notifications", authenticateToken, handleGetNotifications);
+  app.put("/api/notifications/:notificationId/read", authenticateToken, handleMarkAsRead);
+  app.put("/api/notifications/mark-all-read", authenticateToken, handleMarkAllAsRead);
+  app.delete("/api/notifications/:notificationId", authenticateToken, handleDeleteNotification);
+  app.post("/api/notifications/test", authenticateToken, handleTestNotification);
+
   return app;
 }
