@@ -13,6 +13,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import SubAdmins from "./pages/SubAdmins";
 import Analytics from "./pages/Analytics";
+import Users from "./pages/Users";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -49,6 +50,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requiredPermission="view_analytics">
                     <Analytics />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/users"
+                element={
+                  <ProtectedRoute requiredPermission="view_all_users">
+                    <Users />
                   </ProtectedRoute>
                 }
               />
