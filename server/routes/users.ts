@@ -1,11 +1,11 @@
 import { RequestHandler } from 'express';
-import { 
-  CreateSubAdminRequest, 
-  UpdateSubAdminRequest, 
-  CreateUserRequest, 
+import {
+  CreateSubAdminRequest,
+  UpdateSubAdminRequest,
+  CreateUserRequest,
   UpdateUserRequest,
-  ROLE_PERMISSIONS 
-} from '@shared/auth';
+  ROLE_PERMISSIONS
+} from '../../shared/auth.js';
 import { 
   getAllUsers, 
   getSubAdmins, 
