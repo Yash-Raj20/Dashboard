@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyToken } from '../utils/jwt';
 import { findUserById } from '../db/users';
-import { Permission, hasPermission, Role } from '@shared/auth';
+import { Permission, hasPermission, Role } from '../../shared/auth.js';
 
 export interface AuthRequest extends Request {
   user?: {
