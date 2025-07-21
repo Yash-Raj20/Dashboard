@@ -138,28 +138,40 @@ export default function ImageSlider() {
       <div className="absolute inset-y-0 left-0 flex items-center">
         <button
           onClick={goToPrevious}
-          className="ml-6 p-3 bg-white/20 backdrop-blur-sm text-white rounded-full hover:bg-white/30 transition-all duration-300 hover:scale-110"
+          className="ml-2 sm:ml-4 md:ml-6 p-2 sm:p-3 bg-white/20 backdrop-blur-sm text-white rounded-full hover:bg-white/30 transition-all duration-300 hover:scale-110"
         >
-          <ChevronLeft size={24} />
+          <ChevronLeft size={20} className="sm:hidden" />
+          <ChevronLeft size={24} className="hidden sm:block" />
         </button>
       </div>
 
       <div className="absolute inset-y-0 right-0 flex items-center">
         <button
           onClick={goToNext}
-          className="mr-6 p-3 bg-white/20 backdrop-blur-sm text-white rounded-full hover:bg-white/30 transition-all duration-300 hover:scale-110"
+          className="mr-2 sm:mr-4 md:mr-6 p-2 sm:p-3 bg-white/20 backdrop-blur-sm text-white rounded-full hover:bg-white/30 transition-all duration-300 hover:scale-110"
         >
-          <ChevronRight size={24} />
+          <ChevronRight size={20} className="sm:hidden" />
+          <ChevronRight size={24} className="hidden sm:block" />
         </button>
       </div>
 
       {/* Top Controls */}
-      <div className="absolute top-6 right-6 flex items-center gap-4">
+      <div className="absolute top-4 sm:top-6 right-4 sm:right-6 flex items-center gap-4">
         <button
           onClick={togglePlayPause}
-          className="p-3 bg-white/20 backdrop-blur-sm text-white rounded-full hover:bg-white/30 transition-all duration-300"
+          className="p-2 sm:p-3 bg-white/20 backdrop-blur-sm text-white rounded-full hover:bg-white/30 transition-all duration-300"
         >
-          {isPlaying ? <Pause size={20} /> : <Play size={20} />}
+          {isPlaying ? (
+            <>
+              <Pause size={16} className="sm:hidden" />
+              <Pause size={20} className="hidden sm:block" />
+            </>
+          ) : (
+            <>
+              <Play size={16} className="sm:hidden" />
+              <Play size={20} className="hidden sm:block" />
+            </>
+          )}
         </button>
       </div>
 
