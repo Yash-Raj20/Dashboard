@@ -1,4 +1,4 @@
-import { User, Role, ROLE_PERMISSIONS } from '@shared/auth';
+import { User, Role, ROLE_PERMISSIONS } from '../../shared/auth.js';
 import { hashPassword } from '../utils/password';
 
 // In-memory database simulation
