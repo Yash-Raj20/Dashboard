@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -175,6 +176,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </span>
             </div>
 
+            <NotificationCenter />
             <ThemeToggle />
 
             <DropdownMenu>
