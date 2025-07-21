@@ -1,17 +1,23 @@
-import { useRealTimeData } from '@/hooks/useRealTimeData';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { 
-  Activity, 
-  Users, 
-  Shield, 
-  Clock, 
-  Wifi, 
-  WifiOff, 
+import { useRealTimeData } from "@/hooks/useRealTimeData";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Activity,
+  Users,
+  Shield,
+  Clock,
+  Wifi,
+  WifiOff,
   RefreshCw,
-  Gauge
-} from 'lucide-react';
+  Gauge,
+} from "lucide-react";
 
 interface RealTimeMetricsProps {
   className?: string;
@@ -19,7 +25,7 @@ interface RealTimeMetricsProps {
 
 export function RealTimeMetrics({ className }: RealTimeMetricsProps) {
   const { data, isConnected, error, refetch } = useRealTimeData({
-    endpoint: '/api/real-time/stats',
+    endpoint: "/api/real-time/stats",
     interval: 10000, // Update every 10 seconds
     enabled: true,
   });
@@ -28,26 +34,26 @@ export function RealTimeMetrics({ className }: RealTimeMetricsProps) {
     const date = new Date(timestamp);
     const now = new Date();
     const diffSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-    
-    if (diffSeconds < 10) return 'Just now';
+
+    if (diffSeconds < 10) return "Just now";
     if (diffSeconds < 60) return `${diffSeconds}s ago`;
-    return date.toLocaleTimeString('en-US', { 
-      hour: '2-digit', 
-      minute: '2-digit',
-      second: '2-digit'
+    return date.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      second: "2-digit",
     });
   };
 
   const getSystemLoadColor = (load: number) => {
-    if (load < 30) return 'text-green-500';
-    if (load < 70) return 'text-yellow-500';
-    return 'text-red-500';
+    if (load < 30) return "text-green-500";
+    if (load < 70) return "text-yellow-500";
+    return "text-red-500";
   };
 
   const getSystemLoadVariant = (load: number) => {
-    if (load < 30) return 'default';
-    if (load < 70) return 'secondary';
-    return 'destructive';
+    if (load < 30) return "default";
+    if (load < 70) return "secondary";
+    return "destructive";
   };
 
   return (
@@ -62,7 +68,10 @@ export function RealTimeMetrics({ className }: RealTimeMetricsProps) {
             <CardDescription>Live system activity and usage</CardDescription>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant={isConnected ? 'default' : 'destructive'} className="text-xs">
+            <Badge
+              variant={isConnected ? "default" : "destructive"}
+              className="text-xs"
+            >
               {isConnected ? (
                 <>
                   <Wifi className="h-3 w-3 mr-1" />
@@ -81,7 +90,7 @@ export function RealTimeMetrics({ className }: RealTimeMetricsProps) {
           </div>
         </div>
       </CardHeader>
-      
+
       <CardContent>
         {error ? (
           <div className="text-center py-4 text-destructive">
@@ -127,7 +136,9 @@ export function RealTimeMetrics({ className }: RealTimeMetricsProps) {
                   <Gauge className="h-4 w-4 text-orange-600 dark:text-orange-400" />
                 </div>
                 <div>
-                  <p className={`text-2xl font-bold ${getSystemLoadColor(data.systemLoad)}`}>
+                  <p
+                    className={`text-2xl font-bold ${getSystemLoadColor(data.systemLoad)}`}
+                  >
                     {data.systemLoad}%
                   </p>
                   <p className="text-xs text-muted-foreground">System Load</p>
@@ -139,18 +150,25 @@ export function RealTimeMetrics({ className }: RealTimeMetricsProps) {
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium">System Performance</span>
-                <Badge variant={getSystemLoadVariant(data.systemLoad)} className="text-xs">
-                  {data.systemLoad < 30 ? 'Good' : data.systemLoad < 70 ? 'Moderate' : 'High'}
+                <Badge
+                  variant={getSystemLoadVariant(data.systemLoad)}
+                  className="text-xs"
+                >
+                  {data.systemLoad < 30
+                    ? "Good"
+                    : data.systemLoad < 70
+                      ? "Moderate"
+                      : "High"}
                 </Badge>
               </div>
               <div className="w-full bg-muted rounded-full h-2">
-                <div 
+                <div
                   className={`h-2 rounded-full transition-all duration-500 ${
-                    data.systemLoad < 30 
-                      ? 'bg-green-500' 
-                      : data.systemLoad < 70 
-                        ? 'bg-yellow-500' 
-                        : 'bg-red-500'
+                    data.systemLoad < 30
+                      ? "bg-green-500"
+                      : data.systemLoad < 70
+                        ? "bg-yellow-500"
+                        : "bg-red-500"
                   }`}
                   style={{ width: `${Math.min(data.systemLoad, 100)}%` }}
                 />
@@ -168,7 +186,10 @@ export function RealTimeMetrics({ className }: RealTimeMetricsProps) {
             <div className="animate-pulse space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 {Array.from({ length: 4 }).map((_, i) => (
-                  <div key={i} className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50">
+                  <div
+                    key={i}
+                    className="flex items-center space-x-3 p-3 rounded-lg bg-muted/50"
+                  >
                     <div className="w-8 h-8 bg-muted rounded-full" />
                     <div className="space-y-1">
                       <div className="h-6 w-12 bg-muted rounded" />

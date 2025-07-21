@@ -1,21 +1,28 @@
-import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '@/components/ui/popover';
+} from "@/components/ui/popover";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { Calendar } from '@/components/ui/calendar';
-import { CalendarIcon, Filter, X } from 'lucide-react';
-import { format, subDays, subWeeks, subMonths, startOfDay, endOfDay } from 'date-fns';
+} from "@/components/ui/select";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon, Filter, X } from "lucide-react";
+import {
+  format,
+  subDays,
+  subWeeks,
+  subMonths,
+  startOfDay,
+  endOfDay,
+} from "date-fns";
 
 export interface DateRange {
   from: Date;
@@ -31,14 +38,14 @@ interface DateRangePickerProps {
 
 const presetRanges = [
   {
-    label: 'Today',
+    label: "Today",
     getValue: () => ({
       from: startOfDay(new Date()),
       to: endOfDay(new Date()),
     }),
   },
   {
-    label: 'Yesterday',
+    label: "Yesterday",
     getValue: () => {
       const yesterday = subDays(new Date(), 1);
       return {
@@ -48,28 +55,28 @@ const presetRanges = [
     },
   },
   {
-    label: 'Last 7 days',
+    label: "Last 7 days",
     getValue: () => ({
       from: startOfDay(subDays(new Date(), 6)),
       to: endOfDay(new Date()),
     }),
   },
   {
-    label: 'Last 14 days',
+    label: "Last 14 days",
     getValue: () => ({
       from: startOfDay(subDays(new Date(), 13)),
       to: endOfDay(new Date()),
     }),
   },
   {
-    label: 'Last 30 days',
+    label: "Last 30 days",
     getValue: () => ({
       from: startOfDay(subDays(new Date(), 29)),
       to: endOfDay(new Date()),
     }),
   },
   {
-    label: 'Last 3 months',
+    label: "Last 3 months",
     getValue: () => ({
       from: startOfDay(subMonths(new Date(), 3)),
       to: endOfDay(new Date()),
@@ -77,11 +84,17 @@ const presetRanges = [
   },
 ];
 
-export function DateRangePicker({ value, onChange, className }: DateRangePickerProps) {
+export function DateRangePicker({
+  value,
+  onChange,
+  className,
+}: DateRangePickerProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [customRange, setCustomRange] = useState<{ from?: Date; to?: Date }>({});
+  const [customRange, setCustomRange] = useState<{ from?: Date; to?: Date }>(
+    {},
+  );
 
-  const handlePresetSelect = (preset: typeof presetRanges[0]) => {
+  const handlePresetSelect = (preset: (typeof presetRanges)[0]) => {
     const range = preset.getValue();
     onChange({
       ...range,
@@ -95,7 +108,7 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
       onChange({
         from: startOfDay(customRange.from),
         to: endOfDay(customRange.to),
-        label: `${format(customRange.from, 'MMM dd')} - ${format(customRange.to, 'MMM dd')}`,
+        label: `${format(customRange.from, "MMM dd")} - ${format(customRange.to, "MMM dd")}`,
       });
       setIsOpen(false);
       setCustomRange({});
@@ -143,22 +156,30 @@ export function DateRangePicker({ value, onChange, className }: DateRangePickerP
               <h4 className="font-medium text-sm mb-3">Custom Range</h4>
               <div className="space-y-4">
                 <div>
-                  <label className="text-xs font-medium text-muted-foreground">From</label>
+                  <label className="text-xs font-medium text-muted-foreground">
+                    From
+                  </label>
                   <Calendar
                     mode="single"
                     selected={customRange.from}
-                    onSelect={(date) => setCustomRange(prev => ({ ...prev, from: date }))}
+                    onSelect={(date) =>
+                      setCustomRange((prev) => ({ ...prev, from: date }))
+                    }
                     className="rounded-md border"
                   />
                 </div>
-                
+
                 {customRange.from && (
                   <div>
-                    <label className="text-xs font-medium text-muted-foreground">To</label>
+                    <label className="text-xs font-medium text-muted-foreground">
+                      To
+                    </label>
                     <Calendar
                       mode="single"
                       selected={customRange.to}
-                      onSelect={(date) => setCustomRange(prev => ({ ...prev, to: date }))}
+                      onSelect={(date) =>
+                        setCustomRange((prev) => ({ ...prev, to: date }))
+                      }
                       disabled={(date) => date < customRange.from!}
                       className="rounded-md border"
                     />
@@ -200,7 +221,11 @@ interface AnalyticsFilterBarProps {
   className?: string;
 }
 
-export function AnalyticsFilterBar({ filters, onFiltersChange, className }: AnalyticsFilterBarProps) {
+export function AnalyticsFilterBar({
+  filters,
+  onFiltersChange,
+  className,
+}: AnalyticsFilterBarProps) {
   const handleFilterChange = (key: keyof AnalyticsFilters, value: any) => {
     onFiltersChange({
       ...filters,
@@ -227,23 +252,32 @@ export function AnalyticsFilterBar({ filters, onFiltersChange, className }: Anal
           </Button>
         )}
       </div>
-      
+
       <div className="flex flex-wrap gap-4">
         {/* Date Range Filter */}
         <div className="space-y-2">
-          <label className="text-xs font-medium text-muted-foreground">Date Range</label>
+          <label className="text-xs font-medium text-muted-foreground">
+            Date Range
+          </label>
           <DateRangePicker
             value={filters.dateRange}
-            onChange={(range) => handleFilterChange('dateRange', range)}
+            onChange={(range) => handleFilterChange("dateRange", range)}
           />
         </div>
 
         {/* User Role Filter */}
         <div className="space-y-2">
-          <label className="text-xs font-medium text-muted-foreground">User Role</label>
+          <label className="text-xs font-medium text-muted-foreground">
+            User Role
+          </label>
           <Select
-            value={filters.userRole || 'all'}
-            onValueChange={(value) => handleFilterChange('userRole', value === 'all' ? undefined : value)}
+            value={filters.userRole || "all"}
+            onValueChange={(value) =>
+              handleFilterChange(
+                "userRole",
+                value === "all" ? undefined : value,
+              )
+            }
           >
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="All roles" />
@@ -259,10 +293,17 @@ export function AnalyticsFilterBar({ filters, onFiltersChange, className }: Anal
 
         {/* Activity Type Filter */}
         <div className="space-y-2">
-          <label className="text-xs font-medium text-muted-foreground">Activity Type</label>
+          <label className="text-xs font-medium text-muted-foreground">
+            Activity Type
+          </label>
           <Select
-            value={filters.activityType || 'all'}
-            onValueChange={(value) => handleFilterChange('activityType', value === 'all' ? undefined : value)}
+            value={filters.activityType || "all"}
+            onValueChange={(value) =>
+              handleFilterChange(
+                "activityType",
+                value === "all" ? undefined : value,
+              )
+            }
           >
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="All activities" />
@@ -280,10 +321,14 @@ export function AnalyticsFilterBar({ filters, onFiltersChange, className }: Anal
 
         {/* Status Filter */}
         <div className="space-y-2">
-          <label className="text-xs font-medium text-muted-foreground">Status</label>
+          <label className="text-xs font-medium text-muted-foreground">
+            Status
+          </label>
           <Select
-            value={filters.status || 'all'}
-            onValueChange={(value) => handleFilterChange('status', value === 'all' ? undefined : value)}
+            value={filters.status || "all"}
+            onValueChange={(value) =>
+              handleFilterChange("status", value === "all" ? undefined : value)
+            }
           >
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="All statuses" />
@@ -305,7 +350,7 @@ export function AnalyticsFilterBar({ filters, onFiltersChange, className }: Anal
               {filters.dateRange.label}
               <X
                 className="h-3 w-3 cursor-pointer"
-                onClick={() => handleFilterChange('dateRange', undefined)}
+                onClick={() => handleFilterChange("dateRange", undefined)}
               />
             </Badge>
           )}
@@ -314,7 +359,7 @@ export function AnalyticsFilterBar({ filters, onFiltersChange, className }: Anal
               Role: {filters.userRole}
               <X
                 className="h-3 w-3 cursor-pointer"
-                onClick={() => handleFilterChange('userRole', undefined)}
+                onClick={() => handleFilterChange("userRole", undefined)}
               />
             </Badge>
           )}
@@ -323,7 +368,7 @@ export function AnalyticsFilterBar({ filters, onFiltersChange, className }: Anal
               Activity: {filters.activityType}
               <X
                 className="h-3 w-3 cursor-pointer"
-                onClick={() => handleFilterChange('activityType', undefined)}
+                onClick={() => handleFilterChange("activityType", undefined)}
               />
             </Badge>
           )}
@@ -332,7 +377,7 @@ export function AnalyticsFilterBar({ filters, onFiltersChange, className }: Anal
               Status: {filters.status}
               <X
                 className="h-3 w-3 cursor-pointer"
-                onClick={() => handleFilterChange('status', undefined)}
+                onClick={() => handleFilterChange("status", undefined)}
               />
             </Badge>
           )}

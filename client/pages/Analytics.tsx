@@ -9,7 +9,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AnalyticsFilterBar, AnalyticsFilters } from "@/components/DateRangePicker";
+import {
+  AnalyticsFilterBar,
+  AnalyticsFilters,
+} from "@/components/DateRangePicker";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -223,11 +226,19 @@ export default function Analytics() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={() => exportData("csv")} size="sm">
+            <Button
+              variant="outline"
+              onClick={() => exportData("csv")}
+              size="sm"
+            >
               <Download className="h-4 w-4 mr-2" />
               Export CSV
             </Button>
-            <Button variant="outline" onClick={() => exportData("pdf")} size="sm">
+            <Button
+              variant="outline"
+              onClick={() => exportData("pdf")}
+              size="sm"
+            >
               <Download className="h-4 w-4 mr-2" />
               Export PDF
             </Button>
@@ -380,7 +391,11 @@ export default function Analytics() {
                     <XAxis dataKey="day" />
                     <YAxis />
                     <Tooltip />
-                    <Bar dataKey="logins" fill="#8884d8" radius={[4, 4, 0, 0]} />
+                    <Bar
+                      dataKey="logins"
+                      fill="#8884d8"
+                      radius={[4, 4, 0, 0]}
+                    />
                   </BarChart>
                 </ResponsiveContainer>
               </div>

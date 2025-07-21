@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -8,12 +8,12 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Bell, Check, X, AlertTriangle, Info, CheckCircle } from 'lucide-react';
+} from "@/components/ui/dropdown-menu";
+import { Bell, Check, X, AlertTriangle, Info, CheckCircle } from "lucide-react";
 
 interface Notification {
   id: string;
-  type: 'info' | 'warning' | 'success' | 'error';
+  type: "info" | "warning" | "success" | "error";
   title: string;
   message: string;
   timestamp: Date;
@@ -23,26 +23,26 @@ interface Notification {
 export function NotificationCenter() {
   const [notifications, setNotifications] = useState<Notification[]>([
     {
-      id: '1',
-      type: 'info',
-      title: 'New User Registration',
-      message: 'A new user has registered and is pending approval',
+      id: "1",
+      type: "info",
+      title: "New User Registration",
+      message: "A new user has registered and is pending approval",
       timestamp: new Date(Date.now() - 2 * 60 * 1000), // 2 minutes ago
       read: false,
     },
     {
-      id: '2',
-      type: 'warning',
-      title: 'Security Alert',
-      message: 'Multiple failed login attempts detected',
+      id: "2",
+      type: "warning",
+      title: "Security Alert",
+      message: "Multiple failed login attempts detected",
       timestamp: new Date(Date.now() - 15 * 60 * 1000), // 15 minutes ago
       read: false,
     },
     {
-      id: '3',
-      type: 'success',
-      title: 'Backup Completed',
-      message: 'Daily database backup completed successfully',
+      id: "3",
+      type: "success",
+      title: "Backup Completed",
+      message: "Daily database backup completed successfully",
       timestamp: new Date(Date.now() - 60 * 60 * 1000), // 1 hour ago
       read: true,
     },
@@ -50,35 +50,37 @@ export function NotificationCenter() {
 
   const [isOpen, setIsOpen] = useState(false);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const markAsRead = (id: string) => {
-    setNotifications(prev => 
-      prev.map(notification => 
-        notification.id === id ? { ...notification, read: true } : notification
-      )
+    setNotifications((prev) =>
+      prev.map((notification) =>
+        notification.id === id ? { ...notification, read: true } : notification,
+      ),
     );
   };
 
   const markAllAsRead = () => {
-    setNotifications(prev => 
-      prev.map(notification => ({ ...notification, read: true }))
+    setNotifications((prev) =>
+      prev.map((notification) => ({ ...notification, read: true })),
     );
   };
 
   const removeNotification = (id: string) => {
-    setNotifications(prev => prev.filter(notification => notification.id !== id));
+    setNotifications((prev) =>
+      prev.filter((notification) => notification.id !== id),
+    );
   };
 
-  const getNotificationIcon = (type: Notification['type']) => {
+  const getNotificationIcon = (type: Notification["type"]) => {
     switch (type) {
-      case 'info':
+      case "info":
         return <Info className="h-4 w-4 text-blue-500" />;
-      case 'warning':
+      case "warning":
         return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      case 'success':
+      case "success":
         return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'error':
+      case "error":
         return <X className="h-4 w-4 text-red-500" />;
       default:
         return <Info className="h-4 w-4" />;
@@ -87,9 +89,11 @@ export function NotificationCenter() {
 
   const formatTimestamp = (timestamp: Date) => {
     const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - timestamp.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 1) return 'Just now';
+    const diffInMinutes = Math.floor(
+      (now.getTime() - timestamp.getTime()) / (1000 * 60),
+    );
+
+    if (diffInMinutes < 1) return "Just now";
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
     if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
     return `${Math.floor(diffInMinutes / 1440)}d ago`;
@@ -101,11 +105,11 @@ export function NotificationCenter() {
         <Button variant="outline" size="icon" className="relative">
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
-            <Badge 
-              variant="destructive" 
+            <Badge
+              variant="destructive"
               className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
             >
-              {unreadCount > 9 ? '9+' : unreadCount}
+              {unreadCount > 9 ? "9+" : unreadCount}
             </Badge>
           )}
         </Button>
@@ -114,9 +118,9 @@ export function NotificationCenter() {
         <DropdownMenuLabel className="flex items-center justify-between">
           <span>Notifications</span>
           {unreadCount > 0 && (
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={markAllAsRead}
               className="h-auto p-1 text-xs"
             >
@@ -125,7 +129,7 @@ export function NotificationCenter() {
           )}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        
+
         {notifications.length === 0 ? (
           <div className="p-4 text-center text-muted-foreground">
             <Bell className="h-8 w-8 mx-auto mb-2 opacity-50" />
@@ -144,7 +148,9 @@ export function NotificationCenter() {
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between">
-                    <p className={`text-sm font-medium ${!notification.read ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    <p
+                      className={`text-sm font-medium ${!notification.read ? "text-foreground" : "text-muted-foreground"}`}
+                    >
                       {notification.title}
                     </p>
                     <Button
