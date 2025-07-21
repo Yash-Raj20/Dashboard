@@ -231,6 +231,9 @@ export default function Dashboard() {
           ) : null}
         </div>
 
+        {/* Real-Time Metrics */}
+        <RealTimeMetrics />
+
         {/* Quick Actions */}
         {hasPermission("create_sub_admin") && (
           <Card>
