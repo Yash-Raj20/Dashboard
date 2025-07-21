@@ -155,12 +155,16 @@ export default function Users() {
         body: JSON.stringify(updateForm),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to update user');
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        throw new Error('Invalid response from server');
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to update user');
+      }
       setUsers(prev => prev.map(user => 
         user.id === selectedUser.id ? data.user : user
       ));
