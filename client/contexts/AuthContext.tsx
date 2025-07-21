@@ -232,7 +232,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    initAuth();
+    // Fallback timeout to prevent infinite loading
+    const fallbackTimeout = setTimeout(() => {
+      console.warn('Authentication verification timeout, stopping loading');
+      dispatch({ type: 'SET_LOADING', payload: false });
+    }, 5000); // 5 second timeout
+
+    initAuth().finally(() => {
+      clearTimeout(fallbackTimeout);
+    });
+
+    return () => {
+      clearTimeout(fallbackTimeout);
+    };
   }, []);
 
   const value: AuthContextType = {
