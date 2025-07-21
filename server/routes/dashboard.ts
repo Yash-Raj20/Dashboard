@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import { DashboardStats, AuthAuditLog } from '@shared/auth';
+import { DashboardStats, AuthAuditLog } from '../../shared/auth.js';
 import { getAllUsers } from '../db/users';
 import { getAuditLogs, getRecentAuditLogs } from '../db/auditLogs';
 import { AuthRequest } from '../middleware/auth';
