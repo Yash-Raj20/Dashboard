@@ -17,6 +17,13 @@ import {
   handleGetAuditLogs,
 } from "./routes/dashboard";
 import {
+  handleGetNotifications,
+  handleMarkAsRead,
+  handleMarkAllAsRead,
+  handleDeleteNotification,
+  handleTestNotification
+} from "./routes/notifications";
+import {
   authenticateToken,
   requireRole,
   requirePermission,
