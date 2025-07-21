@@ -233,6 +233,11 @@ export default function Users() {
       }
 
       if (!response.ok) {
+        // Handle validation errors with details
+        if (data.details && Array.isArray(data.details)) {
+          setFormErrors(data.details);
+          return;
+        }
         throw new Error(data.error || 'Failed to update user');
       }
       setUsers(prev => prev.map(user => 
