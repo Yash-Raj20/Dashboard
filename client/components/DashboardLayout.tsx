@@ -175,6 +175,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </span>
             </div>
 
+            <ThemeToggle />
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
