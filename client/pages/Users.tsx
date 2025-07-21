@@ -75,20 +75,48 @@ export default function Users() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const token = localStorage.getItem('auth_token');
+      if (!token) {
+        throw new Error('No authentication token. Please log in.');
+      }
+
       const response = await fetch('/api/users', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to fetch users');
+      let data;
+      try {
+        const text = await response.text();
+        if (!text.trim()) {
+          throw new Error('Empty response from server');
+        }
+
+        if (text.trim().startsWith('<')) {
+          if (response.status === 401) {
+            throw new Error('Session expired. Please log in again.');
+          }
+          throw new Error(`Server returned HTML instead of JSON (${response.status})`);
+        }
+
+        data = JSON.parse(text);
+      } catch (parseError) {
+        if (parseError instanceof Error && parseError.message.includes('log in again')) {
+          throw parseError;
+        }
+        if (response.status === 401) {
+          throw new Error('Session expired. Please log in again.');
+        }
+        throw new Error(`Invalid response format (${response.status})`);
       }
 
-      const data = await response.json();
-      setUsers(data.users);
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to fetch users');
+      }
+
+      setUsers(data.users || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
