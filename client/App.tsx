@@ -96,4 +96,22 @@ const App = () => (
   </QueryClientProvider>
 );
 
-createRoot(document.getElementById("root")!).render(<App />);
+// Handle hot module replacement properly to avoid createRoot warning
+const container = document.getElementById("root")!;
+
+// Check if we're in development mode and there's already a root
+if (import.meta.hot) {
+  import.meta.hot.dispose(() => {
+    // Clean up on hot reload
+  });
+}
+
+// Create root only if it doesn't exist
+if (!container._reactRootContainer) {
+  const root = createRoot(container);
+  (container as any)._reactRootContainer = root;
+  root.render(<App />);
+} else {
+  // If root exists, just re-render
+  (container as any)._reactRootContainer.render(<App />);
+}
