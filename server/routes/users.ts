@@ -17,6 +17,7 @@ import {
 } from "../db/users";
 import { hashPassword, validatePassword } from "../utils/password";
 import { createAuditLog } from "../db/auditLogs";
+import { triggerNotification } from "./notifications";
 import { AuthRequest } from "../middleware/auth";
 
 export const handleGetAllUsers: RequestHandler = (req: AuthRequest, res) => {
