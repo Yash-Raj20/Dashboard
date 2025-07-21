@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { AnalyticsFilterBar, AnalyticsFilters } from "@/components/DateRangePicker";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -47,6 +48,7 @@ export default function Analytics() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [filters, setFilters] = useState<AnalyticsFilters>({});
 
   // Sample data for charts
   const userGrowthData = [
@@ -242,6 +244,16 @@ export default function Analytics() {
             </Button>
           </div>
         </div>
+
+        {/* Advanced Filters */}
+        <Card>
+          <CardContent className="pt-6">
+            <AnalyticsFilterBar
+              filters={filters}
+              onFiltersChange={setFilters}
+            />
+          </CardContent>
+        </Card>
 
         {/* Error State */}
         {error && (
