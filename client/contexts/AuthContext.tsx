@@ -23,13 +23,23 @@ interface AuthContextType extends AuthState {
   hasPermission: (permission: Permission) => boolean;
   hasAnyPermission: (permissions: Permission[]) => boolean;
   hasRole: (role: string) => boolean;
+  clearAuth: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+const getInitialToken = () => {
+  try {
+    return localStorage.getItem('auth_token');
+  } catch (error) {
+    console.warn('Failed to access localStorage:', error);
+    return null;
+  }
+};
+
 const initialState: AuthState = {
   user: null,
-  token: localStorage.getItem('auth_token'),
+  token: getInitialToken(),
   isLoading: true,
   isAuthenticated: false,
 };
