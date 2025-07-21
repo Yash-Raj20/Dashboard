@@ -113,12 +113,16 @@ export default function Users() {
         body: JSON.stringify(createForm),
       });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to create user');
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        throw new Error('Invalid response from server');
       }
 
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || 'Failed to create user');
+      }
       setUsers(prev => [...prev, data.user]);
       setCreateDialogOpen(false);
       resetCreateForm();
