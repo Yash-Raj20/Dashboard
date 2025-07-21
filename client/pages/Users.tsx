@@ -198,8 +198,13 @@ export default function Users() {
       });
 
       if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || 'Failed to delete user');
+        let errorData;
+        try {
+          errorData = await response.json();
+        } catch (parseError) {
+          throw new Error('Failed to delete user');
+        }
+        throw new Error(errorData.error || 'Failed to delete user');
       }
 
       setUsers(prev => prev.filter(u => u.id !== user.id));
