@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -9,8 +9,16 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { Bell, Check, X, AlertTriangle, Info, CheckCircle, Loader2 } from 'lucide-react';
+} from "@/components/ui/dropdown-menu";
+import {
+  Bell,
+  Check,
+  X,
+  AlertTriangle,
+  Info,
+  CheckCircle,
+  Loader2,
+} from "lucide-react";
 
 interface Notification {
   id: string;
@@ -19,7 +27,7 @@ interface Notification {
   fromUserId: string;
   fromUserName: string;
   fromUserRole: string;
-  type: 'info' | 'warning' | 'success' | 'error';
+  type: "info" | "warning" | "success" | "error";
   title: string;
   message: string;
   action?: string;
@@ -27,7 +35,7 @@ interface Notification {
   targetResourceId?: string;
   timestamp: string;
   read: boolean;
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  priority: "low" | "medium" | "high" | "urgent";
   autoExpires?: string;
 }
 
@@ -37,27 +45,27 @@ export function NotificationCenter() {
   const [isOpen, setIsOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   // Fetch notifications from API
   const fetchNotifications = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('/api/notifications', {
+      const token = localStorage.getItem("auth_token");
+      const response = await fetch("/api/notifications", {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch notifications');
+        throw new Error("Failed to fetch notifications");
       }
 
       const data = await response.json();
       setNotifications(data.notifications || []);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      console.error("Error fetching notifications:", error);
     } finally {
       setLoading(false);
     }
@@ -67,7 +75,7 @@ export function NotificationCenter() {
   useEffect(() => {
     if (user) {
       fetchNotifications();
-      
+
       // Poll for new notifications every 30 seconds
       const interval = setInterval(fetchNotifications, 30000);
       return () => clearInterval(interval);
@@ -76,73 +84,77 @@ export function NotificationCenter() {
 
   const markAsRead = async (id: string) => {
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem("auth_token");
       const response = await fetch(`/api/notifications/${id}/read`, {
-        method: 'PUT',
+        method: "PUT",
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
-        setNotifications(prev => 
-          prev.map(notification => 
-            notification.id === id ? { ...notification, read: true } : notification
-          )
+        setNotifications((prev) =>
+          prev.map((notification) =>
+            notification.id === id
+              ? { ...notification, read: true }
+              : notification,
+          ),
         );
       }
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      console.error("Error marking notification as read:", error);
     }
   };
 
   const markAllAsRead = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('/api/notifications/mark-all-read', {
-        method: 'PUT',
+      const token = localStorage.getItem("auth_token");
+      const response = await fetch("/api/notifications/mark-all-read", {
+        method: "PUT",
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
-        setNotifications(prev => 
-          prev.map(notification => ({ ...notification, read: true }))
+        setNotifications((prev) =>
+          prev.map((notification) => ({ ...notification, read: true })),
         );
       }
     } catch (error) {
-      console.error('Error marking all notifications as read:', error);
+      console.error("Error marking all notifications as read:", error);
     }
   };
 
   const removeNotification = async (id: string) => {
     try {
-      const token = localStorage.getItem('auth_token');
+      const token = localStorage.getItem("auth_token");
       const response = await fetch(`/api/notifications/${id}`, {
-        method: 'DELETE',
+        method: "DELETE",
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       if (response.ok) {
-        setNotifications(prev => prev.filter(notification => notification.id !== id));
+        setNotifications((prev) =>
+          prev.filter((notification) => notification.id !== id),
+        );
       }
     } catch (error) {
-      console.error('Error deleting notification:', error);
+      console.error("Error deleting notification:", error);
     }
   };
 
-  const getNotificationIcon = (type: Notification['type']) => {
+  const getNotificationIcon = (type: Notification["type"]) => {
     switch (type) {
-      case 'info':
+      case "info":
         return <Info className="h-4 w-4 text-blue-500" />;
-      case 'warning':
+      case "warning":
         return <AlertTriangle className="h-4 w-4 text-yellow-500" />;
-      case 'success':
+      case "success":
         return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case 'error':
+      case "error":
         return <X className="h-4 w-4 text-red-500" />;
       default:
         return <Info className="h-4 w-4" />;
@@ -152,9 +164,11 @@ export function NotificationCenter() {
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
     const now = new Date();
-    const diffInMinutes = Math.floor((now.getTime() - date.getTime()) / (1000 * 60));
-    
-    if (diffInMinutes < 1) return 'Just now';
+    const diffInMinutes = Math.floor(
+      (now.getTime() - date.getTime()) / (1000 * 60),
+    );
+
+    if (diffInMinutes < 1) return "Just now";
     if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
     if (diffInMinutes < 1440) return `${Math.floor(diffInMinutes / 60)}h ago`;
     return `${Math.floor(diffInMinutes / 1440)}d ago`;
@@ -162,43 +176,53 @@ export function NotificationCenter() {
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case 'urgent': return 'text-red-500';
-      case 'high': return 'text-orange-500';
-      case 'medium': return 'text-yellow-500';
-      case 'low': return 'text-blue-500';
-      default: return 'text-gray-500';
+      case "urgent":
+        return "text-red-500";
+      case "high":
+        return "text-orange-500";
+      case "medium":
+        return "text-yellow-500";
+      case "low":
+        return "text-blue-500";
+      default:
+        return "text-gray-500";
     }
   };
 
   const getRoleBadgeColor = (role: string) => {
     switch (role) {
-      case 'main-admin': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200';
-      case 'sub-admin': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200';
-      case 'user': return 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200';
-      default: return 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200';
+      case "main-admin":
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+      case "sub-admin":
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+      case "user":
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200";
     }
   };
 
   // Test notification function for demo
   const triggerTestNotification = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
-      await fetch('/api/notifications/test', {
-        method: 'POST',
+      const token = localStorage.getItem("auth_token");
+      await fetch("/api/notifications/test", {
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
-          action: user?.role === 'main-admin' ? 'create_sub_admin' : 'create_user',
-          targetName: 'Test User'
+          action:
+            user?.role === "main-admin" ? "create_sub_admin" : "create_user",
+          targetName: "Test User",
         }),
       });
-      
+
       // Refresh notifications
       fetchNotifications();
     } catch (error) {
-      console.error('Error triggering test notification:', error);
+      console.error("Error triggering test notification:", error);
     }
   };
 
@@ -208,11 +232,11 @@ export function NotificationCenter() {
         <Button variant="outline" size="icon" className="relative">
           <Bell className="h-4 w-4" />
           {unreadCount > 0 && (
-            <Badge 
-              variant="destructive" 
+            <Badge
+              variant="destructive"
               className="absolute -top-2 -right-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs"
             >
-              {unreadCount > 9 ? '9+' : unreadCount}
+              {unreadCount > 9 ? "9+" : unreadCount}
             </Badge>
           )}
         </Button>
@@ -222,9 +246,9 @@ export function NotificationCenter() {
           <span>🔔 Role-Based Notifications</span>
           <div className="flex items-center gap-2">
             {unreadCount > 0 && (
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={markAllAsRead}
                 className="h-auto p-1 text-xs"
                 disabled={loading}
@@ -232,9 +256,9 @@ export function NotificationCenter() {
                 Mark all read
               </Button>
             )}
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               onClick={triggerTestNotification}
               className="h-auto p-1 text-xs text-blue-600"
               disabled={loading}
@@ -244,7 +268,7 @@ export function NotificationCenter() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        
+
         <div className="max-h-96 overflow-y-auto">
           {loading ? (
             <div className="p-4 text-center">
@@ -264,7 +288,9 @@ export function NotificationCenter() {
             <div className="p-6 text-center text-muted-foreground">
               <Bell className="h-12 w-12 mx-auto mb-3 opacity-50" />
               <p className="font-medium">No notifications</p>
-              <p className="text-xs mt-1">Role-based notifications will appear here</p>
+              <p className="text-xs mt-1">
+                Role-based notifications will appear here
+              </p>
               <div className="mt-3 p-3 bg-muted/50 rounded-lg text-left">
                 <p className="text-xs font-medium mb-1">📋 How it works:</p>
                 <ul className="text-xs space-y-1">
@@ -287,21 +313,25 @@ export function NotificationCenter() {
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div className="flex-1">
-                      <p className={`text-sm font-medium ${!notification.read ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      <p
+                        className={`text-sm font-medium ${!notification.read ? "text-foreground" : "text-muted-foreground"}`}
+                      >
                         {notification.title}
                       </p>
                       <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                         {notification.message}
                       </p>
-                      
+
                       <div className="flex items-center gap-2 mt-2">
-                        <Badge 
-                          variant="outline" 
+                        <Badge
+                          variant="outline"
                           className={`text-xs ${getRoleBadgeColor(notification.fromUserRole)}`}
                         >
-                          {notification.fromUserRole.replace('-', ' ')}
+                          {notification.fromUserRole.replace("-", " ")}
                         </Badge>
-                        <span className={`text-xs ${getPriorityColor(notification.priority)}`}>
+                        <span
+                          className={`text-xs ${getPriorityColor(notification.priority)}`}
+                        >
                           {notification.priority}
                         </span>
                         <span className="text-xs text-muted-foreground">
@@ -309,7 +339,7 @@ export function NotificationCenter() {
                         </span>
                       </div>
                     </div>
-                    
+
                     <div className="flex items-start gap-1">
                       <Button
                         variant="ghost"
@@ -332,14 +362,14 @@ export function NotificationCenter() {
             ))
           )}
         </div>
-        
+
         {notifications.length > 0 && (
           <>
             <DropdownMenuSeparator />
             <div className="p-2 text-center">
-              <Button 
-                variant="ghost" 
-                size="sm" 
+              <Button
+                variant="ghost"
+                size="sm"
                 onClick={fetchNotifications}
                 disabled={loading}
                 className="text-xs w-full"
@@ -350,7 +380,7 @@ export function NotificationCenter() {
                     Loading...
                   </>
                 ) : (
-                  'Refresh Notifications'
+                  "Refresh Notifications"
                 )}
               </Button>
             </div>
