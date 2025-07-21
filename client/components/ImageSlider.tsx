@@ -107,7 +107,7 @@ export default function ImageSlider() {
             
             {/* Content Overlay */}
             <div className="absolute inset-0 flex items-end">
-              <div className="p-8 md:p-16 max-w-4xl">
+              <div className="p-4 sm:p-6 md:p-8 lg:p-16 max-w-4xl w-full">
                 <div
                   className={`transform transition-all duration-1000 delay-300 ${
                     index === currentSlide
@@ -115,16 +115,16 @@ export default function ImageSlider() {
                       : "translate-y-12 opacity-0"
                   }`}
                 >
-                  <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm text-white text-sm font-medium rounded-full mb-4">
+                  <span className="inline-block px-2 py-1 sm:px-3 bg-white/20 backdrop-blur-sm text-white text-xs sm:text-sm font-medium rounded-full mb-2 sm:mb-4">
                     {slide.category}
                   </span>
-                  <h2 className="text-4xl md:text-6xl font-bold text-white mb-4 leading-tight">
+                  <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white mb-2 sm:mb-4 leading-tight">
                     {slide.title}
                   </h2>
-                  <p className="text-xl text-white/90 mb-8 max-w-2xl leading-relaxed">
+                  <p className="text-sm sm:text-base md:text-lg lg:text-xl text-white/90 mb-4 sm:mb-6 md:mb-8 max-w-2xl leading-relaxed">
                     {slide.description}
                   </p>
-                  <button className="bg-white text-black px-8 py-3 rounded-full font-semibold hover:bg-white/90 transition-colors duration-300">
+                  <button className="bg-white text-black px-4 sm:px-6 md:px-8 py-2 sm:py-3 rounded-full text-sm sm:text-base font-semibold hover:bg-white/90 transition-colors duration-300">
                     Explore More
                   </button>
                 </div>
