@@ -217,9 +217,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return state.user?.role === role;
   };
 
-  // Verify token on mount
+  // Verify token on mount with error handling
   useEffect(() => {
-    verifyToken();
+    const initAuth = async () => {
+      // Add a small delay to ensure the server is ready
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      try {
+        await verifyToken();
+      } catch (error) {
+        // If initial verification fails, just set loading to false
+        console.warn('Initial token verification failed:', error);
+        dispatch({ type: 'SET_LOADING', payload: false });
+      }
+    };
+
+    initAuth();
   }, []);
 
   const value: AuthContextType = {
