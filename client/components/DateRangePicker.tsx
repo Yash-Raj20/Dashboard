@@ -242,14 +242,14 @@ export function AnalyticsFilterBar({ filters, onFiltersChange, className }: Anal
         <div className="space-y-2">
           <label className="text-xs font-medium text-muted-foreground">User Role</label>
           <Select
-            value={filters.userRole || ''}
-            onValueChange={(value) => handleFilterChange('userRole', value || undefined)}
+            value={filters.userRole || 'all'}
+            onValueChange={(value) => handleFilterChange('userRole', value === 'all' ? undefined : value)}
           >
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="All roles" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All roles</SelectItem>
+              <SelectItem value="all">All roles</SelectItem>
               <SelectItem value="main-admin">Main Admin</SelectItem>
               <SelectItem value="sub-admin">Sub Admin</SelectItem>
               <SelectItem value="user">User</SelectItem>
@@ -261,14 +261,14 @@ export function AnalyticsFilterBar({ filters, onFiltersChange, className }: Anal
         <div className="space-y-2">
           <label className="text-xs font-medium text-muted-foreground">Activity Type</label>
           <Select
-            value={filters.activityType || ''}
-            onValueChange={(value) => handleFilterChange('activityType', value || undefined)}
+            value={filters.activityType || 'all'}
+            onValueChange={(value) => handleFilterChange('activityType', value === 'all' ? undefined : value)}
           >
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="All activities" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All activities</SelectItem>
+              <SelectItem value="all">All activities</SelectItem>
               <SelectItem value="login">Login</SelectItem>
               <SelectItem value="logout">Logout</SelectItem>
               <SelectItem value="create_user">Create User</SelectItem>
@@ -282,14 +282,14 @@ export function AnalyticsFilterBar({ filters, onFiltersChange, className }: Anal
         <div className="space-y-2">
           <label className="text-xs font-medium text-muted-foreground">Status</label>
           <Select
-            value={filters.status || ''}
-            onValueChange={(value) => handleFilterChange('status', value || undefined)}
+            value={filters.status || 'all'}
+            onValueChange={(value) => handleFilterChange('status', value === 'all' ? undefined : value)}
           >
             <SelectTrigger className="w-[150px]">
               <SelectValue placeholder="All statuses" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All statuses</SelectItem>
+              <SelectItem value="all">All statuses</SelectItem>
               <SelectItem value="active">Active</SelectItem>
               <SelectItem value="inactive">Inactive</SelectItem>
             </SelectContent>
