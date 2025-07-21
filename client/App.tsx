@@ -12,6 +12,7 @@ import Index from "./pages/Index";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import SubAdmins from "./pages/SubAdmins";
+import Analytics from "./pages/Analytics";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,14 @@ const App = () => (
                 element={
                   <ProtectedRoute requiredPermission="create_sub_admin">
                     <SubAdmins />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/analytics"
+                element={
+                  <ProtectedRoute requiredPermission="view_analytics">
+                    <Analytics />
                   </ProtectedRoute>
                 }
               />
