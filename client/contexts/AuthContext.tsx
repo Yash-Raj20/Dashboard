@@ -145,18 +145,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const verifyToken = async (): Promise<boolean> => {
     const token = localStorage.getItem('auth_token');
-    
+
     if (!token) {
       dispatch({ type: 'LOGIN_FAILURE' });
       return false;
     }
 
     try {
+      // Add timeout and better error handling
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
       const response = await fetch('/api/auth/verify', {
         headers: {
           'Authorization': `Bearer ${token}`,
         },
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         localStorage.removeItem('auth_token');
@@ -175,6 +182,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return true;
     } catch (error) {
       console.error('Token verification error:', error);
+
+      // Only remove token and set login failure if it's not a network error
+      if (error instanceof Error && (error.name === 'AbortError' || error.message.includes('Failed to fetch'))) {
+        // For network errors, just set loading to false but don't log out the user
+        dispatch({ type: 'SET_LOADING', payload: false });
+        console.warn('Network error during token verification, will retry later');
+        return false;
+      }
+
+      // For other errors (invalid token, etc.), clear the token
       localStorage.removeItem('auth_token');
       dispatch({ type: 'LOGIN_FAILURE' });
       return false;
