@@ -227,6 +227,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return state.user?.role === role;
   };
 
+  const clearAuth = (): void => {
+    try {
+      localStorage.removeItem('auth_token');
+    } catch (error) {
+      console.warn('Failed to clear localStorage:', error);
+    }
+    dispatch({ type: 'LOGOUT' });
+  };
+
   // Verify token on mount with error handling
   useEffect(() => {
     const initAuth = async () => {
@@ -265,6 +274,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     hasPermission,
     hasAnyPermission,
     hasRole,
+    clearAuth,
   };
 
   return (
