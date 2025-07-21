@@ -29,8 +29,12 @@ export default function Analytics() {
     try {
       setLoading(true);
       setError(null);
-      
+
       const token = localStorage.getItem('auth_token');
+      if (!token) {
+        throw new Error('No authentication token found. Please log in again.');
+      }
+
       const response = await fetch('/api/dashboard/stats', {
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -38,12 +42,20 @@ export default function Analytics() {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch analytics data');
+        if (response.status === 401) {
+          throw new Error('Session expired. Please log in again.');
+        } else if (response.status === 403) {
+          throw new Error('Access denied. You do not have permission to view analytics.');
+        } else {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.error || `Failed to fetch analytics data (${response.status})`);
+        }
       }
 
       const data = await response.json();
       setStats(data);
     } catch (err) {
+      console.error('Analytics fetch error:', err);
       setError(err instanceof Error ? err.message : 'An error occurred');
     } finally {
       setLoading(false);
