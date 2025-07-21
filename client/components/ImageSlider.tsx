@@ -176,16 +176,16 @@ export default function ImageSlider() {
       </div>
 
       {/* Slide Indicators */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-        <div className="flex items-center gap-3">
+      <div className="absolute bottom-4 sm:bottom-6 md:bottom-8 left-1/2 transform -translate-x-1/2">
+        <div className="flex items-center gap-2 sm:gap-3">
           {slides.map((_, index) => (
             <button
               key={index}
               onClick={() => goToSlide(index)}
-              className={`relative h-2 rounded-full transition-all duration-300 ${
+              className={`relative h-1.5 sm:h-2 rounded-full transition-all duration-300 ${
                 index === currentSlide
-                  ? "w-12 bg-white"
-                  : "w-2 bg-white/50 hover:bg-white/70"
+                  ? "w-8 sm:w-12 bg-white"
+                  : "w-1.5 sm:w-2 bg-white/50 hover:bg-white/70"
               }`}
             >
               {index === currentSlide && isPlaying && (
