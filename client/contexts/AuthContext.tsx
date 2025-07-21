@@ -89,13 +89,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       dispatch({ type: 'LOGIN_START' });
 
+      // Add timeout for login request
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+
       const response = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(credentials),
+        signal: controller.signal,
       });
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         dispatch({ type: 'LOGIN_FAILURE' });
@@ -103,10 +110,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
 
       const data: LoginResponse = await response.json();
-      
+
       // Store token in localStorage
       localStorage.setItem('auth_token', data.token);
-      
+
       dispatch({
         type: 'LOGIN_SUCCESS',
         payload: {
