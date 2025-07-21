@@ -1,5 +1,5 @@
 import { RequestHandler } from 'express';
-import { LoginRequest, LoginResponse, AuthUser } from '@shared/auth';
+import { LoginRequest, LoginResponse, AuthUser } from '../../shared/auth.js';
 import { findUserByEmail, updateLastLogin } from '../db/users';
 import { comparePassword } from '../utils/password';
 import { generateToken, getTokenExpirationTime } from '../utils/jwt';
