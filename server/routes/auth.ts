@@ -74,12 +74,12 @@ export const handleLogin: RequestHandler = async (req, res) => {
   }
 };
 
-export const handleLogout: RequestHandler = (req: AuthRequest, res) => {
+export const handleLogout: RequestHandler = async (req: AuthRequest, res) => {
   try {
     if (req.user) {
       // Create audit log
       const clientIP = req.ip || req.connection.remoteAddress || "unknown";
-      createAuditLog(
+      await createAuditLog(
         req.user.id,
         "Unknown", // We don't have the name in the request
         req.user.role,
