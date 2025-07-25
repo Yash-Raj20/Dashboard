@@ -4,13 +4,13 @@ import { getAllUsers } from "../db/users";
 import { getAuditLogs, getRecentAuditLogs } from "../db/auditLogs";
 import { AuthRequest } from "../middleware/auth";
 
-export const handleGetAnalytics: RequestHandler = (
+export const handleGetAnalytics: RequestHandler = async (
   req: AuthRequest,
   res,
 ) => {
   try {
-    const users = getAllUsers();
-    const recentLogs = getRecentAuditLogs(24);
+    const users = await getAllUsers();
+    const recentLogs = await getRecentAuditLogs(24);
 
     const totalUsers = users.filter((user) => user.role === "user").length;
     const totalSubAdmins = users.filter(
