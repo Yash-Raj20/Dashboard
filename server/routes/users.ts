@@ -20,7 +20,7 @@ import { createAuditLog } from "../db/auditLogs";
 import { triggerNotification } from "./notifications";
 import { AuthRequest } from "../middleware/auth";
 
-export const handleGetAllUsers: RequestHandler = (req: AuthRequest, res) => {
+export const handleGetUsers: RequestHandler = (req: AuthRequest, res) => {
   try {
     const users = getAllUsers();
     res.json({ users });
