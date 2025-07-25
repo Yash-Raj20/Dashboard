@@ -1,5 +1,7 @@
 import { Role } from "../../shared/auth.js";
 import { Notification, INotification } from "./models/Notification.js";
+import { withDatabase } from "./adapter.js";
+import * as memoryNotifications from "./memory/notifications.js";
 
 export interface NotificationData {
   id: string;
