@@ -4,7 +4,7 @@ import { getAllUsers } from "../db/users";
 import { getAuditLogs, getRecentAuditLogs } from "../db/auditLogs";
 import { AuthRequest } from "../middleware/auth";
 
-export const handleGetDashboardStats: RequestHandler = (
+export const handleGetAnalytics: RequestHandler = (
   req: AuthRequest,
   res,
 ) => {
