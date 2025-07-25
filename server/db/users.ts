@@ -129,30 +129,30 @@ export async function getSubAdmins(): Promise<UserInterface[]> {
 export async function createUser(
   userData: Omit<UserInterface & { password: string }, "id" | "createdAt" | "updatedAt">,
 ): Promise<UserInterface | null> {
-  try {
-    const newUser = new User({
-      ...userData,
-      email: userData.email.toLowerCase(),
-    });
+  return withDatabase(
+    async () => {
+      const newUser = new User({
+        ...userData,
+        email: userData.email.toLowerCase(),
+      });
 
-    const savedUser = await newUser.save();
+      const savedUser = await newUser.save();
 
-    return {
-      id: savedUser._id.toString(),
-      email: savedUser.email,
-      name: savedUser.name,
-      role: savedUser.role,
-      permissions: savedUser.permissions,
-      createdAt: savedUser.createdAt,
-      updatedAt: savedUser.updatedAt,
-      isActive: savedUser.isActive,
-      lastLogin: savedUser.lastLogin,
-      createdBy: savedUser.createdBy,
-    };
-  } catch (error) {
-    console.error('Error creating user:', error);
-    return null;
-  }
+      return {
+        id: savedUser._id.toString(),
+        email: savedUser.email,
+        name: savedUser.name,
+        role: savedUser.role,
+        permissions: savedUser.permissions,
+        createdAt: savedUser.createdAt,
+        updatedAt: savedUser.updatedAt,
+        isActive: savedUser.isActive,
+        lastLogin: savedUser.lastLogin,
+        createdBy: savedUser.createdBy,
+      };
+    },
+    () => memoryUsers.createUserMemory(userData)
+  );
 }
 
 export async function updateUser(id: string, updates: Partial<UserInterface>): Promise<UserInterface | null> {
