@@ -59,7 +59,9 @@ export function NotificationCenter() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch notifications");
+        const errorText = await response.text();
+        console.error("API Error:", response.status, errorText);
+        throw new Error(`Failed to fetch notifications: ${response.status} ${errorText}`);
       }
 
       const data = await response.json();
