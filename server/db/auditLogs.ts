@@ -13,36 +13,36 @@ export async function createAuditLog(
   details?: any,
   ipAddress?: string,
 ): Promise<AuditLogInterface | null> {
-  try {
-    const log = new AuditLog({
-      userId,
-      userName,
-      userRole,
-      action,
-      target,
-      targetId,
-      details,
-      ipAddress,
-    });
+  return withDatabase(
+    async () => {
+      const log = new AuditLog({
+        userId,
+        userName,
+        userRole,
+        action,
+        target,
+        targetId,
+        details,
+        ipAddress,
+      });
 
-    const savedLog = await log.save();
+      const savedLog = await log.save();
 
-    return {
-      id: savedLog._id.toString(),
-      userId: savedLog.userId,
-      userName: savedLog.userName,
-      userRole: savedLog.userRole,
-      action: savedLog.action,
-      target: savedLog.target,
-      targetId: savedLog.targetId,
-      details: savedLog.details,
-      timestamp: savedLog.timestamp,
-      ipAddress: savedLog.ipAddress,
-    };
-  } catch (error) {
-    console.error('Error creating audit log:', error);
-    return null;
-  }
+      return {
+        id: savedLog._id.toString(),
+        userId: savedLog.userId,
+        userName: savedLog.userName,
+        userRole: savedLog.userRole,
+        action: savedLog.action,
+        target: savedLog.target,
+        targetId: savedLog.targetId,
+        details: savedLog.details,
+        timestamp: savedLog.timestamp,
+        ipAddress: savedLog.ipAddress,
+      };
+    },
+    () => memoryAuditLogs.createAuditLogMemory(userId, userName, userRole, action, target, targetId, details, ipAddress)
+  );
 }
 
 export async function getAuditLogs(
