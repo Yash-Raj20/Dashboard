@@ -26,10 +26,22 @@ export async function authenticateToken(
 
   try {
     const decoded = verifyToken(token);
+
+    if (!decoded || !decoded.userId) {
+      console.error("Invalid token payload:", decoded);
+      return res.status(403).json({ error: "Invalid token payload" });
+    }
+
     const user = await findUserById(decoded.userId);
 
-    if (!user || !user.isActive) {
-      return res.status(401).json({ error: "Invalid or inactive user" });
+    if (!user) {
+      console.error("User not found for ID:", decoded.userId);
+      return res.status(401).json({ error: "User not found" });
+    }
+
+    if (!user.isActive) {
+      console.error("Inactive user attempting access:", user.email);
+      return res.status(401).json({ error: "User account is inactive" });
     }
 
     req.user = {
@@ -42,7 +54,12 @@ export async function authenticateToken(
     next();
   } catch (error) {
     console.error("Auth middleware error:", error);
-    return res.status(403).json({ error: "Invalid or expired token" });
+    if (error instanceof Error && error.name === 'TokenExpiredError') {
+      return res.status(401).json({ error: "Token expired. Please log in again." });
+    } else if (error instanceof Error && error.name === 'JsonWebTokenError') {
+      return res.status(403).json({ error: "Invalid token format" });
+    }
+    return res.status(403).json({ error: "Authentication failed" });
   }
 }
 
