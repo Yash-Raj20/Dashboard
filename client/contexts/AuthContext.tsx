@@ -184,7 +184,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-      const response = await fetch("/api/auth/verify", {
+      const response = await fetch("/api/auth/profile", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
