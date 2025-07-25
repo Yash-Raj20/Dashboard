@@ -61,7 +61,7 @@ export function CreateNotification({ onNotificationCreated }: CreateNotification
 
       const data = await response.json();
       setSuccess(`Notification sent to ${data.notifications} users successfully!`);
-      
+
       // Reset form
       setFormData({
         title: "",
@@ -69,6 +69,9 @@ export function CreateNotification({ onNotificationCreated }: CreateNotification
         type: "info",
         priority: "medium",
       });
+
+      // Call callback to refresh notifications
+      onNotificationCreated?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
