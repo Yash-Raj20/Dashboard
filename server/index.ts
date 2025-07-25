@@ -32,6 +32,7 @@ import {
   handleMarkAllAsRead,
   handleDeleteNotification,
   handleTestNotification,
+  handleCreateNotification,
 } from "./routes/notifications.js";
 
 import {
