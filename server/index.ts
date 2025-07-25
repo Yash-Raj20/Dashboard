@@ -25,6 +25,9 @@ import {
   handleUpdateUser,
   handleDeleteUser,
   handleGetSubAdmins,
+  handleCreateSubAdmin,
+  handleUpdateSubAdmin,
+  handleDeleteSubAdmin,
 } from "./routes/users.js";
 
 import {
