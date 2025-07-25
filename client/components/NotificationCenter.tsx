@@ -52,13 +52,24 @@ export function NotificationCenter() {
     try {
       setLoading(true);
       const token = localStorage.getItem("auth_token");
+
+      if (!token) {
+        console.warn("No auth token found, skipping notifications fetch");
+        return;
+      }
+
       const response = await fetch("/api/notifications", {
         headers: {
           Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
         },
       });
 
       if (!response.ok) {
+        if (response.status === 401) {
+          console.warn("Authentication failed, user may need to log in again");
+          return;
+        }
         const errorText = await response.text();
         console.error("API Error:", response.status, errorText);
         throw new Error(`Failed to fetch notifications: ${response.status} ${errorText}`);
