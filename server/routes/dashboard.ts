@@ -48,12 +48,12 @@ export const handleGetAnalytics: RequestHandler = async (
   }
 };
 
-export const handleGetAuditLogs: RequestHandler = (req: AuthRequest, res) => {
+export const handleGetAuditLogs: RequestHandler = async (req: AuthRequest, res) => {
   try {
     const limit = parseInt(req.query.limit as string) || 100;
     const offset = parseInt(req.query.offset as string) || 0;
 
-    const logs = getAuditLogs(limit, offset);
+    const logs = await getAuditLogs(limit, offset);
     const authLogs: AuthAuditLog[] = logs.map((log) => ({
       ...log,
       timestamp: log.timestamp.toISOString(),
