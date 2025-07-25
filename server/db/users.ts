@@ -1,6 +1,8 @@
 import { User as UserInterface, Role, ROLE_PERMISSIONS } from "../../shared/auth.js";
 import { User, IUser } from "./models/User.js";
 import { hashPassword } from "../utils/password.js";
+import { withDatabase } from "./adapter.js";
+import * as memoryUsers from "./memory/users.js";
 
 // Initialize with a default main admin
 export async function initializeDefaultAdmin() {
