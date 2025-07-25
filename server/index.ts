@@ -226,7 +226,17 @@ async function startServer() {
     }
 
     // Initialize default admin user (works with both MongoDB and in-memory)
-    await initializeDefaultAdmin();
+    try {
+      await initializeDefaultAdmin();
+    } catch (error) {
+      console.error("Failed to initialize admin:", error);
+      // Force memory initialization as last resort
+      if (!usingMongoDB) {
+        const { initializeDefaultAdminMemory } = await import("./db/memory/users.js");
+        await initializeDefaultAdminMemory();
+        console.log("✅ Forced memory initialization completed");
+      }
+    }
 
     // Create and start server
     const app = createServer();
