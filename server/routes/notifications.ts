@@ -10,7 +10,7 @@ import {
 } from "../db/notifications";
 import { findUserById } from "../db/users";
 
-export const handleGetNotifications: RequestHandler = (
+export const handleGetNotifications: RequestHandler = async (
   req: AuthRequest,
   res,
 ) => {
@@ -19,7 +19,8 @@ export const handleGetNotifications: RequestHandler = (
       return res.status(401).json({ error: "Authentication required" });
     }
 
-    const notifications = getNotificationsForUser(req.user.id, req.user.role);
+    const notifications = await getNotificationsForUser(req.user.id, req.user.role);
+    const unreadCount = await getUnreadCount(req.user.id, req.user.role);
 
     // Convert timestamps to strings for JSON serialization
     const serializedNotifications = notifications.map((notification) => ({
@@ -30,7 +31,7 @@ export const handleGetNotifications: RequestHandler = (
 
     res.json({
       notifications: serializedNotifications,
-      unreadCount: getUnreadCount(req.user.id, req.user.role),
+      unreadCount,
     });
   } catch (error) {
     console.error("Get notifications error:", error);
