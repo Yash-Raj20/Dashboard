@@ -24,7 +24,7 @@ export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Clear any existing auth state when component mounts
-  React.useEffect(() => {
+  useEffect(() => {
     if (isAuthenticated) {
       logout();
     }
