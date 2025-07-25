@@ -96,13 +96,13 @@ export const handleCreateSubAdmin: RequestHandler = async (
 
     // Create audit log
     const clientIP = req.ip || req.connection.remoteAddress || "unknown";
-    createAuditLog(
+    await createAuditLog(
       req.user!.id,
       "Unknown", // We need to get the user name separately
       req.user!.role,
       "create_sub_admin",
       "user",
-      newSubAdmin.id,
+      newSubAdmin!.id,
       { email, name, permissions },
       clientIP,
     );
