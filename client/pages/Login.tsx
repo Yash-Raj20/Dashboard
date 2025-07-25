@@ -61,16 +61,25 @@ export default function Login() {
     }
 
     setIsSubmitting(true);
+    setErrors([]); // Clear any existing errors
+
     try {
+      console.log("Attempting login with:", { email: formData.email.trim() });
       const success = await login({
         email: formData.email.trim(),
         password: formData.password,
       });
 
+      console.log("Login success:", success);
+
       if (!success) {
         setErrors(["Invalid email or password. Please try again."]);
+      } else {
+        // Clear form on successful login
+        setFormData({ email: "", password: "" });
       }
     } catch (error) {
+      console.error("Login error:", error);
       setErrors(["An unexpected error occurred. Please try again."]);
     } finally {
       setIsSubmitting(false);
