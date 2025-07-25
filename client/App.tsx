@@ -99,22 +99,16 @@ const App = () => (
   </ErrorBoundary>
 );
 
-// Handle hot module replacement properly to avoid createRoot warning
+// Handle root mounting properly
 const container = document.getElementById("root")!;
 
-// Check if we're in development mode and there's already a root
+// Create and render the app
+const root = createRoot(container);
+root.render(<App />);
+
+// Handle hot module replacement
 if (import.meta.hot) {
   import.meta.hot.dispose(() => {
-    // Clean up on hot reload
+    // Clean up on hot reload if needed
   });
-}
-
-// Create root only if it doesn't exist
-if (!container._reactRootContainer) {
-  const root = createRoot(container);
-  (container as any)._reactRootContainer = root;
-  root.render(<App />);
-} else {
-  // If root exists, just re-render
-  (container as any)._reactRootContainer.render(<App />);
 }
