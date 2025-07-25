@@ -149,7 +149,7 @@ export const handleUpdateSubAdmin: RequestHandler = async (req: AuthRequest, res
 
     // Create audit log
     const clientIP = req.ip || req.connection.remoteAddress || "unknown";
-    createAuditLog(
+    await createAuditLog(
       req.user!.id,
       "Unknown",
       req.user!.role,
