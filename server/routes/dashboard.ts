@@ -65,3 +65,13 @@ export const handleGetAuditLogs: RequestHandler = (req: AuthRequest, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+export const handleGetMetrics: RequestHandler = (req: AuthRequest, res) => {
+  // Delegate to analytics for now
+  handleGetAnalytics(req, res);
+};
+
+export const handleGetChartData: RequestHandler = (req: AuthRequest, res) => {
+  // Delegate to analytics for now
+  handleGetAnalytics(req, res);
+};
