@@ -32,26 +32,33 @@ export function authenticateToken(
       return res.status(403).json({ error: "Invalid token payload" });
     }
 
-    const user = await findUserById(decoded.userId);
+    // Handle async findUserById properly using promises
+    findUserById(decoded.userId)
+      .then((user) => {
+        if (!user) {
+          console.error("User not found for ID:", decoded.userId);
+          return res.status(401).json({ error: "User not found" });
+        }
 
-    if (!user) {
-      console.error("User not found for ID:", decoded.userId);
-      return res.status(401).json({ error: "User not found" });
-    }
+        if (!user.isActive) {
+          console.error("Inactive user attempting access:", user.email);
+          return res.status(401).json({ error: "User account is inactive" });
+        }
 
-    if (!user.isActive) {
-      console.error("Inactive user attempting access:", user.email);
-      return res.status(401).json({ error: "User account is inactive" });
-    }
+        req.user = {
+          id: user.id,
+          email: user.email,
+          role: user.role,
+          permissions: user.permissions,
+        };
 
-    req.user = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      permissions: user.permissions,
-    };
+        next();
+      })
+      .catch((error) => {
+        console.error("Database error in auth middleware:", error);
+        return res.status(500).json({ error: "Authentication database error" });
+      });
 
-    next();
   } catch (error) {
     console.error("Auth middleware error:", error);
     if (error instanceof Error && error.name === "TokenExpiredError") {
@@ -64,8 +71,6 @@ export function authenticateToken(
     return res.status(403).json({ error: "Authentication failed" });
   }
 }
-
-export const authenticateToken = asyncHandler(authenticateTokenAsync);
 
 export function requireRole(roles: Role | Role[]) {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
