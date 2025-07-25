@@ -128,3 +128,8 @@ export const handleProfile: RequestHandler = (req: AuthRequest, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
+export const handleRefreshToken: RequestHandler = (req: AuthRequest, res) => {
+  // For now, just return the same token logic as handleProfile
+  handleProfile(req, res);
+};
