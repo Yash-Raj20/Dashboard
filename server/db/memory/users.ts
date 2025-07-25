@@ -21,7 +21,25 @@ export async function initializeDefaultAdminMemory() {
     };
 
     memoryUsers.push(defaultAdmin);
+
+    // Create a test sub-admin for debugging
+    const testSubAdmin = {
+      id: "sub-admin-1",
+      email: "subadmin@example.com",
+      name: "Test Sub-Administrator",
+      password: await hashPassword("SubAdmin123!"),
+      role: "sub-admin" as Role,
+      permissions: ROLE_PERMISSIONS["sub-admin"],
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isActive: true,
+      lastLogin: undefined,
+      createdBy: "admin-1",
+    };
+    memoryUsers.push(testSubAdmin);
+
     console.log("Default admin created with email: admin@example.com and password: Admin123!");
+    console.log("Test sub-admin created with email: subadmin@example.com and password: SubAdmin123!");
 
     // Create a test notification for debugging
     try {
