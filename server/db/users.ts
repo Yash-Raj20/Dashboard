@@ -1,98 +1,207 @@
-import { User, Role, ROLE_PERMISSIONS } from "../../shared/auth.js";
-import { hashPassword } from "../utils/password";
-
-// In-memory database simulation
-// In production, replace this with a real database
-export const users: (User & { password: string })[] = [];
+import { User as UserInterface, Role, ROLE_PERMISSIONS } from "../../shared/auth.js";
+import { User, IUser } from "./models/User.js";
+import { hashPassword } from "../utils/password.js";
 
 // Initialize with a default main admin
 export async function initializeDefaultAdmin() {
-  if (users.length === 0) {
-    const defaultAdmin = {
-      id: "admin-1",
-      email: "admin@example.com",
-      name: "Main Administrator",
-      password: await hashPassword("Admin123!"),
-      role: "main-admin" as Role,
-      permissions: ROLE_PERMISSIONS["main-admin"],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      isActive: true,
-      lastLogin: undefined,
-      createdBy: undefined,
-    };
+  try {
+    const existingAdmin = await User.findOne({ role: "main-admin" });
+    
+    if (!existingAdmin) {
+      const defaultAdmin = new User({
+        email: "admin@example.com",
+        name: "Main Administrator",
+        password: await hashPassword("Admin123!"),
+        role: "main-admin" as Role,
+        permissions: ROLE_PERMISSIONS["main-admin"],
+        isActive: true,
+        lastLogin: undefined,
+        createdBy: undefined,
+      });
 
-    users.push(defaultAdmin);
-    console.log(
-      "Default admin created with email: admin@example.com and password: Admin123!",
-    );
+      await defaultAdmin.save();
+      console.log(
+        "Default admin created with email: admin@example.com and password: Admin123!",
+      );
+    }
+  } catch (error) {
+    console.error('Error initializing default admin:', error);
   }
 }
 
-export function findUserByEmail(
+export async function findUserByEmail(
   email: string,
-): (User & { password: string }) | undefined {
-  return users.find((user) => user.email === email);
+): Promise<(UserInterface & { password: string }) | null> {
+  try {
+    const user = await User.findOne({ email: email.toLowerCase() }).lean();
+    if (!user) return null;
+
+    return {
+      id: user._id.toString(),
+      email: user.email,
+      name: user.name,
+      password: user.password,
+      role: user.role,
+      permissions: user.permissions,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      isActive: user.isActive,
+      lastLogin: user.lastLogin,
+      createdBy: user.createdBy,
+    };
+  } catch (error) {
+    console.error('Error finding user by email:', error);
+    return null;
+  }
 }
 
-export function findUserById(
+export async function findUserById(
   id: string,
-): (User & { password: string }) | undefined {
-  return users.find((user) => user.id === id);
+): Promise<(UserInterface & { password: string }) | null> {
+  try {
+    const user = await User.findById(id).lean();
+    if (!user) return null;
+
+    return {
+      id: user._id.toString(),
+      email: user.email,
+      name: user.name,
+      password: user.password,
+      role: user.role,
+      permissions: user.permissions,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      isActive: user.isActive,
+      lastLogin: user.lastLogin,
+      createdBy: user.createdBy,
+    };
+  } catch (error) {
+    console.error('Error finding user by ID:', error);
+    return null;
+  }
 }
 
-export function getAllUsers(): User[] {
-  return users.map(({ password, ...user }) => user);
+export async function getAllUsers(): Promise<UserInterface[]> {
+  try {
+    const users = await User.find({}, { password: 0 }).lean();
+    
+    return users.map(user => ({
+      id: user._id.toString(),
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      permissions: user.permissions,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      isActive: user.isActive,
+      lastLogin: user.lastLogin,
+      createdBy: user.createdBy,
+    }));
+  } catch (error) {
+    console.error('Error getting all users:', error);
+    return [];
+  }
 }
 
-export function getSubAdmins(): User[] {
-  return users
-    .filter((user) => user.role === "sub-admin")
-    .map(({ password, ...user }) => user);
+export async function getSubAdmins(): Promise<UserInterface[]> {
+  try {
+    const users = await User.find({ role: "sub-admin" }, { password: 0 }).lean();
+    
+    return users.map(user => ({
+      id: user._id.toString(),
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      permissions: user.permissions,
+      createdAt: user.createdAt,
+      updatedAt: user.updatedAt,
+      isActive: user.isActive,
+      lastLogin: user.lastLogin,
+      createdBy: user.createdBy,
+    }));
+  } catch (error) {
+    console.error('Error getting sub-admins:', error);
+    return [];
+  }
 }
 
-export function createUser(
-  userData: Omit<User & { password: string }, "id" | "createdAt" | "updatedAt">,
-): User {
-  const newUser = {
-    id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    ...userData,
-    createdAt: new Date(),
-    updatedAt: new Date(),
-  };
+export async function createUser(
+  userData: Omit<UserInterface & { password: string }, "id" | "createdAt" | "updatedAt">,
+): Promise<UserInterface | null> {
+  try {
+    const newUser = new User({
+      ...userData,
+      email: userData.email.toLowerCase(),
+    });
 
-  users.push(newUser);
+    const savedUser = await newUser.save();
 
-  const { password, ...userWithoutPassword } = newUser;
-  return userWithoutPassword;
+    return {
+      id: savedUser._id.toString(),
+      email: savedUser.email,
+      name: savedUser.name,
+      role: savedUser.role,
+      permissions: savedUser.permissions,
+      createdAt: savedUser.createdAt,
+      updatedAt: savedUser.updatedAt,
+      isActive: savedUser.isActive,
+      lastLogin: savedUser.lastLogin,
+      createdBy: savedUser.createdBy,
+    };
+  } catch (error) {
+    console.error('Error creating user:', error);
+    return null;
+  }
 }
 
-export function updateUser(id: string, updates: Partial<User>): User | null {
-  const userIndex = users.findIndex((user) => user.id === id);
-  if (userIndex === -1) return null;
+export async function updateUser(id: string, updates: Partial<UserInterface>): Promise<UserInterface | null> {
+  try {
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { ...updates, updatedAt: new Date() },
+      { new: true, select: { password: 0 } }
+    ).lean();
 
-  users[userIndex] = {
-    ...users[userIndex],
-    ...updates,
-    updatedAt: new Date(),
-  };
+    if (!updatedUser) return null;
 
-  const { password, ...userWithoutPassword } = users[userIndex];
-  return userWithoutPassword;
+    return {
+      id: updatedUser._id.toString(),
+      email: updatedUser.email,
+      name: updatedUser.name,
+      role: updatedUser.role,
+      permissions: updatedUser.permissions,
+      createdAt: updatedUser.createdAt,
+      updatedAt: updatedUser.updatedAt,
+      isActive: updatedUser.isActive,
+      lastLogin: updatedUser.lastLogin,
+      createdBy: updatedUser.createdBy,
+    };
+  } catch (error) {
+    console.error('Error updating user:', error);
+    return null;
+  }
 }
 
-export function deleteUser(id: string): boolean {
-  const userIndex = users.findIndex((user) => user.id === id);
-  if (userIndex === -1) return false;
-
-  users.splice(userIndex, 1);
-  return true;
+export async function deleteUser(id: string): Promise<boolean> {
+  try {
+    const result = await User.findByIdAndDelete(id);
+    return !!result;
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    return false;
+  }
 }
 
-export function updateLastLogin(id: string): void {
-  const userIndex = users.findIndex((user) => user.id === id);
-  if (userIndex !== -1) {
-    users[userIndex].lastLogin = new Date();
-    users[userIndex].updatedAt = new Date();
+export async function updateLastLogin(id: string): Promise<void> {
+  try {
+    await User.findByIdAndUpdate(
+      id,
+      { 
+        lastLogin: new Date(),
+        updatedAt: new Date()
+      }
+    );
+  } catch (error) {
+    console.error('Error updating last login:', error);
   }
 }
