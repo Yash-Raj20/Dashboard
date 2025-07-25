@@ -26,7 +26,15 @@ export default function ProtectedRoute({
 }: ProtectedRouteProps) {
   const location = useLocation();
 
-  // Always call useAuth - don't conditionally call hooks
+  // Try to get auth data, fallback if it fails
+  let authData;
+  try {
+    authData = useAuth();
+  } catch (error) {
+    console.error("Failed to get auth context:", error);
+    return <AuthFallback />;
+  }
+
   const {
     isAuthenticated,
     isLoading,
@@ -35,7 +43,7 @@ export default function ProtectedRoute({
     hasPermission,
     hasAnyPermission,
     hasRole,
-  } = useAuth();
+  } = authData;
 
   // Show loading spinner while checking authentication
   if (isLoading) {
