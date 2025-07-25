@@ -23,23 +23,9 @@ export default function ProtectedRoute({
   requireAll = false,
   fallback,
 }: ProtectedRouteProps) {
-  // Add error handling for useAuth hook
-  let authData;
-  try {
-    authData = useAuth();
-  } catch (error) {
-    console.error("Failed to get auth context:", error);
-    // Return loading state or redirect to login
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex items-center space-x-2">
-          <Loader2 className="h-6 w-6 animate-spin" />
-          <span>Loading authentication...</span>
-        </div>
-      </div>
-    );
-  }
+  const location = useLocation();
 
+  // Always call useAuth - don't conditionally call hooks
   const {
     isAuthenticated,
     isLoading,
@@ -48,8 +34,7 @@ export default function ProtectedRoute({
     hasPermission,
     hasAnyPermission,
     hasRole,
-  } = authData;
-  const location = useLocation();
+  } = useAuth();
 
   // Show loading spinner while checking authentication
   if (isLoading) {
