@@ -102,9 +102,15 @@ const App = () => (
 // Handle root mounting properly
 const container = document.getElementById("root")!;
 
-// Create and render the app
-const root = createRoot(container);
-root.render(<App />);
+// Prevent multiple createRoot calls
+if (!(container as any)._reactRoot) {
+  const root = createRoot(container);
+  (container as any)._reactRoot = root;
+  root.render(<App />);
+} else {
+  // Re-render on existing root
+  (container as any)._reactRoot.render(<App />);
+}
 
 // Handle hot module replacement
 if (import.meta.hot) {
