@@ -61,7 +61,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 
 export default function SubAdmins() {
-  const { hasPermission } = useAuth();
+  const { hasPermission, logout } = useAuth();
   const { toast } = useToast();
   const [subAdmins, setSubAdmins] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
