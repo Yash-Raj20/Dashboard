@@ -6,6 +6,7 @@ import { dirname, join } from "path";
 // Import database connection
 import { dbConnection } from "./db/connection.js";
 import { initializeDefaultAdmin } from "./db/users.js";
+import { setDatabaseMode } from "./db/adapter.js";
 
 // Import authentication
 import { authenticateToken } from "./middleware/auth.js";
