@@ -266,12 +266,12 @@ export const handleCreateUser: RequestHandler = async (
   }
 };
 
-export const handleUpdateUser: RequestHandler = (req: AuthRequest, res) => {
+export const handleUpdateUser: RequestHandler = async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
     const updates: UpdateUserRequest = req.body;
 
-    const existingUser = findUserById(id);
+    const existingUser = await findUserById(id);
     if (!existingUser) {
       return res.status(404).json({ error: "User not found" });
     }
