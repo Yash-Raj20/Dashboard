@@ -12,14 +12,7 @@ export interface AuthRequest extends Request {
   };
 }
 
-// Async wrapper to properly handle async middleware in Express
-function asyncHandler(fn: (req: AuthRequest, res: Response, next: NextFunction) => Promise<void>) {
-  return (req: AuthRequest, res: Response, next: NextFunction) => {
-    Promise.resolve(fn(req, res, next)).catch(next);
-  };
-}
-
-async function authenticateTokenAsync(
+export function authenticateToken(
   req: AuthRequest,
   res: Response,
   next: NextFunction,
