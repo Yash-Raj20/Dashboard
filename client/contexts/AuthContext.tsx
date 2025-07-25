@@ -108,12 +108,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const login = async (credentials: LoginRequest): Promise<boolean> => {
     try {
+      console.log("Starting login process...");
       dispatch({ type: "LOGIN_START" });
 
       // Add timeout for login request
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
 
+      console.log("Making login request to /api/auth/login");
       const response = await fetch("/api/auth/login", {
         method: "POST",
         headers: {
@@ -124,13 +126,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       clearTimeout(timeoutId);
+      console.log("Login response status:", response.status);
 
       if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Login failed:", response.status, errorText);
         dispatch({ type: "LOGIN_FAILURE" });
         return false;
       }
 
       const data: LoginResponse = await response.json();
+      console.log("Login successful, received user data:", data.user);
 
       // Store token in localStorage
       localStorage.setItem("auth_token", data.token);
