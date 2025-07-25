@@ -305,11 +305,11 @@ export const handleUpdateUser: RequestHandler = async (req: AuthRequest, res) =>
   }
 };
 
-export const handleDeleteUser: RequestHandler = (req: AuthRequest, res) => {
+export const handleDeleteUser: RequestHandler = async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
 
-    const existingUser = findUserById(id);
+    const existingUser = await findUserById(id);
     if (!existingUser) {
       return res.status(404).json({ error: "User not found" });
     }
