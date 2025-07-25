@@ -66,12 +66,12 @@ export const handleGetAuditLogs: RequestHandler = async (req: AuthRequest, res) 
   }
 };
 
-export const handleGetMetrics: RequestHandler = (req: AuthRequest, res) => {
+export const handleGetMetrics: RequestHandler = async (req: AuthRequest, res) => {
   // Delegate to analytics for now
-  handleGetAnalytics(req, res);
+  await handleGetAnalytics(req, res);
 };
 
-export const handleGetChartData: RequestHandler = (req: AuthRequest, res) => {
+export const handleGetChartData: RequestHandler = async (req: AuthRequest, res) => {
   // Delegate to analytics for now
-  handleGetAnalytics(req, res);
+  await handleGetAnalytics(req, res);
 };
