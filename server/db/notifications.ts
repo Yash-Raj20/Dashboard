@@ -1,27 +1,24 @@
 import { Role } from "../../shared/auth.js";
+import { Notification, INotification } from "./models/Notification.js";
 
-export interface Notification {
+export interface NotificationData {
   id: string;
-  targetRole?: Role | Role[]; // Which roles should receive this notification
-  targetUserId?: string; // Specific user (optional)
-  fromUserId: string; // Who triggered the notification
+  targetRole?: Role | Role[];
+  targetUserId?: string;
+  fromUserId: string;
   fromUserName: string;
   fromUserRole: Role;
   type: "info" | "warning" | "success" | "error";
   title: string;
   message: string;
-  action?: string; // What action was performed
-  targetResource?: string; // What was affected (user, sub-admin, etc.)
+  action?: string;
+  targetResource?: string;
   targetResourceId?: string;
   timestamp: Date;
   read: boolean;
   priority: "low" | "medium" | "high" | "urgent";
-  autoExpires?: Date; // Optional auto-expiry
+  autoExpires?: Date;
 }
-
-// In-memory notifications storage
-// In production, replace with a real database
-export const notifications: Notification[] = [];
 
 // Role-based notification rules
 export const NOTIFICATION_RULES = {
@@ -106,27 +103,42 @@ export const NOTIFICATION_RULES = {
   },
 };
 
-export function createNotification(
-  data: Omit<Notification, "id" | "timestamp" | "read">,
-): Notification {
-  const notification: Notification = {
-    id: `notif-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-    ...data,
-    timestamp: new Date(),
-    read: false,
-  };
+export async function createNotification(
+  data: Omit<NotificationData, "id" | "timestamp" | "read">,
+): Promise<NotificationData> {
+  try {
+    const notification = new Notification({
+      ...data,
+      read: false,
+    });
 
-  notifications.unshift(notification); // Add to beginning
-
-  // Keep only last 100 notifications per role
-  if (notifications.length > 100) {
-    notifications.splice(100);
+    const savedNotification = await notification.save();
+    
+    return {
+      id: savedNotification._id.toString(),
+      targetRole: savedNotification.targetRole,
+      targetUserId: savedNotification.targetUserId,
+      fromUserId: savedNotification.fromUserId,
+      fromUserName: savedNotification.fromUserName,
+      fromUserRole: savedNotification.fromUserRole,
+      type: savedNotification.type,
+      title: savedNotification.title,
+      message: savedNotification.message,
+      action: savedNotification.action,
+      targetResource: savedNotification.targetResource,
+      targetResourceId: savedNotification.targetResourceId,
+      timestamp: savedNotification.createdAt,
+      read: savedNotification.read,
+      priority: savedNotification.priority,
+      autoExpires: savedNotification.autoExpires,
+    };
+  } catch (error) {
+    console.error('Error creating notification:', error);
+    throw error;
   }
-
-  return notification;
 }
 
-export function createRoleBasedNotification(
+export async function createRoleBasedNotification(
   fromUserId: string,
   fromUserName: string,
   fromUserRole: Role,
@@ -137,8 +149,8 @@ export function createRoleBasedNotification(
     count?: number;
     details?: string;
   },
-): Notification[] {
-  const createdNotifications: Notification[] = [];
+): Promise<NotificationData[]> {
+  const createdNotifications: NotificationData[] = [];
   let rule: any = null;
 
   // Determine which rule to apply based on role and action
@@ -168,107 +180,145 @@ export function createRoleBasedNotification(
 
   // Create notification for each target role
   for (const targetRole of rule.notifyRoles) {
-    const notification = createNotification({
-      targetRole: targetRole,
-      fromUserId,
-      fromUserName,
-      fromUserRole,
-      type: content.type,
-      title: content.title,
-      message: content.message,
-      action,
-      targetResource: targetDetails?.name ? "user" : undefined,
-      targetResourceId: targetDetails?.id,
-      priority: rule.priority,
-    });
+    try {
+      const notification = await createNotification({
+        targetRole: targetRole,
+        fromUserId,
+        fromUserName,
+        fromUserRole,
+        type: content.type,
+        title: content.title,
+        message: content.message,
+        action,
+        targetResource: targetDetails?.name ? "user" : undefined,
+        targetResourceId: targetDetails?.id,
+        priority: rule.priority,
+      });
 
-    createdNotifications.push(notification);
+      createdNotifications.push(notification);
+    } catch (error) {
+      console.error('Error creating role-based notification:', error);
+    }
   }
 
   return createdNotifications;
 }
 
-export function getNotificationsForUser(
+export async function getNotificationsForUser(
   userId: string,
   userRole: Role,
-): Notification[] {
-  return notifications
-    .filter((notification) => {
-      // Check if notification is targeted to this user specifically
-      if (notification.targetUserId === userId) {
-        return true;
-      }
+  limit: number = 50,
+): Promise<NotificationData[]> {
+  try {
+    const query = {
+      $or: [
+        { targetUserId: userId },
+        { targetRole: userRole },
+        { targetRole: { $in: [userRole] } }
+      ]
+    };
 
-      // Check if notification is targeted to this user's role
-      if (notification.targetRole) {
-        if (Array.isArray(notification.targetRole)) {
-          return notification.targetRole.includes(userRole);
-        }
-        return notification.targetRole === userRole;
-      }
+    const notifications = await Notification
+      .find(query)
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .lean();
 
-      return false;
-    })
-    .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime()) // Most recent first
-    .slice(0, 50); // Limit to 50 notifications
+    return notifications.map(notification => ({
+      id: notification._id.toString(),
+      targetRole: notification.targetRole,
+      targetUserId: notification.targetUserId,
+      fromUserId: notification.fromUserId,
+      fromUserName: notification.fromUserName,
+      fromUserRole: notification.fromUserRole,
+      type: notification.type,
+      title: notification.title,
+      message: notification.message,
+      action: notification.action,
+      targetResource: notification.targetResource,
+      targetResourceId: notification.targetResourceId,
+      timestamp: notification.createdAt,
+      read: notification.read,
+      priority: notification.priority,
+      autoExpires: notification.autoExpires,
+    }));
+  } catch (error) {
+    console.error('Error getting notifications for user:', error);
+    throw error;
+  }
 }
 
-export function markNotificationAsRead(
+export async function markNotificationAsRead(
   notificationId: string,
   userId: string,
-): boolean {
-  const notification = notifications.find((n) => n.id === notificationId);
-  if (notification) {
-    notification.read = true;
-    return true;
+): Promise<boolean> {
+  try {
+    const result = await Notification.findByIdAndUpdate(
+      notificationId,
+      { read: true },
+      { new: true }
+    );
+    return !!result;
+  } catch (error) {
+    console.error('Error marking notification as read:', error);
+    return false;
   }
-  return false;
 }
 
-export function markAllNotificationsAsRead(
+export async function markAllNotificationsAsRead(
   userId: string,
   userRole: Role,
-): number {
-  const userNotifications = getNotificationsForUser(userId, userRole);
-  let count = 0;
+): Promise<number> {
+  try {
+    const query = {
+      $or: [
+        { targetUserId: userId },
+        { targetRole: userRole },
+        { targetRole: { $in: [userRole] } }
+      ],
+      read: false
+    };
 
-  for (const notification of userNotifications) {
-    if (!notification.read) {
-      notification.read = true;
-      count++;
-    }
+    const result = await Notification.updateMany(
+      query,
+      { read: true }
+    );
+
+    return result.modifiedCount || 0;
+  } catch (error) {
+    console.error('Error marking all notifications as read:', error);
+    return 0;
   }
-
-  return count;
 }
 
-export function deleteNotification(notificationId: string): boolean {
-  const index = notifications.findIndex((n) => n.id === notificationId);
-  if (index !== -1) {
-    notifications.splice(index, 1);
-    return true;
+export async function deleteNotification(notificationId: string): Promise<boolean> {
+  try {
+    const result = await Notification.findByIdAndDelete(notificationId);
+    return !!result;
+  } catch (error) {
+    console.error('Error deleting notification:', error);
+    return false;
   }
-  return false;
 }
 
-export function getUnreadCount(userId: string, userRole: Role): number {
-  return getNotificationsForUser(userId, userRole).filter((n) => !n.read)
-    .length;
+export async function getUnreadCount(userId: string, userRole: Role): Promise<number> {
+  try {
+    const query = {
+      $or: [
+        { targetUserId: userId },
+        { targetRole: userRole },
+        { targetRole: { $in: [userRole] } }
+      ],
+      read: false
+    };
+
+    const count = await Notification.countDocuments(query);
+    return count;
+  } catch (error) {
+    console.error('Error getting unread count:', error);
+    return 0;
+  }
 }
 
-// Auto-cleanup expired notifications
-setInterval(() => {
-  const now = new Date();
-  const expiredIndices: number[] = [];
-
-  notifications.forEach((notification, index) => {
-    if (notification.autoExpires && notification.autoExpires < now) {
-      expiredIndices.push(index);
-    }
-  });
-
-  // Remove expired notifications (in reverse order to maintain indices)
-  expiredIndices.reverse().forEach((index) => {
-    notifications.splice(index, 1);
-  });
-}, 60000); // Check every minute
+// Auto-cleanup expired notifications using MongoDB TTL index
+// This is automatically handled by MongoDB when autoExpires field is set
