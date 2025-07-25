@@ -18,7 +18,8 @@ export default function AuthFallback() {
           <AlertTriangle className="h-4 w-4" />
           <AlertTitle>Authentication Error</AlertTitle>
           <AlertDescription className="mt-2">
-            The authentication system failed to load. This may be a temporary issue.
+            The authentication system failed to load. This may be a temporary
+            issue.
           </AlertDescription>
         </Alert>
 
@@ -27,7 +28,11 @@ export default function AuthFallback() {
             <RefreshCw className="mr-2 h-4 w-4" />
             Reload Page
           </Button>
-          <Button variant="outline" onClick={handleGoToLogin} className="w-full">
+          <Button
+            variant="outline"
+            onClick={handleGoToLogin}
+            className="w-full"
+          >
             Go to Login
           </Button>
         </div>
