@@ -96,6 +96,25 @@ export function createServer() {
     res.json({ message: "API routing is working", timestamp: new Date().toISOString() });
   });
 
+  // Debug endpoint to check if default admin exists
+  app.get("/api/debug/admin", async (req, res) => {
+    try {
+      const { findUserByEmail } = await import("./db/users.js");
+      const user = await findUserByEmail("admin@example.com");
+      res.json({
+        adminExists: !!user,
+        adminEmail: user?.email,
+        adminActive: user?.isActive,
+        defaultCredentials: {
+          email: "admin@example.com",
+          password: "Admin123!"
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ error: "Failed to check admin user" });
+    }
+  });
+
   // Auth routes
   app.post("/api/auth/login", handleLogin);
   app.post("/api/auth/logout", authenticateToken, handleLogout);
