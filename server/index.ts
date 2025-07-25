@@ -206,6 +206,12 @@ async function startServer() {
     const mongoUri =
       process.env.MONGODB_URI || "mongodb://localhost:27017/admin-dashboard";
 
+    console.log("🔍 Attempting MongoDB connection...");
+    console.log("📍 MongoDB URI:", mongoUri);
+    console.log("🌍 Environment variables check:");
+    console.log("   - MONGODB_URI:", process.env.MONGODB_URI || "not set");
+    console.log("   - NODE_ENV:", process.env.NODE_ENV || "not set");
+
     // Try to connect to MongoDB, but continue if it fails
     let usingMongoDB = false;
     try {
