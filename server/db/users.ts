@@ -59,49 +59,49 @@ export async function findUserByEmail(
 export async function findUserById(
   id: string,
 ): Promise<(UserInterface & { password: string }) | null> {
-  try {
-    const user = await User.findById(id).lean();
-    if (!user) return null;
+  return withDatabase(
+    async () => {
+      const user = await User.findById(id).lean();
+      if (!user) return null;
 
-    return {
-      id: user._id.toString(),
-      email: user.email,
-      name: user.name,
-      password: user.password,
-      role: user.role,
-      permissions: user.permissions,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      isActive: user.isActive,
-      lastLogin: user.lastLogin,
-      createdBy: user.createdBy,
-    };
-  } catch (error) {
-    console.error('Error finding user by ID:', error);
-    return null;
-  }
+      return {
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        password: user.password,
+        role: user.role,
+        permissions: user.permissions,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        isActive: user.isActive,
+        lastLogin: user.lastLogin,
+        createdBy: user.createdBy,
+      };
+    },
+    () => memoryUsers.findUserByIdMemory(id)
+  );
 }
 
 export async function getAllUsers(): Promise<UserInterface[]> {
-  try {
-    const users = await User.find({}, { password: 0 }).lean();
-    
-    return users.map(user => ({
-      id: user._id.toString(),
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      permissions: user.permissions,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      isActive: user.isActive,
-      lastLogin: user.lastLogin,
-      createdBy: user.createdBy,
-    }));
-  } catch (error) {
-    console.error('Error getting all users:', error);
-    return [];
-  }
+  return withDatabase(
+    async () => {
+      const users = await User.find({}, { password: 0 }).lean();
+
+      return users.map(user => ({
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        permissions: user.permissions,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        isActive: user.isActive,
+        lastLogin: user.lastLogin,
+        createdBy: user.createdBy,
+      }));
+    },
+    () => memoryUsers.getAllUsersMemory()
+  );
 }
 
 export async function getSubAdmins(): Promise<UserInterface[]> {
