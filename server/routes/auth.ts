@@ -98,13 +98,13 @@ export const handleLogout: RequestHandler = (req: AuthRequest, res) => {
   }
 };
 
-export const handleProfile: RequestHandler = (req: AuthRequest, res) => {
+export const handleProfile: RequestHandler = async (req: AuthRequest, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: "Invalid token" });
     }
 
-    const user = findUserByEmail(req.user.email);
+    const user = await findUserByEmail(req.user.email);
     if (!user || !user.isActive) {
       return res.status(401).json({ error: "Invalid or inactive user" });
     }
