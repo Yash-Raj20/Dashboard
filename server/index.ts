@@ -124,22 +124,31 @@ async function startServer() {
   try {
     // Get MongoDB URI from environment or use default
     const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017/admin-dashboard";
-    
-    // Connect to MongoDB
-    await dbConnection.connect({ mongoUri });
-    
-    // Initialize default admin user
+
+    // Try to connect to MongoDB, but continue if it fails
+    try {
+      await dbConnection.connect({ mongoUri });
+      console.log("✅ Connected to MongoDB");
+    } catch (mongoError) {
+      console.warn("⚠️ MongoDB connection failed, falling back to in-memory storage");
+      console.warn("💡 To use MongoDB, make sure it's running on localhost:27017");
+      console.warn("💡 Or start it with: docker run -d --name mongodb -p 27017:27017 mongo:latest");
+    }
+
+    // Initialize default admin user (works with both MongoDB and in-memory)
     await initializeDefaultAdmin();
-    
+
     // Create and start server
     const app = createServer();
     const port = process.env.PORT || 3000;
-    
+
     app.listen(port, () => {
       console.log(`🚀 Server running on port ${port}`);
       console.log(`📱 Health check: http://localhost:${port}/health`);
+      console.log(`🔗 Admin login: http://localhost:${port}`);
+      console.log(`📧 Default admin: admin@example.com / Admin123!`);
     });
-    
+
   } catch (error) {
     console.error("❌ Failed to start server:", error);
     process.exit(1);
