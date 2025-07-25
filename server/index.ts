@@ -55,8 +55,18 @@ export function createServer() {
   const app = express();
 
   // Middleware
-  app.use(cors());
+  app.use(cors({
+    origin: true,
+    credentials: true,
+    optionsSuccessStatus: 200
+  }));
   app.use(express.json());
+
+  // Add explicit JSON response headers for API routes
+  app.use('/api', (req, res, next) => {
+    res.setHeader('Content-Type', 'application/json');
+    next();
+  });
 
   // Request logging for API routes
   app.use('/api', (req, res, next) => {
