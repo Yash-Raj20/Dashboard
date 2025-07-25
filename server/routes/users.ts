@@ -180,14 +180,14 @@ export const handleDeleteSubAdmin: RequestHandler = async (req: AuthRequest, res
       return res.status(400).json({ error: "User is not a sub-admin" });
     }
 
-    const deleted = deleteUser(id);
+    const deleted = await deleteUser(id);
     if (!deleted) {
       return res.status(404).json({ error: "Sub-admin not found" });
     }
 
     // Create audit log
     const clientIP = req.ip || req.connection.remoteAddress || "unknown";
-    createAuditLog(
+    await createAuditLog(
       req.user!.id,
       "Unknown",
       req.user!.role,
