@@ -29,11 +29,11 @@ export const handleLogin: RequestHandler = async (req, res) => {
     }
 
     // Update last login
-    updateLastLogin(user.id);
+    await updateLastLogin(user.id);
 
     // Create audit log
     const clientIP = req.ip || req.connection.remoteAddress || "unknown";
-    createAuditLog(
+    await createAuditLog(
       user.id,
       user.name,
       user.role,
