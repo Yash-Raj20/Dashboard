@@ -226,7 +226,7 @@ export const handleCreateUser: RequestHandler = async (
     }
 
     // Check if user already exists
-    if (findUserByEmail(email)) {
+    if (await findUserByEmail(email)) {
       return res
         .status(409)
         .json({ error: "User with this email already exists" });
