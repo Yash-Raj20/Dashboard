@@ -10,23 +10,31 @@ export const handleLogin: RequestHandler = async (req, res) => {
   try {
     const { email, password }: LoginRequest = req.body;
 
+    console.log(`Login attempt for email: ${email}`);
+
     if (!email || !password) {
+      console.log("Login failed: Missing email or password");
       return res.status(400).json({ error: "Email and password are required" });
     }
 
     const user = await findUserByEmail(email);
     if (!user) {
+      console.log(`Login failed: User not found for email: ${email}`);
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
     if (!user.isActive) {
+      console.log(`Login failed: Account deactivated for email: ${email}`);
       return res.status(401).json({ error: "Account is deactivated" });
     }
 
     const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid) {
+      console.log(`Login failed: Invalid password for email: ${email}`);
       return res.status(401).json({ error: "Invalid credentials" });
     }
+
+    console.log(`Login successful for email: ${email}`);
 
     // Update last login
     await updateLastLogin(user.id);
