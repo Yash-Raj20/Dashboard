@@ -152,58 +152,63 @@ export async function createRoleBasedNotification(
     details?: string;
   },
 ): Promise<NotificationData[]> {
-  const createdNotifications: NotificationData[] = [];
-  let rule: any = null;
+  return withDatabase(
+    async () => {
+      const createdNotifications: NotificationData[] = [];
+      let rule: any = null;
 
-  // Determine which rule to apply based on role and action
-  if (
-    fromUserRole === "main-admin" &&
-    NOTIFICATION_RULES.MAIN_ADMIN_ACTIONS[action]
-  ) {
-    rule = NOTIFICATION_RULES.MAIN_ADMIN_ACTIONS[action];
-  } else if (
-    fromUserRole === "sub-admin" &&
-    NOTIFICATION_RULES.SUB_ADMIN_ACTIONS[action]
-  ) {
-    rule = NOTIFICATION_RULES.SUB_ADMIN_ACTIONS[action];
-  }
+      // Determine which rule to apply based on role and action
+      if (
+        fromUserRole === "main-admin" &&
+        NOTIFICATION_RULES.MAIN_ADMIN_ACTIONS[action]
+      ) {
+        rule = NOTIFICATION_RULES.MAIN_ADMIN_ACTIONS[action];
+      } else if (
+        fromUserRole === "sub-admin" &&
+        NOTIFICATION_RULES.SUB_ADMIN_ACTIONS[action]
+      ) {
+        rule = NOTIFICATION_RULES.SUB_ADMIN_ACTIONS[action];
+      }
 
-  if (!rule) {
-    return []; // No rule found for this action
-  }
+      if (!rule) {
+        return []; // No rule found for this action
+      }
 
-  // Generate notification content using template
-  const content = rule.template(
-    fromUserName,
-    targetDetails?.name,
-    targetDetails?.count,
-    targetDetails?.details,
-  );
-
-  // Create notification for each target role
-  for (const targetRole of rule.notifyRoles) {
-    try {
-      const notification = await createNotification({
-        targetRole: targetRole,
-        fromUserId,
+      // Generate notification content using template
+      const content = rule.template(
         fromUserName,
-        fromUserRole,
-        type: content.type,
-        title: content.title,
-        message: content.message,
-        action,
-        targetResource: targetDetails?.name ? "user" : undefined,
-        targetResourceId: targetDetails?.id,
-        priority: rule.priority,
-      });
+        targetDetails?.name,
+        targetDetails?.count,
+        targetDetails?.details,
+      );
 
-      createdNotifications.push(notification);
-    } catch (error) {
-      console.error('Error creating role-based notification:', error);
-    }
-  }
+      // Create notification for each target role
+      for (const targetRole of rule.notifyRoles) {
+        try {
+          const notification = await createNotification({
+            targetRole: targetRole,
+            fromUserId,
+            fromUserName,
+            fromUserRole,
+            type: content.type,
+            title: content.title,
+            message: content.message,
+            action,
+            targetResource: targetDetails?.name ? "user" : undefined,
+            targetResourceId: targetDetails?.id,
+            priority: rule.priority,
+          });
 
-  return createdNotifications;
+          createdNotifications.push(notification);
+        } catch (error) {
+          console.error('Error creating role-based notification:', error);
+        }
+      }
+
+      return createdNotifications;
+    },
+    () => memoryNotifications.createRoleBasedNotificationMemory(fromUserId, fromUserName, fromUserRole, action, targetDetails)
+  );
 }
 
 export async function getNotificationsForUser(
