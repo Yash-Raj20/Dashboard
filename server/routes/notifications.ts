@@ -69,13 +69,13 @@ export const handleMarkAsRead: RequestHandler = async (req: AuthRequest, res) =>
   }
 };
 
-export const handleMarkAllAsRead: RequestHandler = (req: AuthRequest, res) => {
+export const handleMarkAllAsRead: RequestHandler = async (req: AuthRequest, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: "Authentication required" });
     }
 
-    const markedCount = markAllNotificationsAsRead(req.user.id, req.user.role);
+    const markedCount = await markAllNotificationsAsRead(req.user.id, req.user.role);
 
     res.json({
       message: `${markedCount} notifications marked as read`,
