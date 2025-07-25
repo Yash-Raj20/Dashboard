@@ -22,6 +22,25 @@ export async function initializeDefaultAdminMemory() {
 
     memoryUsers.push(defaultAdmin);
     console.log("Default admin created with email: admin@example.com and password: Admin123!");
+
+    // Create a test notification for debugging
+    try {
+      const { createNotificationMemory } = await import("./notifications.js");
+      createNotificationMemory({
+        targetRole: "main-admin",
+        fromUserId: "system",
+        fromUserName: "System",
+        fromUserRole: "main-admin",
+        type: "info",
+        title: "Welcome to Admin Dashboard",
+        message: "Your admin dashboard is now ready to use!",
+        action: "system_startup",
+        priority: "medium",
+      });
+      console.log("✅ Test notification created in memory");
+    } catch (error) {
+      console.error("❌ Failed to create test notification:", error);
+    }
   }
 }
 
