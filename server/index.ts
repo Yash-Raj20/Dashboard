@@ -78,6 +78,11 @@ export function createServer() {
     });
   });
 
+  // Simple test endpoint to verify API routing
+  app.get("/api/test", (req, res) => {
+    res.json({ message: "API routing is working", timestamp: new Date().toISOString() });
+  });
+
   // Auth routes
   app.post("/api/auth/login", handleLogin);
   app.post("/api/auth/logout", authenticateToken, handleLogout);
