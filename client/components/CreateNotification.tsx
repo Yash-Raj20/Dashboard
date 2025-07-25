@@ -16,7 +16,11 @@ interface CreateNotificationData {
   priority: "low" | "medium" | "high" | "urgent";
 }
 
-export function CreateNotification() {
+interface CreateNotificationProps {
+  onNotificationCreated?: () => void;
+}
+
+export function CreateNotification({ onNotificationCreated }: CreateNotificationProps = {}) {
   const { user } = useAuth();
   const [formData, setFormData] = useState<CreateNotificationData>({
     title: "",
