@@ -41,6 +41,16 @@ export async function initializeDefaultAdminMemory() {
     } catch (error) {
       console.error("❌ Failed to create test notification:", error);
     }
+
+    // Create test audit logs for debugging
+    try {
+      const { createAuditLogMemory } = await import("../auditLogs.js");
+      createAuditLogMemory("admin-1", "Main Administrator", "main-admin", "system_startup", "system", "admin-1", { startup: true }, "127.0.0.1");
+      createAuditLogMemory("admin-1", "Main Administrator", "main-admin", "create_admin", "user", "admin-1", { email: "admin@example.com" }, "127.0.0.1");
+      console.log("✅ Test audit logs created in memory");
+    } catch (error) {
+      console.error("❌ Failed to create test audit logs:", error);
+    }
   }
 }
 
