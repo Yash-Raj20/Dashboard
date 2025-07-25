@@ -72,6 +72,8 @@ async function authenticateTokenAsync(
   }
 }
 
+export const authenticateToken = asyncHandler(authenticateTokenAsync);
+
 export function requireRole(roles: Role | Role[]) {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
