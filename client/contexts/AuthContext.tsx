@@ -306,8 +306,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
 
-  // Check if we're using the default context (not within a provider)
-  if (context === defaultContextValue) {
+  if (context === null) {
     console.error("useAuth called outside of AuthProvider");
     throw new Error("useAuth must be used within an AuthProvider");
   }
