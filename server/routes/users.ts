@@ -236,7 +236,7 @@ export const handleCreateUser: RequestHandler = async (
     const hashedPassword = await hashPassword(password);
 
     // Create user
-    const newUser = createUser({
+    const newUser = await createUser({
       email,
       name,
       password: hashedPassword,
@@ -248,13 +248,13 @@ export const handleCreateUser: RequestHandler = async (
 
     // Create audit log
     const clientIP = req.ip || req.connection.remoteAddress || "unknown";
-    createAuditLog(
+    await createAuditLog(
       req.user!.id,
       "Unknown",
       req.user!.role,
       "create_user",
       "user",
-      newUser.id,
+      newUser!.id,
       { email, name },
       clientIP,
     );
