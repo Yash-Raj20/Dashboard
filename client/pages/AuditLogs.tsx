@@ -32,6 +32,7 @@ import {
 } from "lucide-react";
 
 export default function AuditLogs() {
+  const { logout } = useAuth();
   const [logs, setLogs] = useState<AuthAuditLog[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
