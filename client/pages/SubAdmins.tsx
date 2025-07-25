@@ -98,7 +98,15 @@ export default function SubAdmins() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to fetch sub-admins");
+        if (response.status === 401) {
+          // Authentication failed - clear tokens and redirect to login
+          localStorage.removeItem("auth_token");
+          logout();
+          throw new Error("Session expired. Please log in again.");
+        }
+        const errorText = await response.text();
+        console.error("API Error:", response.status, errorText);
+        throw new Error(`Failed to fetch sub-admins: ${response.status}`);
       }
 
       const data = await response.json();
