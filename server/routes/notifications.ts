@@ -158,6 +158,64 @@ export const triggerNotification = async (
   }
 };
 
+export const handleCreateNotification: RequestHandler = async (
+  req: AuthRequest,
+  res,
+) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: "Authentication required" });
+    }
+
+    // Only main admin can create broadcast notifications
+    if (req.user.role !== "main-admin") {
+      return res.status(403).json({ error: "Only main admin can create notifications" });
+    }
+
+    const { title, message, type, priority } = req.body;
+
+    if (!title || !message) {
+      return res.status(400).json({ error: "Title and message are required" });
+    }
+
+    // Validate type
+    const validTypes = ["info", "warning", "success", "error"];
+    if (type && !validTypes.includes(type)) {
+      return res.status(400).json({ error: "Invalid notification type" });
+    }
+
+    // Validate priority
+    const validPriorities = ["low", "medium", "high", "urgent"];
+    if (priority && !validPriorities.includes(priority)) {
+      return res.status(400).json({ error: "Invalid notification priority" });
+    }
+
+    const fromUser = await findUserById(req.user.id);
+    if (!fromUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const notifications = await createNotificationForAll(
+      req.user.id,
+      fromUser.name,
+      req.user.role,
+      title,
+      message,
+      type || "info",
+      priority || "medium",
+    );
+
+    res.status(201).json({
+      message: "Notification sent to all users",
+      notifications: notifications.length,
+      data: notifications,
+    });
+  } catch (error) {
+    console.error("Create notification error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 export const handleTestNotification: RequestHandler = async (
   req: AuthRequest,
   res,
