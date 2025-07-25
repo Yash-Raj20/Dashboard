@@ -79,6 +79,7 @@ export function createServer() {
   app.get("/api/users/sub-admins", authenticateToken, handleGetSubAdmins);
 
   // Dashboard routes
+  app.get("/api/dashboard/stats", authenticateToken, handleGetAnalytics);
   app.get("/api/dashboard/analytics", authenticateToken, handleGetAnalytics);
   app.get("/api/dashboard/metrics", authenticateToken, handleGetMetrics);
   app.get("/api/dashboard/chart-data", authenticateToken, handleGetChartData);
