@@ -74,8 +74,11 @@ export function createServer() {
     next();
   });
 
-  // Serve static files from the spa dist
-  app.use(express.static(join(__dirname, "../spa")));
+  // Only serve static files in production
+  const isProduction = process.env.NODE_ENV === "production";
+  if (isProduction) {
+    app.use(express.static(join(__dirname, "../spa")));
+  }
 
   // Health check endpoint
   app.get("/health", (req, res) => {
