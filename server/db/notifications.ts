@@ -294,32 +294,32 @@ export async function markAllNotificationsAsRead(
 }
 
 export async function deleteNotification(notificationId: string): Promise<boolean> {
-  try {
-    const result = await Notification.findByIdAndDelete(notificationId);
-    return !!result;
-  } catch (error) {
-    console.error('Error deleting notification:', error);
-    return false;
-  }
+  return withDatabase(
+    async () => {
+      const result = await Notification.findByIdAndDelete(notificationId);
+      return !!result;
+    },
+    () => memoryNotifications.deleteNotificationMemory(notificationId)
+  );
 }
 
 export async function getUnreadCount(userId: string, userRole: Role): Promise<number> {
-  try {
-    const query = {
-      $or: [
-        { targetUserId: userId },
-        { targetRole: userRole },
-        { targetRole: { $in: [userRole] } }
-      ],
-      read: false
-    };
+  return withDatabase(
+    async () => {
+      const query = {
+        $or: [
+          { targetUserId: userId },
+          { targetRole: userRole },
+          { targetRole: { $in: [userRole] } }
+        ],
+        read: false
+      };
 
-    const count = await Notification.countDocuments(query);
-    return count;
-  } catch (error) {
-    console.error('Error getting unread count:', error);
-    return 0;
-  }
+      const count = await Notification.countDocuments(query);
+      return count;
+    },
+    () => memoryNotifications.getUnreadCountMemory(userId, userRole)
+  );
 }
 
 export async function createNotificationForAll(
