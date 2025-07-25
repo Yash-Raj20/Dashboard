@@ -126,6 +126,22 @@ export function createServer() {
   // Demo data routes
   app.get("/api/demo/*", handleDemoData);
 
+  // API error handler - catch any unhandled API routes
+  app.use("/api/*", (req, res) => {
+    console.error(`API route not found: ${req.method} ${req.path}`);
+    res.status(404).json({ error: "API endpoint not found" });
+  });
+
+  // Global error handler for API routes
+  app.use((error: any, req: any, res: any, next: any) => {
+    if (req.path.startsWith('/api/')) {
+      console.error('API Error:', error);
+      res.status(500).json({ error: "Internal server error" });
+    } else {
+      next(error);
+    }
+  });
+
   // Catch all handler: send back React's index.html file for client-side routing
   app.get("*", (req, res) => {
     res.sendFile(join(__dirname, "../spa/index.html"));
