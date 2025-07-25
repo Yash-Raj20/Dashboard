@@ -50,7 +50,9 @@ export class ErrorBoundary extends Component<Props, State> {
               <AlertTriangle className="h-4 w-4" />
               <AlertTitle>Something went wrong</AlertTitle>
               <AlertDescription className="mt-2">
-                {this.state.error?.message?.includes("useAuth must be used within an AuthProvider")
+                {this.state.error?.message?.includes(
+                  "useAuth must be used within an AuthProvider",
+                )
                   ? "Authentication system failed to initialize. This might be a temporary issue."
                   : "An unexpected error occurred in the application."}
               </AlertDescription>
@@ -61,7 +63,11 @@ export class ErrorBoundary extends Component<Props, State> {
                 <RefreshCw className="mr-2 h-4 w-4" />
                 Reload Page
               </Button>
-              <Button variant="outline" onClick={this.handleReset} className="w-full">
+              <Button
+                variant="outline"
+                onClick={this.handleReset}
+                className="w-full"
+              >
                 Try Again
               </Button>
             </div>
