@@ -67,7 +67,9 @@ export function NotificationCenter() {
 
       if (!response.ok) {
         if (response.status === 401) {
-          console.warn("Authentication failed, user may need to log in again");
+          console.warn("Authentication failed, logging out user");
+          localStorage.removeItem("auth_token");
+          logout();
           return;
         }
         const errorText = await response.text();
