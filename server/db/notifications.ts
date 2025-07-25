@@ -331,31 +331,36 @@ export async function createNotificationForAll(
   type: "info" | "warning" | "success" | "error" = "info",
   priority: "low" | "medium" | "high" | "urgent" = "medium",
 ): Promise<NotificationData[]> {
-  const createdNotifications: NotificationData[] = [];
-  const allRoles: Role[] = ["main-admin", "sub-admin", "user"];
+  return withDatabase(
+    async () => {
+      const createdNotifications: NotificationData[] = [];
+      const allRoles: Role[] = ["main-admin", "sub-admin", "user"];
 
-  // Create notification for each role
-  for (const targetRole of allRoles) {
-    try {
-      const notification = await createNotification({
-        targetRole: targetRole,
-        fromUserId,
-        fromUserName,
-        fromUserRole,
-        type,
-        title,
-        message,
-        action: "broadcast_message",
-        priority,
-      });
+      // Create notification for each role
+      for (const targetRole of allRoles) {
+        try {
+          const notification = await createNotification({
+            targetRole: targetRole,
+            fromUserId,
+            fromUserName,
+            fromUserRole,
+            type,
+            title,
+            message,
+            action: "broadcast_message",
+            priority,
+          });
 
-      createdNotifications.push(notification);
-    } catch (error) {
-      console.error('Error creating broadcast notification:', error);
-    }
-  }
+          createdNotifications.push(notification);
+        } catch (error) {
+          console.error('Error creating broadcast notification:', error);
+        }
+      }
 
-  return createdNotifications;
+      return createdNotifications;
+    },
+    () => memoryNotifications.createNotificationForAllMemory(fromUserId, fromUserName, fromUserRole, title, message, type, priority)
+  );
 }
 
 // Auto-cleanup expired notifications using MongoDB TTL index
