@@ -84,6 +84,12 @@ export function createServer() {
   app.delete("/api/users/:userId", authenticateToken, handleDeleteUser);
   app.get("/api/users/sub-admins", authenticateToken, handleGetSubAdmins);
 
+  // Sub-admin specific routes
+  app.get("/api/sub-admins", authenticateToken, handleGetSubAdmins);
+  app.post("/api/sub-admins", authenticateToken, handleCreateSubAdmin);
+  app.put("/api/sub-admins/:id", authenticateToken, handleUpdateSubAdmin);
+  app.delete("/api/sub-admins/:id", authenticateToken, handleDeleteSubAdmin);
+
   // Dashboard routes
   app.get("/api/dashboard/stats", authenticateToken, handleGetAnalytics);
   app.get("/api/dashboard/analytics", authenticateToken, handleGetAnalytics);
