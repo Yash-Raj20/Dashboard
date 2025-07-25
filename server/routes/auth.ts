@@ -129,7 +129,7 @@ export const handleProfile: RequestHandler = async (req: AuthRequest, res) => {
   }
 };
 
-export const handleRefreshToken: RequestHandler = (req: AuthRequest, res) => {
+export const handleRefreshToken: RequestHandler = async (req: AuthRequest, res) => {
   // For now, just return the same token logic as handleProfile
-  handleProfile(req, res);
+  await handleProfile(req, res);
 };
