@@ -39,7 +39,7 @@ export const handleGetNotifications: RequestHandler = async (
   }
 };
 
-export const handleMarkAsRead: RequestHandler = (req: AuthRequest, res) => {
+export const handleMarkAsRead: RequestHandler = async (req: AuthRequest, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: "Authentication required" });
@@ -51,15 +51,17 @@ export const handleMarkAsRead: RequestHandler = (req: AuthRequest, res) => {
       return res.status(400).json({ error: "Notification ID is required" });
     }
 
-    const success = markNotificationAsRead(notificationId, req.user.id);
+    const success = await markNotificationAsRead(notificationId, req.user.id);
 
     if (!success) {
       return res.status(404).json({ error: "Notification not found" });
     }
 
+    const unreadCount = await getUnreadCount(req.user.id, req.user.role);
+
     res.json({
       message: "Notification marked as read",
-      unreadCount: getUnreadCount(req.user.id, req.user.role),
+      unreadCount,
     });
   } catch (error) {
     console.error("Mark as read error:", error);
