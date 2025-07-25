@@ -1,4 +1,8 @@
-import { User as UserInterface, Role, ROLE_PERMISSIONS } from "../../../shared/auth.js";
+import {
+  User as UserInterface,
+  Role,
+  ROLE_PERMISSIONS,
+} from "../../../shared/auth.js";
 import { hashPassword } from "../../utils/password.js";
 
 // In-memory users storage
@@ -38,8 +42,12 @@ export async function initializeDefaultAdminMemory() {
     };
     memoryUsers.push(testSubAdmin);
 
-    console.log("Default admin created with email: admin@example.com and password: Admin123!");
-    console.log("Test sub-admin created with email: subadmin@example.com and password: SubAdmin123!");
+    console.log(
+      "Default admin created with email: admin@example.com and password: Admin123!",
+    );
+    console.log(
+      "Test sub-admin created with email: subadmin@example.com and password: SubAdmin123!",
+    );
 
     // Create a test notification for debugging
     try {
@@ -63,8 +71,26 @@ export async function initializeDefaultAdminMemory() {
     // Create test audit logs for debugging
     try {
       const { createAuditLogMemory } = await import("./auditLogs.js");
-      createAuditLogMemory("admin-1", "Main Administrator", "main-admin", "system_startup", "system", "admin-1", { startup: true }, "127.0.0.1");
-      createAuditLogMemory("admin-1", "Main Administrator", "main-admin", "create_admin", "user", "admin-1", { email: "admin@example.com" }, "127.0.0.1");
+      createAuditLogMemory(
+        "admin-1",
+        "Main Administrator",
+        "main-admin",
+        "system_startup",
+        "system",
+        "admin-1",
+        { startup: true },
+        "127.0.0.1",
+      );
+      createAuditLogMemory(
+        "admin-1",
+        "Main Administrator",
+        "main-admin",
+        "create_admin",
+        "user",
+        "admin-1",
+        { email: "admin@example.com" },
+        "127.0.0.1",
+      );
       console.log("✅ Test audit logs created in memory");
     } catch (error) {
       console.error("❌ Failed to create test audit logs:", error);
@@ -72,11 +98,15 @@ export async function initializeDefaultAdminMemory() {
   }
 }
 
-export function findUserByEmailMemory(email: string): (UserInterface & { password: string }) | null {
+export function findUserByEmailMemory(
+  email: string,
+): (UserInterface & { password: string }) | null {
   return memoryUsers.find((user) => user.email === email) || null;
 }
 
-export function findUserByIdMemory(id: string): (UserInterface & { password: string }) | null {
+export function findUserByIdMemory(
+  id: string,
+): (UserInterface & { password: string }) | null {
   return memoryUsers.find((user) => user.id === id) || null;
 }
 
@@ -91,7 +121,10 @@ export function getSubAdminsMemory(): UserInterface[] {
 }
 
 export function createUserMemory(
-  userData: Omit<UserInterface & { password: string }, "id" | "createdAt" | "updatedAt">,
+  userData: Omit<
+    UserInterface & { password: string },
+    "id" | "createdAt" | "updatedAt"
+  >,
 ): UserInterface | null {
   const newUser = {
     id: `user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
@@ -106,7 +139,10 @@ export function createUserMemory(
   return userWithoutPassword;
 }
 
-export function updateUserMemory(id: string, updates: Partial<UserInterface>): UserInterface | null {
+export function updateUserMemory(
+  id: string,
+  updates: Partial<UserInterface>,
+): UserInterface | null {
   const userIndex = memoryUsers.findIndex((user) => user.id === id);
   if (userIndex === -1) return null;
 

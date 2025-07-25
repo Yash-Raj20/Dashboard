@@ -183,5 +183,6 @@ export function deleteNotificationMemory(notificationId: string): boolean {
 }
 
 export function getUnreadCountMemory(userId: string, userRole: Role): number {
-  return getNotificationsForUserMemory(userId, userRole).filter((n) => !n.read).length;
+  return getNotificationsForUserMemory(userId, userRole).filter((n) => !n.read)
+    .length;
 }

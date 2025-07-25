@@ -54,9 +54,11 @@ export async function authenticateToken(
     next();
   } catch (error) {
     console.error("Auth middleware error:", error);
-    if (error instanceof Error && error.name === 'TokenExpiredError') {
-      return res.status(401).json({ error: "Token expired. Please log in again." });
-    } else if (error instanceof Error && error.name === 'JsonWebTokenError') {
+    if (error instanceof Error && error.name === "TokenExpiredError") {
+      return res
+        .status(401)
+        .json({ error: "Token expired. Please log in again." });
+    } else if (error instanceof Error && error.name === "JsonWebTokenError") {
       return res.status(403).json({ error: "Invalid token format" });
     }
     return res.status(403).json({ error: "Authentication failed" });

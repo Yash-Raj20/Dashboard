@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 interface ConnectionOptions {
   mongoUri: string;
@@ -20,7 +20,7 @@ export class DatabaseConnection {
   public async connect(options: ConnectionOptions): Promise<void> {
     try {
       if (this.isConnected) {
-        console.log('Database already connected');
+        console.log("Database already connected");
         return;
       }
 
@@ -31,20 +31,19 @@ export class DatabaseConnection {
       });
 
       this.isConnected = true;
-      console.log('✅ Connected to MongoDB successfully');
+      console.log("✅ Connected to MongoDB successfully");
 
-      mongoose.connection.on('error', (error) => {
-        console.error('❌ MongoDB connection error:', error);
+      mongoose.connection.on("error", (error) => {
+        console.error("❌ MongoDB connection error:", error);
         this.isConnected = false;
       });
 
-      mongoose.connection.on('disconnected', () => {
-        console.log('📡 MongoDB disconnected');
+      mongoose.connection.on("disconnected", () => {
+        console.log("📡 MongoDB disconnected");
         this.isConnected = false;
       });
-
     } catch (error) {
-      console.error('❌ Failed to connect to MongoDB:', error);
+      console.error("❌ Failed to connect to MongoDB:", error);
       throw error;
     }
   }
@@ -53,9 +52,9 @@ export class DatabaseConnection {
     try {
       await mongoose.disconnect();
       this.isConnected = false;
-      console.log('📡 Disconnected from MongoDB');
+      console.log("📡 Disconnected from MongoDB");
     } catch (error) {
-      console.error('❌ Error disconnecting from MongoDB:', error);
+      console.error("❌ Error disconnecting from MongoDB:", error);
       throw error;
     }
   }

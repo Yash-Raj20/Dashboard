@@ -63,10 +63,12 @@ export function createServer() {
 
   // Health check endpoint
   app.get("/health", (req, res) => {
-    res.json({ 
-      status: "ok", 
+    res.json({
+      status: "ok",
       timestamp: new Date().toISOString(),
-      database: dbConnection.getConnectionStatus() ? "connected" : "disconnected"
+      database: dbConnection.getConnectionStatus()
+        ? "connected"
+        : "disconnected",
     });
   });
 
@@ -136,20 +138,25 @@ export function createServer() {
 async function startServer() {
   try {
     // Get MongoDB URI from environment or use default
-    const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017/admin-dashboard";
+    const mongoUri =
+      process.env.MONGODB_URI || "mongodb://localhost:27017/admin-dashboard";
 
     // Try to connect to MongoDB, but continue if it fails
     let usingMongoDB = false;
     try {
       await dbConnection.connect({ mongoUri });
-      setDatabaseMode('mongodb');
+      setDatabaseMode("mongodb");
       usingMongoDB = true;
       console.log("✅ Connected to MongoDB - using MongoDB storage");
     } catch (mongoError) {
-      setDatabaseMode('memory');
+      setDatabaseMode("memory");
       console.warn("⚠️ MongoDB connection failed, using in-memory storage");
-      console.warn("💡 To use MongoDB, make sure it's running on localhost:27017");
-      console.warn("💡 Or start it with: docker run -d --name mongodb -p 27017:27017 mongo:latest");
+      console.warn(
+        "💡 To use MongoDB, make sure it's running on localhost:27017",
+      );
+      console.warn(
+        "💡 Or start it with: docker run -d --name mongodb -p 27017:27017 mongo:latest",
+      );
       console.warn("💡 Data will be lost when server restarts in memory mode");
     }
 
@@ -162,12 +169,13 @@ async function startServer() {
 
     app.listen(port, () => {
       console.log(`🚀 Server running on port ${port}`);
-      console.log(`��� Database mode: ${usingMongoDB ? 'MongoDB' : 'In-Memory'}`);
+      console.log(
+        `��� Database mode: ${usingMongoDB ? "MongoDB" : "In-Memory"}`,
+      );
       console.log(`📱 Health check: http://localhost:${port}/health`);
       console.log(`🔗 Admin login: http://localhost:${port}`);
       console.log(`📧 Default admin: admin@example.com / Admin123!`);
     });
-
   } catch (error) {
     console.error("❌ Failed to start server:", error);
     process.exit(1);
@@ -175,14 +183,14 @@ async function startServer() {
 }
 
 // Handle graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('🛑 SIGTERM received, shutting down gracefully');
+process.on("SIGTERM", async () => {
+  console.log("🛑 SIGTERM received, shutting down gracefully");
   await dbConnection.disconnect();
   process.exit(0);
 });
 
-process.on('SIGINT', async () => {
-  console.log('🛑 SIGINT received, shutting down gracefully');
+process.on("SIGINT", async () => {
+  console.log("🛑 SIGINT received, shutting down gracefully");
   await dbConnection.disconnect();
   process.exit(0);
 });

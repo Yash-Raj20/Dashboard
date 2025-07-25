@@ -41,7 +41,17 @@ export async function createAuditLog(
         ipAddress: savedLog.ipAddress,
       };
     },
-    () => memoryAuditLogs.createAuditLogMemory(userId, userName, userRole, action, target, targetId, details, ipAddress)
+    () =>
+      memoryAuditLogs.createAuditLogMemory(
+        userId,
+        userName,
+        userRole,
+        action,
+        target,
+        targetId,
+        details,
+        ipAddress,
+      ),
   );
 }
 
@@ -51,14 +61,13 @@ export async function getAuditLogs(
 ): Promise<AuditLogInterface[]> {
   return withDatabase(
     async () => {
-      const logs = await AuditLog
-        .find({})
+      const logs = await AuditLog.find({})
         .sort({ timestamp: -1 })
         .limit(limit)
         .skip(offset)
         .lean();
 
-      return logs.map(log => ({
+      return logs.map((log) => ({
         id: log._id.toString(),
         userId: log.userId,
         userName: log.userName,
@@ -71,7 +80,7 @@ export async function getAuditLogs(
         ipAddress: log.ipAddress,
       }));
     },
-    () => memoryAuditLogs.getAuditLogsMemory(limit, offset)
+    () => memoryAuditLogs.getAuditLogsMemory(limit, offset),
   );
 }
 
@@ -81,13 +90,12 @@ export async function getAuditLogsByUser(
 ): Promise<AuditLogInterface[]> {
   return withDatabase(
     async () => {
-      const logs = await AuditLog
-        .find({ userId })
+      const logs = await AuditLog.find({ userId })
         .sort({ timestamp: -1 })
         .limit(limit)
         .lean();
 
-      return logs.map(log => ({
+      return logs.map((log) => ({
         id: log._id.toString(),
         userId: log.userId,
         userName: log.userName,
@@ -100,7 +108,7 @@ export async function getAuditLogsByUser(
         ipAddress: log.ipAddress,
       }));
     },
-    () => memoryAuditLogs.getAuditLogsByUserMemory(userId, limit)
+    () => memoryAuditLogs.getAuditLogsByUserMemory(userId, limit),
   );
 }
 
@@ -110,13 +118,12 @@ export async function getAuditLogsByAction(
 ): Promise<AuditLogInterface[]> {
   return withDatabase(
     async () => {
-      const logs = await AuditLog
-        .find({ action })
+      const logs = await AuditLog.find({ action })
         .sort({ timestamp: -1 })
         .limit(limit)
         .lean();
 
-      return logs.map(log => ({
+      return logs.map((log) => ({
         id: log._id.toString(),
         userId: log.userId,
         userName: log.userName,
@@ -129,21 +136,22 @@ export async function getAuditLogsByAction(
         ipAddress: log.ipAddress,
       }));
     },
-    () => memoryAuditLogs.getAuditLogsByActionMemory(action, limit)
+    () => memoryAuditLogs.getAuditLogsByActionMemory(action, limit),
   );
 }
 
-export async function getRecentAuditLogs(hours: number = 24): Promise<AuditLogInterface[]> {
+export async function getRecentAuditLogs(
+  hours: number = 24,
+): Promise<AuditLogInterface[]> {
   return withDatabase(
     async () => {
       const cutoffTime = new Date(Date.now() - hours * 60 * 60 * 1000);
 
-      const logs = await AuditLog
-        .find({ timestamp: { $gte: cutoffTime } })
+      const logs = await AuditLog.find({ timestamp: { $gte: cutoffTime } })
         .sort({ timestamp: -1 })
         .lean();
 
-      return logs.map(log => ({
+      return logs.map((log) => ({
         id: log._id.toString(),
         userId: log.userId,
         userName: log.userName,
@@ -156,6 +164,6 @@ export async function getRecentAuditLogs(hours: number = 24): Promise<AuditLogIn
         ipAddress: log.ipAddress,
       }));
     },
-    () => memoryAuditLogs.getRecentAuditLogsMemory(hours)
+    () => memoryAuditLogs.getRecentAuditLogsMemory(hours),
   );
 }

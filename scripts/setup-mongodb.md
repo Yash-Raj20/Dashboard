@@ -3,12 +3,14 @@
 ## Option 1: Local MongoDB Installation
 
 ### Windows:
+
 1. Download MongoDB from https://www.mongodb.com/try/download/community
 2. Install MongoDB Community Server
 3. Start MongoDB service: `net start MongoDB`
 4. Default connection: `mongodb://localhost:27017`
 
 ### macOS:
+
 ```bash
 # Using Homebrew
 brew tap mongodb/brew
@@ -17,6 +19,7 @@ brew services start mongodb/brew/mongodb-community
 ```
 
 ### Linux (Ubuntu/Debian):
+
 ```bash
 # Import MongoDB public key
 curl -fsSL https://pgp.mongodb.com/server-7.0.asc | sudo gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
@@ -65,6 +68,7 @@ NODE_ENV=development
 ## Verify Connection
 
 Run the server to test MongoDB connection:
+
 ```bash
 npm run dev
 ```

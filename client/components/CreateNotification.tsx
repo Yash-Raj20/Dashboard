@@ -3,8 +3,20 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle2, MessageSquare, Send } from "lucide-react";
@@ -20,7 +32,9 @@ interface CreateNotificationProps {
   onNotificationCreated?: () => void;
 }
 
-export function CreateNotification({ onNotificationCreated }: CreateNotificationProps = {}) {
+export function CreateNotification({
+  onNotificationCreated,
+}: CreateNotificationProps = {}) {
   const { user } = useAuth();
   const [formData, setFormData] = useState<CreateNotificationData>({
     title: "",
@@ -60,7 +74,9 @@ export function CreateNotification({ onNotificationCreated }: CreateNotification
       }
 
       const data = await response.json();
-      setSuccess(`Notification sent to ${data.notifications} users successfully!`);
+      setSuccess(
+        `Notification sent to ${data.notifications} users successfully!`,
+      );
 
       // Reset form
       setFormData({
@@ -79,27 +95,40 @@ export function CreateNotification({ onNotificationCreated }: CreateNotification
     }
   };
 
-  const handleInputChange = (field: keyof CreateNotificationData, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+  const handleInputChange = (
+    field: keyof CreateNotificationData,
+    value: string,
+  ) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const getTypeIcon = (type: string) => {
     switch (type) {
-      case "info": return "🔵";
-      case "warning": return "🟡";
-      case "success": return "🟢";
-      case "error": return "🔴";
-      default: return "🔵";
+      case "info":
+        return "🔵";
+      case "warning":
+        return "🟡";
+      case "success":
+        return "🟢";
+      case "error":
+        return "🔴";
+      default:
+        return "🔵";
     }
   };
 
   const getPriorityColor = (priority: string) => {
     switch (priority) {
-      case "urgent": return "text-red-600";
-      case "high": return "text-orange-600";
-      case "medium": return "text-yellow-600";
-      case "low": return "text-blue-600";
-      default: return "text-gray-600";
+      case "urgent":
+        return "text-red-600";
+      case "high":
+        return "text-orange-600";
+      case "medium":
+        return "text-yellow-600";
+      case "low":
+        return "text-blue-600";
+      default:
+        return "text-gray-600";
     }
   };
 
@@ -145,30 +174,25 @@ export function CreateNotification({ onNotificationCreated }: CreateNotification
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="type">Type</Label>
-              <Select value={formData.type} onValueChange={(value) => handleInputChange("type", value)}>
+              <Select
+                value={formData.type}
+                onValueChange={(value) => handleInputChange("type", value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="info">
-                    <span className="flex items-center gap-2">
-                      🔵 Info
-                    </span>
+                    <span className="flex items-center gap-2">🔵 Info</span>
                   </SelectItem>
                   <SelectItem value="success">
-                    <span className="flex items-center gap-2">
-                      🟢 Success
-                    </span>
+                    <span className="flex items-center gap-2">🟢 Success</span>
                   </SelectItem>
                   <SelectItem value="warning">
-                    <span className="flex items-center gap-2">
-                      🟡 Warning
-                    </span>
+                    <span className="flex items-center gap-2">🟡 Warning</span>
                   </SelectItem>
                   <SelectItem value="error">
-                    <span className="flex items-center gap-2">
-                      🔴 Error
-                    </span>
+                    <span className="flex items-center gap-2">🔴 Error</span>
                   </SelectItem>
                 </SelectContent>
               </Select>
@@ -176,7 +200,10 @@ export function CreateNotification({ onNotificationCreated }: CreateNotification
 
             <div className="space-y-2">
               <Label htmlFor="priority">Priority</Label>
-              <Select value={formData.priority} onValueChange={(value) => handleInputChange("priority", value)}>
+              <Select
+                value={formData.priority}
+                onValueChange={(value) => handleInputChange("priority", value)}
+              >
                 <SelectTrigger>
                   <SelectValue placeholder="Select priority" />
                 </SelectTrigger>
@@ -207,9 +234,13 @@ export function CreateNotification({ onNotificationCreated }: CreateNotification
                   <span className="text-lg">{getTypeIcon(formData.type)}</span>
                   <div className="flex-1">
                     <h4 className="font-medium">{formData.title}</h4>
-                    <p className="text-sm text-muted-foreground mt-1">{formData.message}</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {formData.message}
+                    </p>
                     <div className="flex items-center gap-2 mt-2">
-                      <span className={`text-xs font-medium ${getPriorityColor(formData.priority)}`}>
+                      <span
+                        className={`text-xs font-medium ${getPriorityColor(formData.priority)}`}
+                      >
                         {formData.priority.toUpperCase()} PRIORITY
                       </span>
                       <span className="text-xs text-muted-foreground">
@@ -240,8 +271,8 @@ export function CreateNotification({ onNotificationCreated }: CreateNotification
           )}
 
           {/* Submit Button */}
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             disabled={isSubmitting || !formData.title || !formData.message}
             className="w-full"
           >

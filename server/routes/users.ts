@@ -30,7 +30,10 @@ export const handleGetUsers: RequestHandler = async (req: AuthRequest, res) => {
   }
 };
 
-export const handleGetSubAdmins: RequestHandler = async (req: AuthRequest, res) => {
+export const handleGetSubAdmins: RequestHandler = async (
+  req: AuthRequest,
+  res,
+) => {
   try {
     const subAdmins = await getSubAdmins();
     res.json({ subAdmins });
@@ -114,7 +117,10 @@ export const handleCreateSubAdmin: RequestHandler = async (
   }
 };
 
-export const handleUpdateSubAdmin: RequestHandler = async (req: AuthRequest, res) => {
+export const handleUpdateSubAdmin: RequestHandler = async (
+  req: AuthRequest,
+  res,
+) => {
   try {
     const { id } = req.params;
     const updates: UpdateSubAdminRequest = req.body;
@@ -167,7 +173,10 @@ export const handleUpdateSubAdmin: RequestHandler = async (req: AuthRequest, res
   }
 };
 
-export const handleDeleteSubAdmin: RequestHandler = async (req: AuthRequest, res) => {
+export const handleDeleteSubAdmin: RequestHandler = async (
+  req: AuthRequest,
+  res,
+) => {
   try {
     const { id } = req.params;
 
@@ -266,7 +275,10 @@ export const handleCreateUser: RequestHandler = async (
   }
 };
 
-export const handleUpdateUser: RequestHandler = async (req: AuthRequest, res) => {
+export const handleUpdateUser: RequestHandler = async (
+  req: AuthRequest,
+  res,
+) => {
   try {
     const { id } = req.params;
     const updates: UpdateUserRequest = req.body;
@@ -305,7 +317,10 @@ export const handleUpdateUser: RequestHandler = async (req: AuthRequest, res) =>
   }
 };
 
-export const handleDeleteUser: RequestHandler = async (req: AuthRequest, res) => {
+export const handleDeleteUser: RequestHandler = async (
+  req: AuthRequest,
+  res,
+) => {
   try {
     const { id } = req.params;
 

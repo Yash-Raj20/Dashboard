@@ -1,4 +1,8 @@
-import { User as UserInterface, Role, ROLE_PERMISSIONS } from "../../shared/auth.js";
+import {
+  User as UserInterface,
+  Role,
+  ROLE_PERMISSIONS,
+} from "../../shared/auth.js";
 import { User, IUser } from "./models/User.js";
 import { hashPassword } from "../utils/password.js";
 import { withDatabase } from "./adapter.js";
@@ -23,29 +27,31 @@ export async function initializeDefaultAdmin() {
         });
 
         await defaultAdmin.save();
-        console.log("Default admin created with email: admin@example.com and password: Admin123!");
+        console.log(
+          "Default admin created with email: admin@example.com and password: Admin123!",
+        );
 
-      // Create a test notification for debugging
-      try {
-        const { createNotification } = await import("./notifications.js");
-        await createNotification({
-          targetRole: "main-admin",
-          fromUserId: "system",
-          fromUserName: "System",
-          fromUserRole: "main-admin",
-          type: "info",
-          title: "Welcome to Admin Dashboard",
-          message: "Your admin dashboard is now ready to use!",
-          action: "system_startup",
-          priority: "medium",
-        });
-        console.log("✅ Test notification created");
-      } catch (error) {
-        console.error("❌ Failed to create test notification:", error);
-      }
+        // Create a test notification for debugging
+        try {
+          const { createNotification } = await import("./notifications.js");
+          await createNotification({
+            targetRole: "main-admin",
+            fromUserId: "system",
+            fromUserName: "System",
+            fromUserRole: "main-admin",
+            type: "info",
+            title: "Welcome to Admin Dashboard",
+            message: "Your admin dashboard is now ready to use!",
+            action: "system_startup",
+            priority: "medium",
+          });
+          console.log("✅ Test notification created");
+        } catch (error) {
+          console.error("❌ Failed to create test notification:", error);
+        }
       }
     },
-    () => memoryUsers.initializeDefaultAdminMemory()
+    () => memoryUsers.initializeDefaultAdminMemory(),
   );
 }
 
@@ -71,7 +77,7 @@ export async function findUserByEmail(
         createdBy: user.createdBy,
       };
     },
-    () => memoryUsers.findUserByEmailMemory(email)
+    () => memoryUsers.findUserByEmailMemory(email),
   );
 }
 
@@ -97,7 +103,7 @@ export async function findUserById(
         createdBy: user.createdBy,
       };
     },
-    () => memoryUsers.findUserByIdMemory(id)
+    () => memoryUsers.findUserByIdMemory(id),
   );
 }
 
@@ -106,7 +112,7 @@ export async function getAllUsers(): Promise<UserInterface[]> {
     async () => {
       const users = await User.find({}, { password: 0 }).lean();
 
-      return users.map(user => ({
+      return users.map((user) => ({
         id: user._id.toString(),
         email: user.email,
         name: user.name,
@@ -119,16 +125,19 @@ export async function getAllUsers(): Promise<UserInterface[]> {
         createdBy: user.createdBy,
       }));
     },
-    () => memoryUsers.getAllUsersMemory()
+    () => memoryUsers.getAllUsersMemory(),
   );
 }
 
 export async function getSubAdmins(): Promise<UserInterface[]> {
   return withDatabase(
     async () => {
-      const users = await User.find({ role: "sub-admin" }, { password: 0 }).lean();
+      const users = await User.find(
+        { role: "sub-admin" },
+        { password: 0 },
+      ).lean();
 
-      return users.map(user => ({
+      return users.map((user) => ({
         id: user._id.toString(),
         email: user.email,
         name: user.name,
@@ -141,12 +150,15 @@ export async function getSubAdmins(): Promise<UserInterface[]> {
         createdBy: user.createdBy,
       }));
     },
-    () => memoryUsers.getSubAdminsMemory()
+    () => memoryUsers.getSubAdminsMemory(),
   );
 }
 
 export async function createUser(
-  userData: Omit<UserInterface & { password: string }, "id" | "createdAt" | "updatedAt">,
+  userData: Omit<
+    UserInterface & { password: string },
+    "id" | "createdAt" | "updatedAt"
+  >,
 ): Promise<UserInterface | null> {
   return withDatabase(
     async () => {
@@ -170,17 +182,20 @@ export async function createUser(
         createdBy: savedUser.createdBy,
       };
     },
-    () => memoryUsers.createUserMemory(userData)
+    () => memoryUsers.createUserMemory(userData),
   );
 }
 
-export async function updateUser(id: string, updates: Partial<UserInterface>): Promise<UserInterface | null> {
+export async function updateUser(
+  id: string,
+  updates: Partial<UserInterface>,
+): Promise<UserInterface | null> {
   return withDatabase(
     async () => {
       const updatedUser = await User.findByIdAndUpdate(
         id,
         { ...updates, updatedAt: new Date() },
-        { new: true, select: { password: 0 } }
+        { new: true, select: { password: 0 } },
       ).lean();
 
       if (!updatedUser) return null;
@@ -198,7 +213,7 @@ export async function updateUser(id: string, updates: Partial<UserInterface>): P
         createdBy: updatedUser.createdBy,
       };
     },
-    () => memoryUsers.updateUserMemory(id, updates)
+    () => memoryUsers.updateUserMemory(id, updates),
   );
 }
 
@@ -208,21 +223,18 @@ export async function deleteUser(id: string): Promise<boolean> {
       const result = await User.findByIdAndDelete(id);
       return !!result;
     },
-    () => memoryUsers.deleteUserMemory(id)
+    () => memoryUsers.deleteUserMemory(id),
   );
 }
 
 export async function updateLastLogin(id: string): Promise<void> {
   return withDatabase(
     async () => {
-      await User.findByIdAndUpdate(
-        id,
-        {
-          lastLogin: new Date(),
-          updatedAt: new Date()
-        }
-      );
+      await User.findByIdAndUpdate(id, {
+        lastLogin: new Date(),
+        updatedAt: new Date(),
+      });
     },
-    () => memoryUsers.updateLastLoginMemory(id)
+    () => memoryUsers.updateLastLoginMemory(id),
   );
 }

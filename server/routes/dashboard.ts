@@ -48,7 +48,10 @@ export const handleGetAnalytics: RequestHandler = async (
   }
 };
 
-export const handleGetAuditLogs: RequestHandler = async (req: AuthRequest, res) => {
+export const handleGetAuditLogs: RequestHandler = async (
+  req: AuthRequest,
+  res,
+) => {
   try {
     const limit = parseInt(req.query.limit as string) || 100;
     const offset = parseInt(req.query.offset as string) || 0;
@@ -66,12 +69,18 @@ export const handleGetAuditLogs: RequestHandler = async (req: AuthRequest, res) 
   }
 };
 
-export const handleGetMetrics: RequestHandler = async (req: AuthRequest, res) => {
+export const handleGetMetrics: RequestHandler = async (
+  req: AuthRequest,
+  res,
+) => {
   // Delegate to analytics for now
   await handleGetAnalytics(req, res);
 };
 
-export const handleGetChartData: RequestHandler = async (req: AuthRequest, res) => {
+export const handleGetChartData: RequestHandler = async (
+  req: AuthRequest,
+  res,
+) => {
   // Delegate to analytics for now
   await handleGetAnalytics(req, res);
 };

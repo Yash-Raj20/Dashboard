@@ -14,7 +14,7 @@ Creates a notification that will be sent to all users in the system.
 ```json
 {
   "title": "string (required)",
-  "message": "string (required)", 
+  "message": "string (required)",
   "type": "info" | "warning" | "success" | "error" (optional, default: "info"),
   "priority": "low" | "medium" | "high" | "urgent" (optional, default: "medium")
 }
@@ -23,6 +23,7 @@ Creates a notification that will be sent to all users in the system.
 ### Response
 
 **Success (201 Created):**
+
 ```json
 {
   "message": "Notification sent to all users",
@@ -57,18 +58,18 @@ Creates a notification that will be sent to all users in the system.
 
 ```javascript
 // Create notification
-const response = await fetch('/api/notifications', {
-  method: 'POST',
+const response = await fetch("/api/notifications", {
+  method: "POST",
   headers: {
-    'Content-Type': 'application/json',
-    'Authorization': `Bearer ${token}`
+    "Content-Type": "application/json",
+    Authorization: `Bearer ${token}`,
   },
   body: JSON.stringify({
-    title: 'System Maintenance',
-    message: 'Scheduled maintenance tonight at 2 AM',
-    type: 'warning',
-    priority: 'high'
-  })
+    title: "System Maintenance",
+    message: "Scheduled maintenance tonight at 2 AM",
+    type: "warning",
+    priority: "high",
+  }),
 });
 
 const data = await response.json();

@@ -59,7 +59,9 @@ export function getAuditLogsByActionMemory(
     .slice(0, limit);
 }
 
-export function getRecentAuditLogsMemory(hours: number = 24): AuditLogInterface[] {
+export function getRecentAuditLogsMemory(
+  hours: number = 24,
+): AuditLogInterface[] {
   const cutoffTime = new Date(Date.now() - hours * 60 * 60 * 1000);
   return memoryAuditLogs
     .filter((log) => log.timestamp > cutoffTime)

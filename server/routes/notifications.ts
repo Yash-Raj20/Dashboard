@@ -20,7 +20,10 @@ export const handleGetNotifications: RequestHandler = async (
       return res.status(401).json({ error: "Authentication required" });
     }
 
-    const notifications = await getNotificationsForUser(req.user.id, req.user.role);
+    const notifications = await getNotificationsForUser(
+      req.user.id,
+      req.user.role,
+    );
     const unreadCount = await getUnreadCount(req.user.id, req.user.role);
 
     // Convert timestamps to strings for JSON serialization
@@ -40,7 +43,10 @@ export const handleGetNotifications: RequestHandler = async (
   }
 };
 
-export const handleMarkAsRead: RequestHandler = async (req: AuthRequest, res) => {
+export const handleMarkAsRead: RequestHandler = async (
+  req: AuthRequest,
+  res,
+) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: "Authentication required" });
@@ -70,13 +76,19 @@ export const handleMarkAsRead: RequestHandler = async (req: AuthRequest, res) =>
   }
 };
 
-export const handleMarkAllAsRead: RequestHandler = async (req: AuthRequest, res) => {
+export const handleMarkAllAsRead: RequestHandler = async (
+  req: AuthRequest,
+  res,
+) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: "Authentication required" });
     }
 
-    const markedCount = await markAllNotificationsAsRead(req.user.id, req.user.role);
+    const markedCount = await markAllNotificationsAsRead(
+      req.user.id,
+      req.user.role,
+    );
 
     res.json({
       message: `${markedCount} notifications marked as read`,
@@ -169,7 +181,9 @@ export const handleCreateNotification: RequestHandler = async (
 
     // Only main admin can create broadcast notifications
     if (req.user.role !== "main-admin") {
-      return res.status(403).json({ error: "Only main admin can create notifications" });
+      return res
+        .status(403)
+        .json({ error: "Only main admin can create notifications" });
     }
 
     const { title, message, type, priority } = req.body;

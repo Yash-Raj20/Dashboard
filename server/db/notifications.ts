@@ -136,7 +136,7 @@ export async function createNotification(
         autoExpires: savedNotification.autoExpires,
       };
     },
-    () => memoryNotifications.createNotificationMemory(data)
+    () => memoryNotifications.createNotificationMemory(data),
   );
 }
 
@@ -201,13 +201,20 @@ export async function createRoleBasedNotification(
 
           createdNotifications.push(notification);
         } catch (error) {
-          console.error('Error creating role-based notification:', error);
+          console.error("Error creating role-based notification:", error);
         }
       }
 
       return createdNotifications;
     },
-    () => memoryNotifications.createRoleBasedNotificationMemory(fromUserId, fromUserName, fromUserRole, action, targetDetails)
+    () =>
+      memoryNotifications.createRoleBasedNotificationMemory(
+        fromUserId,
+        fromUserName,
+        fromUserRole,
+        action,
+        targetDetails,
+      ),
   );
 }
 
@@ -222,17 +229,16 @@ export async function getNotificationsForUser(
         $or: [
           { targetUserId: userId },
           { targetRole: userRole },
-          { targetRole: { $in: [userRole] } }
-        ]
+          { targetRole: { $in: [userRole] } },
+        ],
       };
 
-      const notifications = await Notification
-        .find(query)
+      const notifications = await Notification.find(query)
         .sort({ createdAt: -1 })
         .limit(limit)
         .lean();
 
-      return notifications.map(notification => ({
+      return notifications.map((notification) => ({
         id: notification._id.toString(),
         targetRole: notification.targetRole,
         targetUserId: notification.targetUserId,
@@ -251,7 +257,12 @@ export async function getNotificationsForUser(
         autoExpires: notification.autoExpires,
       }));
     },
-    () => memoryNotifications.getNotificationsForUserMemory(userId, userRole, limit)
+    () =>
+      memoryNotifications.getNotificationsForUserMemory(
+        userId,
+        userRole,
+        limit,
+      ),
   );
 }
 
@@ -264,11 +275,12 @@ export async function markNotificationAsRead(
       const result = await Notification.findByIdAndUpdate(
         notificationId,
         { read: true },
-        { new: true }
+        { new: true },
       );
       return !!result;
     },
-    () => memoryNotifications.markNotificationAsReadMemory(notificationId, userId)
+    () =>
+      memoryNotifications.markNotificationAsReadMemory(notificationId, userId),
   );
 }
 
@@ -282,48 +294,51 @@ export async function markAllNotificationsAsRead(
         $or: [
           { targetUserId: userId },
           { targetRole: userRole },
-          { targetRole: { $in: [userRole] } }
+          { targetRole: { $in: [userRole] } },
         ],
-        read: false
+        read: false,
       };
 
-      const result = await Notification.updateMany(
-        query,
-        { read: true }
-      );
+      const result = await Notification.updateMany(query, { read: true });
 
       return result.modifiedCount || 0;
     },
-    () => memoryNotifications.markAllNotificationsAsReadMemory(userId, userRole)
+    () =>
+      memoryNotifications.markAllNotificationsAsReadMemory(userId, userRole),
   );
 }
 
-export async function deleteNotification(notificationId: string): Promise<boolean> {
+export async function deleteNotification(
+  notificationId: string,
+): Promise<boolean> {
   return withDatabase(
     async () => {
       const result = await Notification.findByIdAndDelete(notificationId);
       return !!result;
     },
-    () => memoryNotifications.deleteNotificationMemory(notificationId)
+    () => memoryNotifications.deleteNotificationMemory(notificationId),
   );
 }
 
-export async function getUnreadCount(userId: string, userRole: Role): Promise<number> {
+export async function getUnreadCount(
+  userId: string,
+  userRole: Role,
+): Promise<number> {
   return withDatabase(
     async () => {
       const query = {
         $or: [
           { targetUserId: userId },
           { targetRole: userRole },
-          { targetRole: { $in: [userRole] } }
+          { targetRole: { $in: [userRole] } },
         ],
-        read: false
+        read: false,
       };
 
       const count = await Notification.countDocuments(query);
       return count;
     },
-    () => memoryNotifications.getUnreadCountMemory(userId, userRole)
+    () => memoryNotifications.getUnreadCountMemory(userId, userRole),
   );
 }
 
@@ -358,13 +373,22 @@ export async function createNotificationForAll(
 
           createdNotifications.push(notification);
         } catch (error) {
-          console.error('Error creating broadcast notification:', error);
+          console.error("Error creating broadcast notification:", error);
         }
       }
 
       return createdNotifications;
     },
-    () => memoryNotifications.createNotificationForAllMemory(fromUserId, fromUserName, fromUserRole, title, message, type, priority)
+    () =>
+      memoryNotifications.createNotificationForAllMemory(
+        fromUserId,
+        fromUserName,
+        fromUserRole,
+        title,
+        message,
+        type,
+        priority,
+      ),
   );
 }
 
