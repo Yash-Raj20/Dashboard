@@ -122,7 +122,7 @@ export const handleDeleteNotification: RequestHandler = async (
 };
 
 // Helper function to trigger notifications when actions happen
-export const triggerNotification = (
+export const triggerNotification = async (
   fromUserId: string,
   action: string,
   targetDetails?: {
@@ -133,13 +133,13 @@ export const triggerNotification = (
   },
 ) => {
   try {
-    const fromUser = findUserById(fromUserId);
+    const fromUser = await findUserById(fromUserId);
     if (!fromUser) {
       console.error("User not found for notification trigger:", fromUserId);
-      return;
+      return [];
     }
 
-    const notifications = createRoleBasedNotification(
+    const notifications = await createRoleBasedNotification(
       fromUserId,
       fromUser.name,
       fromUser.role,
@@ -153,10 +153,11 @@ export const triggerNotification = (
     return notifications;
   } catch (error) {
     console.error("Error triggering notification:", error);
+    return [];
   }
 };
 
-export const handleTestNotification: RequestHandler = (
+export const handleTestNotification: RequestHandler = async (
   req: AuthRequest,
   res,
 ) => {
@@ -167,7 +168,7 @@ export const handleTestNotification: RequestHandler = (
 
     const { action, targetName } = req.body;
 
-    const notifications = triggerNotification(
+    const notifications = await triggerNotification(
       req.user.id,
       action || "create_user",
       { name: targetName || "Test User" },
