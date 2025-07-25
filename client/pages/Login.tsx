@@ -15,13 +15,20 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, Lock, Mail } from "lucide-react";
 
 export default function Login() {
-  const { login, isAuthenticated, isLoading } = useAuth();
+  const { login, logout, isAuthenticated, isLoading } = useAuth();
   const [formData, setFormData] = useState({
     email: "",
     password: "",
   });
   const [errors, setErrors] = useState<string[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Clear any existing auth state when component mounts
+  React.useEffect(() => {
+    if (isAuthenticated) {
+      logout();
+    }
+  }, []);
 
   // Redirect if already authenticated
   if (isAuthenticated) {
