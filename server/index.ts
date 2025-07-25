@@ -70,6 +70,7 @@ export function createServer() {
   app.post("/api/auth/login", handleLogin);
   app.post("/api/auth/logout", authenticateToken, handleLogout);
   app.get("/api/auth/profile", authenticateToken, handleProfile);
+  app.get("/api/auth/verify", authenticateToken, handleProfile); // Alias for profile
   app.post("/api/auth/refresh", handleRefreshToken);
 
   // User management routes
