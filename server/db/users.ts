@@ -33,27 +33,27 @@ export async function initializeDefaultAdmin() {
 export async function findUserByEmail(
   email: string,
 ): Promise<(UserInterface & { password: string }) | null> {
-  try {
-    const user = await User.findOne({ email: email.toLowerCase() }).lean();
-    if (!user) return null;
+  return withDatabase(
+    async () => {
+      const user = await User.findOne({ email: email.toLowerCase() }).lean();
+      if (!user) return null;
 
-    return {
-      id: user._id.toString(),
-      email: user.email,
-      name: user.name,
-      password: user.password,
-      role: user.role,
-      permissions: user.permissions,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      isActive: user.isActive,
-      lastLogin: user.lastLogin,
-      createdBy: user.createdBy,
-    };
-  } catch (error) {
-    console.error('Error finding user by email:', error);
-    return null;
-  }
+      return {
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        password: user.password,
+        role: user.role,
+        permissions: user.permissions,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        isActive: user.isActive,
+        lastLogin: user.lastLogin,
+        createdBy: user.createdBy,
+      };
+    },
+    () => memoryUsers.findUserByEmailMemory(email)
+  );
 }
 
 export async function findUserById(
