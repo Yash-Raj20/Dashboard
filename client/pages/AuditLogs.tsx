@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { AuthAuditLog } from "@shared/auth";
 import DashboardLayout from "@/components/DashboardLayout";
 import {
