@@ -59,21 +59,23 @@ export function createServer() {
   const app = express();
 
   // Middleware
-  app.use(cors({
-    origin: true,
-    credentials: true,
-    optionsSuccessStatus: 200
-  }));
+  app.use(
+    cors({
+      origin: true,
+      credentials: true,
+      optionsSuccessStatus: 200,
+    }),
+  );
   app.use(express.json());
 
   // Add explicit JSON response headers for API routes
-  app.use('/api', (req, res, next) => {
-    res.setHeader('Content-Type', 'application/json');
+  app.use("/api", (req, res, next) => {
+    res.setHeader("Content-Type", "application/json");
     next();
   });
 
   // Request logging for API routes
-  app.use('/api', (req, res, next) => {
+  app.use("/api", (req, res, next) => {
     console.log(`API Request: ${req.method} ${req.path}`);
     next();
   });
@@ -97,7 +99,10 @@ export function createServer() {
 
   // Simple test endpoint to verify API routing
   app.get("/api/test", (req, res) => {
-    res.json({ message: "API routing is working", timestamp: new Date().toISOString() });
+    res.json({
+      message: "API routing is working",
+      timestamp: new Date().toISOString(),
+    });
   });
 
   // Debug endpoint to check if default admin exists
@@ -111,8 +116,8 @@ export function createServer() {
         adminActive: user?.isActive,
         defaultCredentials: {
           email: "admin@example.com",
-          password: "Admin123!"
-        }
+          password: "Admin123!",
+        },
       });
     } catch (error) {
       res.status(500).json({ error: "Failed to check admin user" });
@@ -181,8 +186,8 @@ export function createServer() {
 
   // Global error handler for API routes
   app.use((error: any, req: any, res: any, next: any) => {
-    if (req.path.startsWith('/api/')) {
-      console.error('API Error:', error);
+    if (req.path.startsWith("/api/")) {
+      console.error("API Error:", error);
       res.status(500).json({ error: "Internal server error" });
     } else {
       next(error);
@@ -193,7 +198,9 @@ export function createServer() {
   if (isProduction) {
     app.get("*", (req, res) => {
       // Log any non-static file requests that hit this catch-all
-      if (!req.path.match(/\.(js|css|png|jpg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+      if (
+        !req.path.match(/\.(js|css|png|jpg|gif|ico|svg|woff|woff2|ttf|eot)$/)
+      ) {
         console.log(`Serving HTML for route: ${req.path}`);
       }
       res.sendFile(join(__dirname, "../spa/index.html"));
@@ -242,7 +249,9 @@ async function startServer() {
       console.error("Failed to initialize admin:", error);
       // Force memory initialization as last resort
       if (!usingMongoDB) {
-        const { initializeDefaultAdminMemory } = await import("./db/memory/users.js");
+        const { initializeDefaultAdminMemory } = await import(
+          "./db/memory/users.js"
+        );
         await initializeDefaultAdminMemory();
         console.log("✅ Forced memory initialization completed");
       }

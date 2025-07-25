@@ -5,7 +5,7 @@ import path from "path";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
   // Load env file based on `mode` in the current working directory.
-  const env = loadEnv(mode, process.cwd(), '');
+  const env = loadEnv(mode, process.cwd(), "");
 
   return {
     server: {
@@ -24,7 +24,7 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       // Make env variables available to the server-side code
-      'process.env': env
+      "process.env": env,
     },
   };
 });

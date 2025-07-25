@@ -5,6 +5,7 @@ A comprehensive admin dashboard with MongoDB integration and role-based authenti
 ## 🚀 Quick Start
 
 ### Prerequisites
+
 - Node.js (v18 or later)
 - npm or yarn
 - Git
@@ -12,17 +13,20 @@ A comprehensive admin dashboard with MongoDB integration and role-based authenti
 ### Setup Instructions
 
 1. **Clone the repository**
+
    ```bash
    git clone <repository-url>
    cd admin-dashboard
    ```
 
 2. **Install dependencies**
+
    ```bash
    npm install
    ```
 
 3. **Start the development server**
+
    ```bash
    npm run dev
    ```
@@ -34,11 +38,13 @@ A comprehensive admin dashboard with MongoDB integration and role-based authenti
 ## 🔐 Default Login Credentials
 
 **Admin Login:**
+
 - Email: `admin@example.com`
 - Password: `Admin123!`
 
 **Sub-Admin Login:**
-- Email: `subadmin@example.com`  
+
+- Email: `subadmin@example.com`
 - Password: `SubAdmin123!`
 
 ## 📂 Project Structure
@@ -62,6 +68,7 @@ A comprehensive admin dashboard with MongoDB integration and role-based authenti
 The application automatically falls back to in-memory storage if MongoDB is not available.
 
 To use MongoDB:
+
 ```bash
 # Using Docker
 docker run -d --name mongodb -p 27017:27017 mongo:latest
@@ -72,6 +79,7 @@ docker run -d --name mongodb -p 27017:27017 mongo:latest
 ## 🔧 Environment Variables
 
 Create a `.env` file in the root directory:
+
 ```env
 MONGODB_URI=mongodb://localhost:27017/admin-dashboard
 JWT_SECRET=your-secret-key
