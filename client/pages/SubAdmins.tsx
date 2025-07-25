@@ -195,6 +195,11 @@ export default function SubAdmins() {
       }
 
       if (!response.ok) {
+        if (response.status === 401) {
+          localStorage.removeItem("auth_token");
+          logout();
+          throw new Error("Session expired. Please log in again.");
+        }
         // Handle validation errors with details
         if (data.details && Array.isArray(data.details)) {
           setFormErrors(data.details);
