@@ -37,22 +37,7 @@ interface AuthContextType extends AuthState {
   clearAuth: () => void;
 }
 
-// Create a default context value to prevent undefined errors
-const defaultContextValue: AuthContextType = {
-  user: null,
-  token: null,
-  isLoading: true,
-  isAuthenticated: false,
-  login: async () => false,
-  logout: () => {},
-  verifyToken: async () => false,
-  hasPermission: () => false,
-  hasAnyPermission: () => false,
-  hasRole: () => false,
-  clearAuth: () => {},
-};
-
-const AuthContext = createContext<AuthContextType>(defaultContextValue);
+const AuthContext = createContext<AuthContextType | null>(null);
 
 const getInitialToken = () => {
   try {
