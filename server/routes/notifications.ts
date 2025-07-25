@@ -88,7 +88,7 @@ export const handleMarkAllAsRead: RequestHandler = async (req: AuthRequest, res)
   }
 };
 
-export const handleDeleteNotification: RequestHandler = (
+export const handleDeleteNotification: RequestHandler = async (
   req: AuthRequest,
   res,
 ) => {
@@ -103,15 +103,17 @@ export const handleDeleteNotification: RequestHandler = (
       return res.status(400).json({ error: "Notification ID is required" });
     }
 
-    const success = deleteNotification(notificationId);
+    const success = await deleteNotification(notificationId);
 
     if (!success) {
       return res.status(404).json({ error: "Notification not found" });
     }
 
+    const unreadCount = await getUnreadCount(req.user.id, req.user.role);
+
     res.json({
       message: "Notification deleted",
-      unreadCount: getUnreadCount(req.user.id, req.user.role),
+      unreadCount,
     });
   } catch (error) {
     console.error("Delete notification error:", error);
