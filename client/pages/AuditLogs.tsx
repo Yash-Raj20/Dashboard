@@ -64,6 +64,9 @@ export default function AuditLogs() {
 
       if (!response.ok) {
         if (response.status === 401) {
+          // Authentication failed - clear tokens and redirect to login
+          localStorage.removeItem("auth_token");
+          logout();
           throw new Error("Session expired. Please log in again.");
         } else if (response.status === 403) {
           throw new Error(
