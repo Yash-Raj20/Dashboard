@@ -1,5 +1,7 @@
 import { AuditLog as AuditLogInterface, Role } from "../../shared/auth.js";
 import { AuditLog, IAuditLog } from "./models/AuditLog.js";
+import { withDatabase } from "./adapter.js";
+import * as memoryAuditLogs from "./memory/auditLogs.js";
 
 export async function createAuditLog(
   userId: string,
