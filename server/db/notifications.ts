@@ -108,36 +108,36 @@ export const NOTIFICATION_RULES = {
 export async function createNotification(
   data: Omit<NotificationData, "id" | "timestamp" | "read">,
 ): Promise<NotificationData> {
-  try {
-    const notification = new Notification({
-      ...data,
-      read: false,
-    });
+  return withDatabase(
+    async () => {
+      const notification = new Notification({
+        ...data,
+        read: false,
+      });
 
-    const savedNotification = await notification.save();
-    
-    return {
-      id: savedNotification._id.toString(),
-      targetRole: savedNotification.targetRole,
-      targetUserId: savedNotification.targetUserId,
-      fromUserId: savedNotification.fromUserId,
-      fromUserName: savedNotification.fromUserName,
-      fromUserRole: savedNotification.fromUserRole,
-      type: savedNotification.type,
-      title: savedNotification.title,
-      message: savedNotification.message,
-      action: savedNotification.action,
-      targetResource: savedNotification.targetResource,
-      targetResourceId: savedNotification.targetResourceId,
-      timestamp: savedNotification.createdAt,
-      read: savedNotification.read,
-      priority: savedNotification.priority,
-      autoExpires: savedNotification.autoExpires,
-    };
-  } catch (error) {
-    console.error('Error creating notification:', error);
-    throw error;
-  }
+      const savedNotification = await notification.save();
+
+      return {
+        id: savedNotification._id.toString(),
+        targetRole: savedNotification.targetRole,
+        targetUserId: savedNotification.targetUserId,
+        fromUserId: savedNotification.fromUserId,
+        fromUserName: savedNotification.fromUserName,
+        fromUserRole: savedNotification.fromUserRole,
+        type: savedNotification.type,
+        title: savedNotification.title,
+        message: savedNotification.message,
+        action: savedNotification.action,
+        targetResource: savedNotification.targetResource,
+        targetResourceId: savedNotification.targetResourceId,
+        timestamp: savedNotification.createdAt,
+        read: savedNotification.read,
+        priority: savedNotification.priority,
+        autoExpires: savedNotification.autoExpires,
+      };
+    },
+    () => memoryNotifications.createNotificationMemory(data)
+  );
 }
 
 export async function createRoleBasedNotification(
