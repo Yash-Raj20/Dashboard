@@ -6,29 +6,28 @@ import * as memoryUsers from "./memory/users.js";
 
 // Initialize with a default main admin
 export async function initializeDefaultAdmin() {
-  try {
-    const existingAdmin = await User.findOne({ role: "main-admin" });
-    
-    if (!existingAdmin) {
-      const defaultAdmin = new User({
-        email: "admin@example.com",
-        name: "Main Administrator",
-        password: await hashPassword("Admin123!"),
-        role: "main-admin" as Role,
-        permissions: ROLE_PERMISSIONS["main-admin"],
-        isActive: true,
-        lastLogin: undefined,
-        createdBy: undefined,
-      });
+  return withDatabase(
+    async () => {
+      const existingAdmin = await User.findOne({ role: "main-admin" });
 
-      await defaultAdmin.save();
-      console.log(
-        "Default admin created with email: admin@example.com and password: Admin123!",
-      );
-    }
-  } catch (error) {
-    console.error('Error initializing default admin:', error);
-  }
+      if (!existingAdmin) {
+        const defaultAdmin = new User({
+          email: "admin@example.com",
+          name: "Main Administrator",
+          password: await hashPassword("Admin123!"),
+          role: "main-admin" as Role,
+          permissions: ROLE_PERMISSIONS["main-admin"],
+          isActive: true,
+          lastLogin: undefined,
+          createdBy: undefined,
+        });
+
+        await defaultAdmin.save();
+        console.log("Default admin created with email: admin@example.com and password: Admin123!");
+      }
+    },
+    () => memoryUsers.initializeDefaultAdminMemory()
+  );
 }
 
 export async function findUserByEmail(
