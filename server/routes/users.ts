@@ -84,7 +84,7 @@ export const handleCreateSubAdmin: RequestHandler = async (
     const hashedPassword = await hashPassword(password);
 
     // Create sub-admin
-    const newSubAdmin = createUser({
+    const newSubAdmin = await createUser({
       email,
       name,
       password: hashedPassword,
