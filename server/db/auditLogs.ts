@@ -79,58 +79,58 @@ export async function getAuditLogsByUser(
   userId: string,
   limit: number = 50,
 ): Promise<AuditLogInterface[]> {
-  try {
-    const logs = await AuditLog
-      .find({ userId })
-      .sort({ timestamp: -1 })
-      .limit(limit)
-      .lean();
+  return withDatabase(
+    async () => {
+      const logs = await AuditLog
+        .find({ userId })
+        .sort({ timestamp: -1 })
+        .limit(limit)
+        .lean();
 
-    return logs.map(log => ({
-      id: log._id.toString(),
-      userId: log.userId,
-      userName: log.userName,
-      userRole: log.userRole,
-      action: log.action,
-      target: log.target,
-      targetId: log.targetId,
-      details: log.details,
-      timestamp: log.timestamp,
-      ipAddress: log.ipAddress,
-    }));
-  } catch (error) {
-    console.error('Error getting audit logs by user:', error);
-    return [];
-  }
+      return logs.map(log => ({
+        id: log._id.toString(),
+        userId: log.userId,
+        userName: log.userName,
+        userRole: log.userRole,
+        action: log.action,
+        target: log.target,
+        targetId: log.targetId,
+        details: log.details,
+        timestamp: log.timestamp,
+        ipAddress: log.ipAddress,
+      }));
+    },
+    () => memoryAuditLogs.getAuditLogsByUserMemory(userId, limit)
+  );
 }
 
 export async function getAuditLogsByAction(
   action: string,
   limit: number = 50,
 ): Promise<AuditLogInterface[]> {
-  try {
-    const logs = await AuditLog
-      .find({ action })
-      .sort({ timestamp: -1 })
-      .limit(limit)
-      .lean();
+  return withDatabase(
+    async () => {
+      const logs = await AuditLog
+        .find({ action })
+        .sort({ timestamp: -1 })
+        .limit(limit)
+        .lean();
 
-    return logs.map(log => ({
-      id: log._id.toString(),
-      userId: log.userId,
-      userName: log.userName,
-      userRole: log.userRole,
-      action: log.action,
-      target: log.target,
-      targetId: log.targetId,
-      details: log.details,
-      timestamp: log.timestamp,
-      ipAddress: log.ipAddress,
-    }));
-  } catch (error) {
-    console.error('Error getting audit logs by action:', error);
-    return [];
-  }
+      return logs.map(log => ({
+        id: log._id.toString(),
+        userId: log.userId,
+        userName: log.userName,
+        userRole: log.userRole,
+        action: log.action,
+        target: log.target,
+        targetId: log.targetId,
+        details: log.details,
+        timestamp: log.timestamp,
+        ipAddress: log.ipAddress,
+      }));
+    },
+    () => memoryAuditLogs.getAuditLogsByActionMemory(action, limit)
+  );
 }
 
 export async function getRecentAuditLogs(hours: number = 24): Promise<AuditLogInterface[]> {
