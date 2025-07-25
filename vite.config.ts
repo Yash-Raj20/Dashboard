@@ -23,8 +23,8 @@ export default defineConfig(({ mode }) => {
       },
     },
     define: {
-      // Make env variables available to the server-side code
-      "process.env": env,
+      // Only expose specific environment variables to avoid security risks
+      "process.env.NODE_ENV": JSON.stringify(env.NODE_ENV || "development"),
     },
   };
 });
