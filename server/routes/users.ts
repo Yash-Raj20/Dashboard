@@ -30,9 +30,9 @@ export const handleGetUsers: RequestHandler = async (req: AuthRequest, res) => {
   }
 };
 
-export const handleGetSubAdmins: RequestHandler = (req: AuthRequest, res) => {
+export const handleGetSubAdmins: RequestHandler = async (req: AuthRequest, res) => {
   try {
-    const subAdmins = getSubAdmins();
+    const subAdmins = await getSubAdmins();
     res.json({ subAdmins });
   } catch (error) {
     console.error("Get sub-admins error:", error);
