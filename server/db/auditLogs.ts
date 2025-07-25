@@ -49,30 +49,30 @@ export async function getAuditLogs(
   limit: number = 100,
   offset: number = 0,
 ): Promise<AuditLogInterface[]> {
-  try {
-    const logs = await AuditLog
-      .find({})
-      .sort({ timestamp: -1 })
-      .limit(limit)
-      .skip(offset)
-      .lean();
+  return withDatabase(
+    async () => {
+      const logs = await AuditLog
+        .find({})
+        .sort({ timestamp: -1 })
+        .limit(limit)
+        .skip(offset)
+        .lean();
 
-    return logs.map(log => ({
-      id: log._id.toString(),
-      userId: log.userId,
-      userName: log.userName,
-      userRole: log.userRole,
-      action: log.action,
-      target: log.target,
-      targetId: log.targetId,
-      details: log.details,
-      timestamp: log.timestamp,
-      ipAddress: log.ipAddress,
-    }));
-  } catch (error) {
-    console.error('Error getting audit logs:', error);
-    return [];
-  }
+      return logs.map(log => ({
+        id: log._id.toString(),
+        userId: log.userId,
+        userName: log.userName,
+        userRole: log.userRole,
+        action: log.action,
+        target: log.target,
+        targetId: log.targetId,
+        details: log.details,
+        timestamp: log.timestamp,
+        ipAddress: log.ipAddress,
+      }));
+    },
+    () => memoryAuditLogs.getAuditLogsMemory(limit, offset)
+  );
 }
 
 export async function getAuditLogsByUser(
