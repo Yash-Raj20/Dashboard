@@ -254,43 +254,43 @@ export async function markNotificationAsRead(
   notificationId: string,
   userId: string,
 ): Promise<boolean> {
-  try {
-    const result = await Notification.findByIdAndUpdate(
-      notificationId,
-      { read: true },
-      { new: true }
-    );
-    return !!result;
-  } catch (error) {
-    console.error('Error marking notification as read:', error);
-    return false;
-  }
+  return withDatabase(
+    async () => {
+      const result = await Notification.findByIdAndUpdate(
+        notificationId,
+        { read: true },
+        { new: true }
+      );
+      return !!result;
+    },
+    () => memoryNotifications.markNotificationAsReadMemory(notificationId, userId)
+  );
 }
 
 export async function markAllNotificationsAsRead(
   userId: string,
   userRole: Role,
 ): Promise<number> {
-  try {
-    const query = {
-      $or: [
-        { targetUserId: userId },
-        { targetRole: userRole },
-        { targetRole: { $in: [userRole] } }
-      ],
-      read: false
-    };
+  return withDatabase(
+    async () => {
+      const query = {
+        $or: [
+          { targetUserId: userId },
+          { targetRole: userRole },
+          { targetRole: { $in: [userRole] } }
+        ],
+        read: false
+      };
 
-    const result = await Notification.updateMany(
-      query,
-      { read: true }
-    );
+      const result = await Notification.updateMany(
+        query,
+        { read: true }
+      );
 
-    return result.modifiedCount || 0;
-  } catch (error) {
-    console.error('Error marking all notifications as read:', error);
-    return 0;
-  }
+      return result.modifiedCount || 0;
+    },
+    () => memoryNotifications.markAllNotificationsAsReadMemory(userId, userRole)
+  );
 }
 
 export async function deleteNotification(notificationId: string): Promise<boolean> {
