@@ -105,25 +105,25 @@ export async function getAllUsers(): Promise<UserInterface[]> {
 }
 
 export async function getSubAdmins(): Promise<UserInterface[]> {
-  try {
-    const users = await User.find({ role: "sub-admin" }, { password: 0 }).lean();
-    
-    return users.map(user => ({
-      id: user._id.toString(),
-      email: user.email,
-      name: user.name,
-      role: user.role,
-      permissions: user.permissions,
-      createdAt: user.createdAt,
-      updatedAt: user.updatedAt,
-      isActive: user.isActive,
-      lastLogin: user.lastLogin,
-      createdBy: user.createdBy,
-    }));
-  } catch (error) {
-    console.error('Error getting sub-admins:', error);
-    return [];
-  }
+  return withDatabase(
+    async () => {
+      const users = await User.find({ role: "sub-admin" }, { password: 0 }).lean();
+
+      return users.map(user => ({
+        id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        permissions: user.permissions,
+        createdAt: user.createdAt,
+        updatedAt: user.updatedAt,
+        isActive: user.isActive,
+        lastLogin: user.lastLogin,
+        createdBy: user.createdBy,
+      }));
+    },
+    () => memoryUsers.getSubAdminsMemory()
+  );
 }
 
 export async function createUser(
@@ -194,15 +194,16 @@ export async function deleteUser(id: string): Promise<boolean> {
 }
 
 export async function updateLastLogin(id: string): Promise<void> {
-  try {
-    await User.findByIdAndUpdate(
-      id,
-      { 
-        lastLogin: new Date(),
-        updatedAt: new Date()
-      }
-    );
-  } catch (error) {
-    console.error('Error updating last login:', error);
-  }
+  return withDatabase(
+    async () => {
+      await User.findByIdAndUpdate(
+        id,
+        {
+          lastLogin: new Date(),
+          updatedAt: new Date()
+        }
+      );
+    },
+    () => memoryUsers.updateLastLoginMemory(id)
+  );
 }
