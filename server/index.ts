@@ -40,6 +40,7 @@ import {
   handleGetAnalytics,
   handleGetMetrics,
   handleGetChartData,
+  handleGetAuditLogs,
 } from "./routes/dashboard.js";
 
 import { handleDemoData } from "./routes/demo.js";
