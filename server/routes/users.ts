@@ -20,9 +20,9 @@ import { createAuditLog } from "../db/auditLogs";
 import { triggerNotification } from "./notifications";
 import { AuthRequest } from "../middleware/auth";
 
-export const handleGetUsers: RequestHandler = (req: AuthRequest, res) => {
+export const handleGetUsers: RequestHandler = async (req: AuthRequest, res) => {
   try {
-    const users = getAllUsers();
+    const users = await getAllUsers();
     res.json({ users });
   } catch (error) {
     console.error("Get users error:", error);
