@@ -280,14 +280,14 @@ export const handleUpdateUser: RequestHandler = async (req: AuthRequest, res) =>
       return res.status(400).json({ error: "Target is not a regular user" });
     }
 
-    const updatedUser = updateUser(id, updates);
+    const updatedUser = await updateUser(id, updates);
     if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
     }
 
     // Create audit log
     const clientIP = req.ip || req.connection.remoteAddress || "unknown";
-    createAuditLog(
+    await createAuditLog(
       req.user!.id,
       "Unknown",
       req.user!.role,
