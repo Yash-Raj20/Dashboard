@@ -127,13 +127,18 @@ async function startServer() {
     const mongoUri = process.env.MONGODB_URI || "mongodb://localhost:27017/admin-dashboard";
 
     // Try to connect to MongoDB, but continue if it fails
+    let usingMongoDB = false;
     try {
       await dbConnection.connect({ mongoUri });
-      console.log("✅ Connected to MongoDB");
+      setDatabaseMode('mongodb');
+      usingMongoDB = true;
+      console.log("✅ Connected to MongoDB - using MongoDB storage");
     } catch (mongoError) {
-      console.warn("⚠️ MongoDB connection failed, falling back to in-memory storage");
+      setDatabaseMode('memory');
+      console.warn("⚠️ MongoDB connection failed, using in-memory storage");
       console.warn("💡 To use MongoDB, make sure it's running on localhost:27017");
       console.warn("💡 Or start it with: docker run -d --name mongodb -p 27017:27017 mongo:latest");
+      console.warn("💡 Data will be lost when server restarts in memory mode");
     }
 
     // Initialize default admin user (works with both MongoDB and in-memory)
@@ -145,6 +150,7 @@ async function startServer() {
 
     app.listen(port, () => {
       console.log(`🚀 Server running on port ${port}`);
+      console.log(`📊 Database mode: ${usingMongoDB ? 'MongoDB' : 'In-Memory'}`);
       console.log(`📱 Health check: http://localhost:${port}/health`);
       console.log(`🔗 Admin login: http://localhost:${port}`);
       console.log(`📧 Default admin: admin@example.com / Admin123!`);
