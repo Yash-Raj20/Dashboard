@@ -58,6 +58,12 @@ export function createServer() {
   app.use(cors());
   app.use(express.json());
 
+  // Request logging for API routes
+  app.use('/api', (req, res, next) => {
+    console.log(`API Request: ${req.method} ${req.path}`);
+    next();
+  });
+
   // Serve static files from the spa dist
   app.use(express.static(join(__dirname, "../spa")));
 
