@@ -134,28 +134,28 @@ export async function getAuditLogsByAction(
 }
 
 export async function getRecentAuditLogs(hours: number = 24): Promise<AuditLogInterface[]> {
-  try {
-    const cutoffTime = new Date(Date.now() - hours * 60 * 60 * 1000);
-    
-    const logs = await AuditLog
-      .find({ timestamp: { $gte: cutoffTime } })
-      .sort({ timestamp: -1 })
-      .lean();
+  return withDatabase(
+    async () => {
+      const cutoffTime = new Date(Date.now() - hours * 60 * 60 * 1000);
 
-    return logs.map(log => ({
-      id: log._id.toString(),
-      userId: log.userId,
-      userName: log.userName,
-      userRole: log.userRole,
-      action: log.action,
-      target: log.target,
-      targetId: log.targetId,
-      details: log.details,
-      timestamp: log.timestamp,
-      ipAddress: log.ipAddress,
-    }));
-  } catch (error) {
-    console.error('Error getting recent audit logs:', error);
-    return [];
-  }
+      const logs = await AuditLog
+        .find({ timestamp: { $gte: cutoffTime } })
+        .sort({ timestamp: -1 })
+        .lean();
+
+      return logs.map(log => ({
+        id: log._id.toString(),
+        userId: log.userId,
+        userName: log.userName,
+        userRole: log.userRole,
+        action: log.action,
+        target: log.target,
+        targetId: log.targetId,
+        details: log.details,
+        timestamp: log.timestamp,
+        ipAddress: log.ipAddress,
+      }));
+    },
+    () => memoryAuditLogs.getRecentAuditLogsMemory(hours)
+  );
 }
