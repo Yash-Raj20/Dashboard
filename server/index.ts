@@ -85,6 +85,7 @@ export function createServer() {
 
   // Notification routes
   app.get("/api/notifications", authenticateToken, handleGetNotifications);
+  app.post("/api/notifications", authenticateToken, handleCreateNotification);
   app.put(
     "/api/notifications/:notificationId/read",
     authenticateToken,
