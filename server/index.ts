@@ -166,14 +166,16 @@ export function createServer() {
     }
   });
 
-  // Catch all handler: send back React's index.html file for client-side routing
-  app.get("*", (req, res) => {
-    // Log any non-static file requests that hit this catch-all
-    if (!req.path.match(/\.(js|css|png|jpg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
-      console.log(`Serving HTML for route: ${req.path}`);
-    }
-    res.sendFile(join(__dirname, "../spa/index.html"));
-  });
+  // Only use catch-all route in production for client-side routing
+  if (isProduction) {
+    app.get("*", (req, res) => {
+      // Log any non-static file requests that hit this catch-all
+      if (!req.path.match(/\.(js|css|png|jpg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+        console.log(`Serving HTML for route: ${req.path}`);
+      }
+      res.sendFile(join(__dirname, "../spa/index.html"));
+    });
+  }
 
   return app;
 }
