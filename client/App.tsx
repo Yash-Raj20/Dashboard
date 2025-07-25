@@ -24,77 +24,79 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="dark" storageKey="admin-ui-theme">
-      <TooltipProvider>
-        <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <div className="min-h-screen">
-              <Routes>
-                <Route
-                  path="/"
-                  element={<Navigate to="/dashboard" replace />}
-                />
-                <Route path="/login" element={<Login />} />
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/sub-admins"
-                  element={
-                    <ProtectedRoute requiredPermission="create_sub_admin">
-                      <SubAdmins />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/analytics"
-                  element={
-                    <ProtectedRoute requiredPermission="view_analytics">
-                      <Analytics />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/users"
-                  element={
-                    <ProtectedRoute requiredPermission="view_all_users">
-                      <Users />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/audit-logs"
-                  element={
-                    <ProtectedRoute requiredPermission="view_audit_logs">
-                      <AuditLogs />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard/settings"
-                  element={
-                    <ProtectedRoute requiredPermission="edit_profile">
-                      <Settings />
-                    </ProtectedRoute>
-                  }
-                />
-                {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
-          </BrowserRouter>
-        </AuthProvider>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <ThemeProvider defaultTheme="dark" storageKey="admin-ui-theme">
+        <TooltipProvider>
+          <AuthProvider>
+            <BrowserRouter>
+              <div className="min-h-screen">
+                <Toaster />
+                <Sonner />
+                <Routes>
+                  <Route
+                    path="/"
+                    element={<Navigate to="/dashboard" replace />}
+                  />
+                  <Route path="/login" element={<Login />} />
+                  <Route
+                    path="/dashboard"
+                    element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/sub-admins"
+                    element={
+                      <ProtectedRoute requiredPermission="create_sub_admin">
+                        <SubAdmins />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/analytics"
+                    element={
+                      <ProtectedRoute requiredPermission="view_analytics">
+                        <Analytics />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/users"
+                    element={
+                      <ProtectedRoute requiredPermission="view_all_users">
+                        <Users />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/audit-logs"
+                    element={
+                      <ProtectedRoute requiredPermission="view_audit_logs">
+                        <AuditLogs />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/settings"
+                    element={
+                      <ProtectedRoute requiredPermission="edit_profile">
+                        <Settings />
+                      </ProtectedRoute>
+                    }
+                  />
+                  {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </div>
+            </BrowserRouter>
+          </AuthProvider>
+        </TooltipProvider>
+      </ThemeProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 // Handle hot module replacement properly to avoid createRoot warning
