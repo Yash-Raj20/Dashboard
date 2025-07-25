@@ -211,43 +211,43 @@ export async function getNotificationsForUser(
   userRole: Role,
   limit: number = 50,
 ): Promise<NotificationData[]> {
-  try {
-    const query = {
-      $or: [
-        { targetUserId: userId },
-        { targetRole: userRole },
-        { targetRole: { $in: [userRole] } }
-      ]
-    };
+  return withDatabase(
+    async () => {
+      const query = {
+        $or: [
+          { targetUserId: userId },
+          { targetRole: userRole },
+          { targetRole: { $in: [userRole] } }
+        ]
+      };
 
-    const notifications = await Notification
-      .find(query)
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .lean();
+      const notifications = await Notification
+        .find(query)
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean();
 
-    return notifications.map(notification => ({
-      id: notification._id.toString(),
-      targetRole: notification.targetRole,
-      targetUserId: notification.targetUserId,
-      fromUserId: notification.fromUserId,
-      fromUserName: notification.fromUserName,
-      fromUserRole: notification.fromUserRole,
-      type: notification.type,
-      title: notification.title,
-      message: notification.message,
-      action: notification.action,
-      targetResource: notification.targetResource,
-      targetResourceId: notification.targetResourceId,
-      timestamp: notification.createdAt,
-      read: notification.read,
-      priority: notification.priority,
-      autoExpires: notification.autoExpires,
-    }));
-  } catch (error) {
-    console.error('Error getting notifications for user:', error);
-    throw error;
-  }
+      return notifications.map(notification => ({
+        id: notification._id.toString(),
+        targetRole: notification.targetRole,
+        targetUserId: notification.targetUserId,
+        fromUserId: notification.fromUserId,
+        fromUserName: notification.fromUserName,
+        fromUserRole: notification.fromUserRole,
+        type: notification.type,
+        title: notification.title,
+        message: notification.message,
+        action: notification.action,
+        targetResource: notification.targetResource,
+        targetResourceId: notification.targetResourceId,
+        timestamp: notification.createdAt,
+        read: notification.read,
+        priority: notification.priority,
+        autoExpires: notification.autoExpires,
+      }));
+    },
+    () => memoryNotifications.getNotificationsForUserMemory(userId, userRole, limit)
+  );
 }
 
 export async function markNotificationAsRead(
