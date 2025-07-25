@@ -156,41 +156,41 @@ export async function createUser(
 }
 
 export async function updateUser(id: string, updates: Partial<UserInterface>): Promise<UserInterface | null> {
-  try {
-    const updatedUser = await User.findByIdAndUpdate(
-      id,
-      { ...updates, updatedAt: new Date() },
-      { new: true, select: { password: 0 } }
-    ).lean();
+  return withDatabase(
+    async () => {
+      const updatedUser = await User.findByIdAndUpdate(
+        id,
+        { ...updates, updatedAt: new Date() },
+        { new: true, select: { password: 0 } }
+      ).lean();
 
-    if (!updatedUser) return null;
+      if (!updatedUser) return null;
 
-    return {
-      id: updatedUser._id.toString(),
-      email: updatedUser.email,
-      name: updatedUser.name,
-      role: updatedUser.role,
-      permissions: updatedUser.permissions,
-      createdAt: updatedUser.createdAt,
-      updatedAt: updatedUser.updatedAt,
-      isActive: updatedUser.isActive,
-      lastLogin: updatedUser.lastLogin,
-      createdBy: updatedUser.createdBy,
-    };
-  } catch (error) {
-    console.error('Error updating user:', error);
-    return null;
-  }
+      return {
+        id: updatedUser._id.toString(),
+        email: updatedUser.email,
+        name: updatedUser.name,
+        role: updatedUser.role,
+        permissions: updatedUser.permissions,
+        createdAt: updatedUser.createdAt,
+        updatedAt: updatedUser.updatedAt,
+        isActive: updatedUser.isActive,
+        lastLogin: updatedUser.lastLogin,
+        createdBy: updatedUser.createdBy,
+      };
+    },
+    () => memoryUsers.updateUserMemory(id, updates)
+  );
 }
 
 export async function deleteUser(id: string): Promise<boolean> {
-  try {
-    const result = await User.findByIdAndDelete(id);
-    return !!result;
-  } catch (error) {
-    console.error('Error deleting user:', error);
-    return false;
-  }
+  return withDatabase(
+    async () => {
+      const result = await User.findByIdAndDelete(id);
+      return !!result;
+    },
+    () => memoryUsers.deleteUserMemory(id)
+  );
 }
 
 export async function updateLastLogin(id: string): Promise<void> {
