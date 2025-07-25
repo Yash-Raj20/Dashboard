@@ -318,14 +318,14 @@ export const handleDeleteUser: RequestHandler = async (req: AuthRequest, res) =>
       return res.status(400).json({ error: "Target is not a regular user" });
     }
 
-    const deleted = deleteUser(id);
+    const deleted = await deleteUser(id);
     if (!deleted) {
       return res.status(404).json({ error: "User not found" });
     }
 
     // Create audit log
     const clientIP = req.ip || req.connection.remoteAddress || "unknown";
-    createAuditLog(
+    await createAuditLog(
       req.user!.id,
       "Unknown",
       req.user!.role,
