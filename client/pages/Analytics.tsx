@@ -47,6 +47,7 @@ import {
 } from "recharts";
 
 export default function Analytics() {
+  const { logout } = useAuth();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
