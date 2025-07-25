@@ -142,7 +142,7 @@ export const handleUpdateSubAdmin: RequestHandler = async (req: AuthRequest, res
       }
     }
 
-    const updatedUser = updateUser(id, updates);
+    const updatedUser = await updateUser(id, updates);
     if (!updatedUser) {
       return res.status(404).json({ error: "Sub-admin not found" });
     }
