@@ -167,11 +167,11 @@ export const handleUpdateSubAdmin: RequestHandler = async (req: AuthRequest, res
   }
 };
 
-export const handleDeleteSubAdmin: RequestHandler = (req: AuthRequest, res) => {
+export const handleDeleteSubAdmin: RequestHandler = async (req: AuthRequest, res) => {
   try {
     const { id } = req.params;
 
-    const existingUser = findUserById(id);
+    const existingUser = await findUserById(id);
     if (!existingUser) {
       return res.status(404).json({ error: "Sub-admin not found" });
     }
