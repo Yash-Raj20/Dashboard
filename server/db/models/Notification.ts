@@ -114,7 +114,7 @@ notificationSchema.index({ targetUserId: 1, read: 1, createdAt: -1 });
 notificationSchema.index({ fromUserId: 1, createdAt: -1 });
 notificationSchema.index({ priority: 1, read: 1, createdAt: -1 });
 
-export const Notification = mongoose.model<INotification>(
+export const Notification = mongoose.models.Notification || mongoose.model<INotification>(
   "Notification",
   notificationSchema,
 );
