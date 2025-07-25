@@ -98,7 +98,7 @@ export const handleLogout: RequestHandler = (req: AuthRequest, res) => {
   }
 };
 
-export const handleVerifyToken: RequestHandler = (req: AuthRequest, res) => {
+export const handleProfile: RequestHandler = (req: AuthRequest, res) => {
   try {
     if (!req.user) {
       return res.status(401).json({ error: "Invalid token" });
