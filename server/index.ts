@@ -86,6 +86,7 @@ export function createServer() {
   app.get("/api/dashboard/analytics", authenticateToken, handleGetAnalytics);
   app.get("/api/dashboard/metrics", authenticateToken, handleGetMetrics);
   app.get("/api/dashboard/chart-data", authenticateToken, handleGetChartData);
+  app.get("/api/dashboard/audit-logs", authenticateToken, handleGetAuditLogs);
 
   // Notification routes
   app.get("/api/notifications", authenticateToken, handleGetNotifications);
@@ -152,7 +153,7 @@ async function startServer() {
 
     app.listen(port, () => {
       console.log(`🚀 Server running on port ${port}`);
-      console.log(`📊 Database mode: ${usingMongoDB ? 'MongoDB' : 'In-Memory'}`);
+      console.log(`��� Database mode: ${usingMongoDB ? 'MongoDB' : 'In-Memory'}`);
       console.log(`📱 Health check: http://localhost:${port}/health`);
       console.log(`🔗 Admin login: http://localhost:${port}`);
       console.log(`📧 Default admin: admin@example.com / Admin123!`);
