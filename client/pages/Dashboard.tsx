@@ -235,6 +235,14 @@ export default function Dashboard() {
         {/* Real-Time Metrics */}
         <RealTimeMetrics />
 
+        {/* Create Notification - Only for Main Admin */}
+        {user?.role === "main-admin" && (
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold">Send Notification</h2>
+            <CreateNotification />
+          </div>
+        )}
+
         {/* Quick Actions */}
         {hasPermission("create_sub_admin") && (
           <Card>
