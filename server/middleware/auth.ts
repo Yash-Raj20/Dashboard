@@ -12,7 +12,7 @@ export interface AuthRequest extends Request {
   };
 }
 
-export function authenticateToken(
+export async function authenticateToken(
   req: AuthRequest,
   res: Response,
   next: NextFunction,
@@ -26,7 +26,7 @@ export function authenticateToken(
 
   try {
     const decoded = verifyToken(token);
-    const user = findUserById(decoded.userId);
+    const user = await findUserById(decoded.userId);
 
     if (!user || !user.isActive) {
       return res.status(401).json({ error: "Invalid or inactive user" });
@@ -41,6 +41,7 @@ export function authenticateToken(
 
     next();
   } catch (error) {
+    console.error("Auth middleware error:", error);
     return res.status(403).json({ error: "Invalid or expired token" });
   }
 }
