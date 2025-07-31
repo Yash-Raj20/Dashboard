@@ -24,6 +24,7 @@ import {
   LogOut,
   Menu,
   Shield,
+  ScrollText,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -63,16 +64,22 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       permission: "view_analytics",
     },
     {
-      label: "Users",
-      href: "/dashboard/users",
-      icon: Users,
-      permission: "view_all_users",
+      label: "User's Problems",
+      href: "/dashboard/users-problems",
+      icon: ScrollText,
+      permission: "view_users_problems",
     },
     {
       label: "Sub-Admins",
       href: "/dashboard/sub-admins",
       icon: UserCog,
       permission: "create_sub_admin",
+    },
+    {
+      label: "Users",
+      href: "/dashboard/users",
+      icon: Users,
+      permission: "view_all_users",
     },
     {
       label: "Audit Logs",

@@ -12,9 +12,9 @@ export async function initializeDefaultAdmin() {
 
   if (!existingAdmin) {
     const defaultAdmin = new User({
-      email: "admin@example.com",
+      email: "ratnesh@gmail.com",
       name: "Main Administrator",
-      password: await hashPassword("Admin123!"),
+      password: await hashPassword("Admin@123"),
       role: "main-admin" as Role,
       permissions: ROLE_PERMISSIONS["main-admin"],
       isActive: true,
@@ -23,7 +23,7 @@ export async function initializeDefaultAdmin() {
     });
 
     await defaultAdmin.save();
-    console.log("✅ Default admin created (admin@example.com / Admin123!)");
+    console.log("✅ Default admin created (ratnesh@gmail.com / Admin@123)");
 
     // Create a test notification
     try {

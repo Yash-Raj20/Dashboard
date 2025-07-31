@@ -87,14 +87,14 @@ export async function createServer() {
   app.get("/api/debug/admin", async (req, res) => {
     try {
       const { findUserByEmail } = await import("./db/users.js");
-      const user = await findUserByEmail("admin@example.com");
+      const user = await findUserByEmail("ratnesh@gmail.com");
       res.json({
         adminExists: !!user,
         adminEmail: user?.email,
         adminActive: user?.isActive,
         defaultCredentials: {
-          email: "admin@example.com",
-          password: "Admin123!",
+          email: "ratnesh@gmail.com",
+          password: "Admin@123",
         },
       });
     } catch {

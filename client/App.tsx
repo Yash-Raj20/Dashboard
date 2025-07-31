@@ -16,6 +16,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import SubAdmins from "./pages/SubAdmins";
 import Analytics from "./pages/Analytics";
+import UsersProblem from "./pages/AllProblems";
 import Users from "./pages/Users";
 import AuditLogs from "./pages/AuditLogs";
 import Settings from "./pages/Settings";
@@ -60,6 +61,14 @@ const App = () => (
                     element={
                       <ProtectedRoute requiredPermission="view_analytics">
                         <Analytics />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/users-problems"
+                    element={
+                      <ProtectedRoute requiredPermission="view_users_problems">
+                        <UsersProblem />
                       </ProtectedRoute>
                     }
                   />

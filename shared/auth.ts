@@ -9,6 +9,7 @@ export type Permission =
   | "edit_sub_admin"
   | "delete_sub_admin"
   | "view_all_users"
+  | "view_users_problems"
   | "edit_user"
   | "delete_user"
   | "view_analytics"
@@ -114,6 +115,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "edit_sub_admin",
     "delete_sub_admin",
     "view_all_users",
+    "view_users_problems",
     "edit_user",
     "delete_user",
     "view_analytics",
@@ -124,6 +126,7 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   ],
   "sub-admin": [
     "view_all_users",
+    "view_users_problems",
     "edit_user",
     "view_analytics",
     "view_dashboard",
