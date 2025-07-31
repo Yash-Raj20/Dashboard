@@ -31,6 +31,8 @@ export const handleLogin: RequestHandler = async (req, res) => {
     const isPasswordValid = await comparePassword(password, user.password);
     if (!isPasswordValid) {
       console.log(`Login failed: Invalid password for email: ${email}`);
+      console.log("Stored:", user.password);
+console.log("Compare result:", await comparePassword(password, user.password));
       return res.status(401).json({ error: "Invalid credentials" });
     }
 
@@ -140,7 +142,8 @@ export const handleProfile: RequestHandler = async (req: AuthRequest, res) => {
 export const handleRefreshToken: RequestHandler = async (
   req: AuthRequest,
   res,
+  next,
 ) => {
   // For now, just return the same token logic as handleProfile
-  await handleProfile(req, res);
+  await handleProfile(req, res, next);
 };

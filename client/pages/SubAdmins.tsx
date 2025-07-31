@@ -615,7 +615,11 @@ export default function SubAdmins() {
                         <div className="flex items-center space-x-1">
                           <Calendar className="h-3 w-3 text-muted-foreground" />
                           <span className="text-sm">
-                            {formatDate(subAdmin.createdAt)}
+                            {formatDate(
+                              typeof subAdmin.createdAt === "string"
+                                ? subAdmin.createdAt
+                                : subAdmin.createdAt.toISOString()
+                            )}
                           </span>
                         </div>
                       </TableCell>

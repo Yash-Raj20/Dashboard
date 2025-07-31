@@ -1,4 +1,4 @@
-import mongoose from "mongoose";
+import mongoose, { ConnectOptions } from "mongoose";
 
 interface ConnectionOptions {
   mongoUri: string;
@@ -19,16 +19,18 @@ export class DatabaseConnection {
 
   public async connect(options: ConnectionOptions): Promise<void> {
     try {
-      if (this.isConnected) {
-        console.log("Database already connected");
+      if (this.isConnected || mongoose.connection.readyState === 1) {
+        console.log("✅ Database already connected");
         return;
       }
 
-      await mongoose.connect(options.mongoUri, {
+      const mongooseOptions: ConnectOptions = {
         maxPoolSize: 10,
         serverSelectionTimeoutMS: 5000,
         socketTimeoutMS: 45000,
-      });
+      };
+
+      await mongoose.connect(options.mongoUri, mongooseOptions);
 
       this.isConnected = true;
       console.log("✅ Connected to MongoDB successfully");
@@ -64,4 +66,5 @@ export class DatabaseConnection {
   }
 }
 
+// ✅ Export ready-to-use instance
 export const dbConnection = DatabaseConnection.getInstance();

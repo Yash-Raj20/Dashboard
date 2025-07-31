@@ -2,9 +2,7 @@ import { defineConfig, Plugin, loadEnv } from "vite";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
 
-// https://vitejs.dev/config/
 export default defineConfig(({ mode }) => {
-  // Load env file based on `mode` in the current working directory.
   const env = loadEnv(mode, process.cwd(), "");
 
   return {
@@ -23,7 +21,6 @@ export default defineConfig(({ mode }) => {
       },
     },
     define: {
-      // Only expose specific environment variables to avoid security risks
       "process.env.NODE_ENV": JSON.stringify(env.NODE_ENV || "development"),
     },
   };
@@ -34,19 +31,18 @@ function expressPlugin(): Plugin {
 
   return {
     name: "express-plugin",
-    apply: "serve", // Only apply during development (serve mode)
+    apply: "serve",
     async buildStart() {
-      // Initialize Express app once during build start
       try {
+        await import("dotenv/config");
         const { createServer } = await import("./server/index.js");
-        expressApp = createServer();
-        console.log("Express server initialized");
+        expressApp = await createServer(); // Await server with DB
+        console.log("✅ Express app fully initialized with DB");
       } catch (error) {
-        console.error("Failed to initialize Express server:", error);
+        console.error("❌ Failed to initialize Express server:", error);
       }
     },
     configureServer(server) {
-      // Add Express app as middleware to Vite dev server
       server.middlewares.use((req, res, next) => {
         if (req.url?.startsWith("/api/") && expressApp) {
           expressApp(req, res, next);

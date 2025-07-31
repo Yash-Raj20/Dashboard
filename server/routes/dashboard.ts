@@ -72,15 +72,16 @@ export const handleGetAuditLogs: RequestHandler = async (
 export const handleGetMetrics: RequestHandler = async (
   req: AuthRequest,
   res,
+  next,
 ) => {
   // Delegate to analytics for now
-  await handleGetAnalytics(req, res);
+  await handleGetAnalytics(req, res, next);
 };
-
 export const handleGetChartData: RequestHandler = async (
   req: AuthRequest,
   res,
+  next,
 ) => {
   // Delegate to analytics for now
-  await handleGetAnalytics(req, res);
+  await handleGetAnalytics(req, res, next);
 };

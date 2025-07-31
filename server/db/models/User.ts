@@ -1,12 +1,12 @@
 import mongoose, { Schema, Document } from "mongoose";
-import { Role } from "../../../shared/auth.js";
+import { Permission, Role } from "../../../shared/auth.js";
 
 export interface IUser extends Document {
   email: string;
   name: string;
   password: string;
   role: Role;
-  permissions: string[];
+  permissions: Permission[];
   createdAt: Date;
   updatedAt: Date;
   isActive: boolean;
@@ -77,3 +77,4 @@ userSchema.methods.toJSON = function () {
 };
 
 export const User = mongoose.models.User || mongoose.model<IUser>("User", userSchema);
+

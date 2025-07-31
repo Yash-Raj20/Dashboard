@@ -1,7 +1,5 @@
 import { Role } from "../../shared/auth.js";
 import { Notification, INotification } from "./models/Notification.js";
-import { withDatabase } from "./adapter.js";
-import * as memoryNotifications from "./memory/notifications.js";
 
 export interface NotificationData {
   id: string;
@@ -22,9 +20,8 @@ export interface NotificationData {
   autoExpires?: Date;
 }
 
-// Role-based notification rules
+// === Rules ===
 export const NOTIFICATION_RULES = {
-  // When main admin does these actions, notify sub-admins and users
   MAIN_ADMIN_ACTIONS: {
     create_sub_admin: {
       notifyRoles: ["sub-admin", "user"] as Role[],
@@ -64,7 +61,6 @@ export const NOTIFICATION_RULES = {
     },
   },
 
-  // When sub-admin does these actions, notify main admin
   SUB_ADMIN_ACTIONS: {
     create_user: {
       notifyRoles: ["main-admin"] as Role[],
@@ -105,39 +101,36 @@ export const NOTIFICATION_RULES = {
   },
 };
 
+// === Services ===
+
 export async function createNotification(
   data: Omit<NotificationData, "id" | "timestamp" | "read">,
 ): Promise<NotificationData> {
-  return withDatabase(
-    async () => {
-      const notification = new Notification({
-        ...data,
-        read: false,
-      });
+  const notification = new Notification({
+    ...data,
+    read: false,
+  });
 
-      const savedNotification = await notification.save();
+  const savedNotification = await notification.save();
 
-      return {
-        id: savedNotification._id.toString(),
-        targetRole: savedNotification.targetRole,
-        targetUserId: savedNotification.targetUserId,
-        fromUserId: savedNotification.fromUserId,
-        fromUserName: savedNotification.fromUserName,
-        fromUserRole: savedNotification.fromUserRole,
-        type: savedNotification.type,
-        title: savedNotification.title,
-        message: savedNotification.message,
-        action: savedNotification.action,
-        targetResource: savedNotification.targetResource,
-        targetResourceId: savedNotification.targetResourceId,
-        timestamp: savedNotification.createdAt,
-        read: savedNotification.read,
-        priority: savedNotification.priority,
-        autoExpires: savedNotification.autoExpires,
-      };
-    },
-    () => memoryNotifications.createNotificationMemory(data),
-  );
+  return {
+    id: savedNotification._id.toString(),
+    targetRole: savedNotification.targetRole,
+    targetUserId: savedNotification.targetUserId,
+    fromUserId: savedNotification.fromUserId,
+    fromUserName: savedNotification.fromUserName,
+    fromUserRole: savedNotification.fromUserRole,
+    type: savedNotification.type,
+    title: savedNotification.title,
+    message: savedNotification.message,
+    action: savedNotification.action,
+    targetResource: savedNotification.targetResource,
+    targetResourceId: savedNotification.targetResourceId,
+    timestamp: savedNotification.createdAt,
+    read: savedNotification.read,
+    priority: savedNotification.priority,
+    autoExpires: savedNotification.autoExpires,
+  };
 }
 
 export async function createRoleBasedNotification(
@@ -152,194 +145,135 @@ export async function createRoleBasedNotification(
     details?: string;
   },
 ): Promise<NotificationData[]> {
-  return withDatabase(
-    async () => {
-      const createdNotifications: NotificationData[] = [];
-      let rule: any = null;
+  const createdNotifications: NotificationData[] = [];
+  let rule: any = null;
 
-      // Determine which rule to apply based on role and action
-      if (
-        fromUserRole === "main-admin" &&
-        NOTIFICATION_RULES.MAIN_ADMIN_ACTIONS[action]
-      ) {
-        rule = NOTIFICATION_RULES.MAIN_ADMIN_ACTIONS[action];
-      } else if (
-        fromUserRole === "sub-admin" &&
-        NOTIFICATION_RULES.SUB_ADMIN_ACTIONS[action]
-      ) {
-        rule = NOTIFICATION_RULES.SUB_ADMIN_ACTIONS[action];
-      }
+  if (fromUserRole === "main-admin" && NOTIFICATION_RULES.MAIN_ADMIN_ACTIONS[action]) {
+    rule = NOTIFICATION_RULES.MAIN_ADMIN_ACTIONS[action];
+  } else if (fromUserRole === "sub-admin" && NOTIFICATION_RULES.SUB_ADMIN_ACTIONS[action]) {
+    rule = NOTIFICATION_RULES.SUB_ADMIN_ACTIONS[action];
+  }
 
-      if (!rule) {
-        return []; // No rule found for this action
-      }
+  if (!rule) return [];
 
-      // Generate notification content using template
-      const content = rule.template(
-        fromUserName,
-        targetDetails?.name,
-        targetDetails?.count,
-        targetDetails?.details,
-      );
+  const content = rule.template(
+    fromUserName,
+    targetDetails?.name,
+    targetDetails?.count,
+    targetDetails?.details,
+  );
 
-      // Create notification for each target role
-      for (const targetRole of rule.notifyRoles) {
-        try {
-          const notification = await createNotification({
-            targetRole: targetRole,
-            fromUserId,
-            fromUserName,
-            fromUserRole,
-            type: content.type,
-            title: content.title,
-            message: content.message,
-            action,
-            targetResource: targetDetails?.name ? "user" : undefined,
-            targetResourceId: targetDetails?.id,
-            priority: rule.priority,
-          });
-
-          createdNotifications.push(notification);
-        } catch (error) {
-          console.error("Error creating role-based notification:", error);
-        }
-      }
-
-      return createdNotifications;
-    },
-    () =>
-      memoryNotifications.createRoleBasedNotificationMemory(
+  for (const targetRole of rule.notifyRoles) {
+    try {
+      const notification = await createNotification({
+        targetRole,
         fromUserId,
         fromUserName,
         fromUserRole,
+        type: content.type,
+        title: content.title,
+        message: content.message,
         action,
-        targetDetails,
-      ),
-  );
+        targetResource: targetDetails?.name ? "user" : undefined,
+        targetResourceId: targetDetails?.id,
+        priority: rule.priority,
+      });
+
+      createdNotifications.push(notification);
+    } catch (err) {
+      console.error("Failed to create role-based notification:", err);
+    }
+  }
+
+  return createdNotifications;
 }
 
 export async function getNotificationsForUser(
   userId: string,
   userRole: Role,
-  limit: number = 50,
+  limit = 50,
 ): Promise<NotificationData[]> {
-  return withDatabase(
-    async () => {
-      const query = {
-        $or: [
-          { targetUserId: userId },
-          { targetRole: userRole },
-          { targetRole: { $in: [userRole] } },
-        ],
-      };
+  const query = {
+    $or: [
+      { targetUserId: userId },
+      { targetRole: userRole },
+      { targetRole: { $in: [userRole] } },
+    ],
+  };
 
-      const notifications = await Notification.find(query)
-        .sort({ createdAt: -1 })
-        .limit(limit)
-        .lean();
+  const notifications = await Notification.find(query)
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .lean();
 
-      return notifications.map((notification) => ({
-        id: notification._id.toString(),
-        targetRole: notification.targetRole,
-        targetUserId: notification.targetUserId,
-        fromUserId: notification.fromUserId,
-        fromUserName: notification.fromUserName,
-        fromUserRole: notification.fromUserRole,
-        type: notification.type,
-        title: notification.title,
-        message: notification.message,
-        action: notification.action,
-        targetResource: notification.targetResource,
-        targetResourceId: notification.targetResourceId,
-        timestamp: notification.createdAt,
-        read: notification.read,
-        priority: notification.priority,
-        autoExpires: notification.autoExpires,
-      }));
-    },
-    () =>
-      memoryNotifications.getNotificationsForUserMemory(
-        userId,
-        userRole,
-        limit,
-      ),
-  );
+  return notifications.map((n) => ({
+    id: n._id.toString(),
+    targetRole: n.targetRole,
+    targetUserId: n.targetUserId,
+    fromUserId: n.fromUserId,
+    fromUserName: n.fromUserName,
+    fromUserRole: n.fromUserRole,
+    type: n.type,
+    title: n.title,
+    message: n.message,
+    action: n.action,
+    targetResource: n.targetResource,
+    targetResourceId: n.targetResourceId,
+    timestamp: n.createdAt,
+    read: n.read,
+    priority: n.priority,
+    autoExpires: n.autoExpires,
+  }));
 }
 
 export async function markNotificationAsRead(
-  notificationId: string,
-  userId: string,
+notificationId: string, id: string,
 ): Promise<boolean> {
-  return withDatabase(
-    async () => {
-      const result = await Notification.findByIdAndUpdate(
-        notificationId,
-        { read: true },
-        { new: true },
-      );
-      return !!result;
-    },
-    () =>
-      memoryNotifications.markNotificationAsReadMemory(notificationId, userId),
+  const result = await Notification.findByIdAndUpdate(
+    notificationId,
+    { read: true },
+    { new: true },
   );
+  return !!result;
 }
 
 export async function markAllNotificationsAsRead(
   userId: string,
   userRole: Role,
 ): Promise<number> {
-  return withDatabase(
-    async () => {
-      const query = {
-        $or: [
-          { targetUserId: userId },
-          { targetRole: userRole },
-          { targetRole: { $in: [userRole] } },
-        ],
-        read: false,
-      };
+  const query = {
+    $or: [
+      { targetUserId: userId },
+      { targetRole: userRole },
+      { targetRole: { $in: [userRole] } },
+    ],
+    read: false,
+  };
 
-      const result = await Notification.updateMany(query, { read: true });
-
-      return result.modifiedCount || 0;
-    },
-    () =>
-      memoryNotifications.markAllNotificationsAsReadMemory(userId, userRole),
-  );
+  const result = await Notification.updateMany(query, { read: true });
+  return result.modifiedCount || 0;
 }
 
-export async function deleteNotification(
-  notificationId: string,
-): Promise<boolean> {
-  return withDatabase(
-    async () => {
-      const result = await Notification.findByIdAndDelete(notificationId);
-      return !!result;
-    },
-    () => memoryNotifications.deleteNotificationMemory(notificationId),
-  );
+export async function deleteNotification(notificationId: string): Promise<boolean> {
+  const result = await Notification.findByIdAndDelete(notificationId);
+  return !!result;
 }
 
 export async function getUnreadCount(
   userId: string,
   userRole: Role,
 ): Promise<number> {
-  return withDatabase(
-    async () => {
-      const query = {
-        $or: [
-          { targetUserId: userId },
-          { targetRole: userRole },
-          { targetRole: { $in: [userRole] } },
-        ],
-        read: false,
-      };
+  const query = {
+    $or: [
+      { targetUserId: userId },
+      { targetRole: userRole },
+      { targetRole: { $in: [userRole] } },
+    ],
+    read: false,
+  };
 
-      const count = await Notification.countDocuments(query);
-      return count;
-    },
-    () => memoryNotifications.getUnreadCountMemory(userId, userRole),
-  );
+  const count = await Notification.countDocuments(query);
+  return count;
 }
 
 export async function createNotificationForAll(
@@ -351,46 +285,24 @@ export async function createNotificationForAll(
   type: "info" | "warning" | "success" | "error" = "info",
   priority: "low" | "medium" | "high" | "urgent" = "medium",
 ): Promise<NotificationData[]> {
-  return withDatabase(
-    async () => {
-      const createdNotifications: NotificationData[] = [];
-      const allRoles: Role[] = ["main-admin", "sub-admin", "user"];
+  const allRoles: Role[] = ["main-admin", "sub-admin", "user"];
+  const notifications: NotificationData[] = [];
 
-      // Create notification for each role
-      for (const targetRole of allRoles) {
-        try {
-          const notification = await createNotification({
-            targetRole: targetRole,
-            fromUserId,
-            fromUserName,
-            fromUserRole,
-            type,
-            title,
-            message,
-            action: "broadcast_message",
-            priority,
-          });
+  for (const role of allRoles) {
+    const notification = await createNotification({
+      targetRole: role,
+      fromUserId,
+      fromUserName,
+      fromUserRole,
+      type,
+      title,
+      message,
+      action: "broadcast_message",
+      priority,
+    });
 
-          createdNotifications.push(notification);
-        } catch (error) {
-          console.error("Error creating broadcast notification:", error);
-        }
-      }
+    notifications.push(notification);
+  }
 
-      return createdNotifications;
-    },
-    () =>
-      memoryNotifications.createNotificationForAllMemory(
-        fromUserId,
-        fromUserName,
-        fromUserRole,
-        title,
-        message,
-        type,
-        priority,
-      ),
-  );
+  return notifications;
 }
-
-// Auto-cleanup expired notifications using MongoDB TTL index
-// This is automatically handled by MongoDB when autoExpires field is set

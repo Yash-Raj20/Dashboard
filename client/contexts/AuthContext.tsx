@@ -39,11 +39,12 @@ interface AuthContextType extends AuthState {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+// Safely get token for initial state
 const getInitialToken = () => {
+  if (typeof window === "undefined") return null;
   try {
     return localStorage.getItem("auth_token");
-  } catch (error) {
-    console.warn("Failed to access localStorage:", error);
+  } catch {
     return null;
   }
 };
@@ -58,10 +59,7 @@ const initialState: AuthState = {
 function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
     case "LOGIN_START":
-      return {
-        ...state,
-        isLoading: true,
-      };
+      return { ...state, isLoading: true };
     case "LOGIN_SUCCESS":
       return {
         ...state,
@@ -71,16 +69,8 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         isAuthenticated: true,
       };
     case "LOGIN_FAILURE":
-      return {
-        ...state,
-        user: null,
-        token: null,
-        isLoading: false,
-        isAuthenticated: false,
-      };
     case "LOGOUT":
       return {
-        ...state,
         user: null,
         token: null,
         isLoading: false,
@@ -94,10 +84,7 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
         isAuthenticated: true,
       };
     case "SET_LOADING":
-      return {
-        ...state,
-        isLoading: action.payload,
-      };
+      return { ...state, isLoading: action.payload };
     default:
       return state;
   }
@@ -107,51 +94,37 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
   const login = async (credentials: LoginRequest): Promise<boolean> => {
+    dispatch({ type: "LOGIN_START" });
+
     try {
-      console.log("Starting login process...");
-      dispatch({ type: "LOGIN_START" });
-
-      // Add timeout for login request
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
+      const timeout = setTimeout(() => controller.abort(), 15000);
 
-      console.log("Making login request to /api/auth/login");
-      const response = await fetch("/api/auth/login", {
+      const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
         signal: controller.signal,
       });
 
-      clearTimeout(timeoutId);
-      console.log("Login response status:", response.status);
+      clearTimeout(timeout);
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error("Login failed:", response.status, errorText);
+      if (!res.ok) {
         dispatch({ type: "LOGIN_FAILURE" });
         return false;
       }
 
-      const data: LoginResponse = await response.json();
-      console.log("Login successful, received user data:", data.user);
-
-      // Store token in localStorage
+      const data: LoginResponse = await res.json();
       localStorage.setItem("auth_token", data.token);
 
       dispatch({
         type: "LOGIN_SUCCESS",
-        payload: {
-          user: data.user,
-          token: data.token,
-        },
+        payload: { user: data.user, token: data.token },
       });
 
       return true;
     } catch (error) {
-      console.error("Login error:", error);
+      console.error("Login failed:", error);
       dispatch({ type: "LOGIN_FAILURE" });
       return false;
     }
@@ -159,7 +132,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
-      // Call logout API if token exists
       if (state.token) {
         await fetch("/api/auth/logout", {
           method: "POST",
@@ -168,17 +140,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           },
         });
       }
-    } catch (error) {
-      console.error("Logout error:", error);
+    } catch (err) {
+      console.warn("Logout error:", err);
     } finally {
-      // Clear token from localStorage
       localStorage.removeItem("auth_token");
       dispatch({ type: "LOGOUT" });
     }
   };
 
   const verifyToken = async (): Promise<boolean> => {
-    const token = localStorage.getItem("auth_token");
+    const token = getInitialToken();
 
     if (!token) {
       dispatch({ type: "LOGIN_FAILURE" });
@@ -186,130 +157,93 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      // Add timeout and better error handling
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeout = setTimeout(() => controller.abort(), 10000);
 
-      const response = await fetch("/api/auth/profile", {
+      const res = await fetch("/api/auth/profile", {
+        method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
         signal: controller.signal,
       });
 
-      clearTimeout(timeoutId);
+      clearTimeout(timeout);
 
-      if (!response.ok) {
+      if (!res.ok) {
         localStorage.removeItem("auth_token");
         dispatch({ type: "LOGIN_FAILURE" });
         return false;
       }
 
-      const data = await response.json();
+      const data = await res.json();
       dispatch({
         type: "TOKEN_VERIFIED",
-        payload: {
-          user: data.user,
-        },
+        payload: { user: data.user },
       });
 
       return true;
-    } catch (error) {
-      console.error("Token verification error:", error);
-
-      // Only remove token and set login failure if it's not a network error
+    } catch (err: any) {
       if (
-        error instanceof Error &&
-        (error.name === "AbortError" ||
-          error.message.includes("Failed to fetch"))
+        err.name === "AbortError" ||
+        err.message?.includes("fetch") ||
+        err.message?.includes("NetworkError")
       ) {
-        // For network errors, just set loading to false but don't log out the user
         dispatch({ type: "SET_LOADING", payload: false });
-        console.warn(
-          "Network error during token verification, will retry later",
-        );
         return false;
       }
 
-      // For other errors (invalid token, etc.), clear the token
       localStorage.removeItem("auth_token");
       dispatch({ type: "LOGIN_FAILURE" });
       return false;
     }
   };
 
-  const hasPermission = (permission: Permission): boolean => {
-    return state.user?.permissions.includes(permission) ?? false;
-  };
+  const hasPermission = (permission: Permission) =>
+    !!state.user?.permissions?.includes(permission);
 
-  const hasAnyPermission = (permissions: Permission[]): boolean => {
-    return permissions.some((permission) => hasPermission(permission));
-  };
+  const hasAnyPermission = (permissions: Permission[]) =>
+    permissions.some((p) => hasPermission(p));
 
-  const hasRole = (role: string): boolean => {
-    return state.user?.role === role;
-  };
+  const hasRole = (role: string) => state.user?.role === role;
 
-  const clearAuth = (): void => {
-    try {
-      localStorage.removeItem("auth_token");
-    } catch (error) {
-      console.warn("Failed to clear localStorage:", error);
-    }
+  const clearAuth = () => {
+    localStorage.removeItem("auth_token");
     dispatch({ type: "LOGOUT" });
   };
 
-  // Verify token on mount with error handling
   useEffect(() => {
-    const initAuth = async () => {
-      // Add a small delay to ensure the server is ready
-      await new Promise((resolve) => setTimeout(resolve, 100));
-
-      try {
-        await verifyToken();
-      } catch (error) {
-        // If initial verification fails, just set loading to false
-        console.warn("Initial token verification failed:", error);
-        dispatch({ type: "SET_LOADING", payload: false });
-      }
-    };
-
-    // Fallback timeout to prevent infinite loading
-    const fallbackTimeout = setTimeout(() => {
-      console.warn("Authentication verification timeout, stopping loading");
+    const fallback = setTimeout(() => {
       dispatch({ type: "SET_LOADING", payload: false });
-    }, 5000); // 5 second timeout
+    }, 5000);
 
-    initAuth().finally(() => {
-      clearTimeout(fallbackTimeout);
-    });
+    verifyToken().finally(() => clearTimeout(fallback));
 
-    return () => {
-      clearTimeout(fallbackTimeout);
-    };
+    return () => clearTimeout(fallback);
   }, []);
 
-  const value: AuthContextType = {
-    ...state,
-    login,
-    logout,
-    verifyToken,
-    hasPermission,
-    hasAnyPermission,
-    hasRole,
-    clearAuth,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{
+        ...state,
+        login,
+        logout,
+        verifyToken,
+        hasPermission,
+        hasAnyPermission,
+        hasRole,
+        clearAuth,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
-export function useAuth() {
+export function useAuth(): AuthContextType {
   const context = useContext(AuthContext);
-
-  if (context === null) {
-    console.error("useAuth called outside of AuthProvider");
+  if (!context) {
     throw new Error("useAuth must be used within an AuthProvider");
   }
-
   return context;
 }

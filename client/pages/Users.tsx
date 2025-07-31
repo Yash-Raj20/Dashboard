@@ -589,14 +589,18 @@ export default function Users() {
                         <div className="flex items-center space-x-1">
                           <Calendar className="h-3 w-3 text-muted-foreground" />
                           <span className="text-sm">
-                            {formatDate(user.createdAt)}
+                            {formatDate(user.createdAt instanceof Date ? user.createdAt.toISOString() : user.createdAt)}
                           </span>
                         </div>
                       </TableCell>
                       <TableCell>
                         <span className="text-sm text-muted-foreground">
                           {user.lastLogin
-                            ? formatDate(user.lastLogin)
+                            ? formatDate(
+                                user.lastLogin instanceof Date
+                                  ? user.lastLogin.toISOString()
+                                  : user.lastLogin
+                              )
                             : "Never"}
                         </span>
                       </TableCell>

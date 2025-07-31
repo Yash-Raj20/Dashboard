@@ -276,7 +276,7 @@ export default function Analytics() {
             <AlertDescription>
               {error}.{" "}
               <button
-                onClick={fetchAnalytics}
+                onClick={() => fetchAnalytics()}
                 className="underline hover:no-underline"
               >
                 Try again

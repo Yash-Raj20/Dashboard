@@ -17,6 +17,7 @@ export type Permission =
   | "view_dashboard"
   | "edit_profile";
 
+// Base User interface
 export interface User {
   id: string;
   email: string;
@@ -27,15 +28,17 @@ export interface User {
   updatedAt: Date;
   isActive: boolean;
   lastLogin?: Date;
-  createdBy?: string; // ID of the admin who created this user
+  createdBy?: string; // ID of admin who created this user
 }
 
-export interface AuthUser extends Omit<User, "createdAt" | "updatedAt"> {
+// AuthUser returned after login, with date strings
+export interface AuthUser extends Omit<User, "createdAt" | "updatedAt" | "lastLogin"> {
   createdAt: string;
   updatedAt: string;
   lastLogin?: string;
 }
 
+// Request interfaces
 export interface LoginRequest {
   email: string;
   password: string;
@@ -64,7 +67,7 @@ export interface CreateUserRequest {
   email: string;
   name: string;
   password: string;
-  role?: "user";
+  role?: "user"; // Explicitly allow only 'user' role
 }
 
 export interface UpdateUserRequest {
@@ -77,6 +80,7 @@ export interface ChangePasswordRequest {
   newPassword: string;
 }
 
+// Audit logs
 export interface AuditLog {
   id: string;
   userId: string;
@@ -94,6 +98,7 @@ export interface AuthAuditLog extends Omit<AuditLog, "timestamp"> {
   timestamp: string;
 }
 
+// Dashboard metrics
 export interface DashboardStats {
   totalUsers: number;
   totalSubAdmins: number;
@@ -102,7 +107,7 @@ export interface DashboardStats {
   recentActions: AuthAuditLog[];
 }
 
-// Role-based permissions mapping
+// Role → Permissions mapping
 export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   "main-admin": [
     "create_sub_admin",
@@ -127,27 +132,26 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
   user: ["view_dashboard", "edit_profile"],
 };
 
+// Permission checking helpers
 export function hasPermission(
-  userPermissions: Permission[],
+  userPermissions: Permission[] | undefined,
   requiredPermission: Permission,
 ): boolean {
-  return userPermissions.includes(requiredPermission);
+  return userPermissions?.includes(requiredPermission) ?? false;
 }
 
 export function hasAnyPermission(
-  userPermissions: Permission[],
+  userPermissions: Permission[] | undefined,
   requiredPermissions: Permission[],
 ): boolean {
-  return requiredPermissions.some((permission) =>
-    userPermissions.includes(permission),
-  );
+  if (!userPermissions) return false;
+  return requiredPermissions.some((perm) => userPermissions.includes(perm));
 }
 
 export function hasAllPermissions(
-  userPermissions: Permission[],
+  userPermissions: Permission[] | undefined,
   requiredPermissions: Permission[],
 ): boolean {
-  return requiredPermissions.every((permission) =>
-    userPermissions.includes(permission),
-  );
+  if (!userPermissions) return false;
+  return requiredPermissions.every((perm) => userPermissions.includes(perm));
 }

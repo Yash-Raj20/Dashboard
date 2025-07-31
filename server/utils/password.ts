@@ -2,17 +2,31 @@ import bcrypt from "bcryptjs";
 
 const SALT_ROUNDS = 12;
 
+// ✅ Hash password before storing
 export async function hashPassword(password: string): Promise<string> {
-  return bcrypt.hash(password, SALT_ROUNDS);
+  try {
+    const salt = await bcrypt.genSalt(SALT_ROUNDS);
+    return await bcrypt.hash(password, salt);
+  } catch (err) {
+    console.error("Error hashing password:", err);
+    throw new Error("Password hashing failed");
+  }
 }
 
+// ✅ Compare plain password with hashed one
 export async function comparePassword(
   password: string,
   hashedPassword: string,
 ): Promise<boolean> {
-  return bcrypt.compare(password, hashedPassword);
+  try {
+    return await bcrypt.compare(password, hashedPassword);
+  } catch (err) {
+    console.error("Error comparing password:", err);
+    return false;
+  }
 }
 
+// ✅ Password policy validation (optional for sign up)
 export function validatePassword(password: string): {
   isValid: boolean;
   errors: string[];
