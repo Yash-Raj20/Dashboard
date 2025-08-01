@@ -31,7 +31,7 @@ const App = () => (
         <TooltipProvider>
           <AuthProvider>
             <BrowserRouter>
-              <div className="min-h-screen">
+              <div className="bg-rose-700">
                 <Toaster />
                 <Sonner />
                 <Routes>

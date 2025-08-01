@@ -146,7 +146,7 @@ export default function Dashboard() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-muted-foreground">
-              Welcome back, {user?.name}. Here's what's happening in your admin
+              Welcome back, {user?.name}. Here's what's happening in your Janseva
               portal.
             </p>
           </div>

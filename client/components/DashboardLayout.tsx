@@ -101,9 +101,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const Sidebar = ({ className }: { className?: string }) => (
     <div className={cn("flex flex-col h-full", className)}>
-      <div className="flex items-center gap-2 px-6 py-4 border-b">
+      <div className="flex items-center gap-2 px-6 py-5 border-b">
         <Shield className="h-8 w-8 text-primary" />
-        <span className="font-bold text-lg">Admin Portal</span>
+        <span className="font-bold text-lg">Janseva Portal</span>
       </div>
 
       <nav className="flex-1 px-4 py-6 space-y-2">
@@ -190,9 +190,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <DropdownMenuTrigger asChild>
                 <Button
                   variant="ghost"
-                  className="relative h-8 w-8 rounded-full"
+                  className="relative h-10 w-10 rounded-full"
                 >
-                  <Avatar className="h-8 w-8">
+                  <Avatar className="h-10 w-10">
                     <AvatarImage src="" alt={user?.name} />
                     <AvatarFallback>
                       {user?.name
