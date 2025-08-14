@@ -1,6 +1,4 @@
 import { useState, useEffect } from "react";
-import { useAuth } from "@/contexts/AuthContext";
-import { User } from "@shared/auth";
 import DashboardLayout from "@/components/DashboardLayout";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -27,6 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Mail, MoreHorizontal, Users as UsersIcon } from "lucide-react";
+import { fetchApi } from "@shared/api";
 
 export type DashboardUser = {
   _id: string;
@@ -52,29 +51,29 @@ export default function Users() {
   const fetchUsers = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/auth/all");
-      const data = await response.json();
-      if (response.ok) {
-        setUsers(data.users || []);
+      const response = await fetchApi("auth/all");
+      console.log("Fetched users:", response);
+
+      if (response.users && Array.isArray(response.users)) {
+        setUsers(response.users);
         setError(null);
       } else {
-        setError(data.message || "Failed to load users");
+        setError(response.message || "Failed to load users");
       }
-    } catch (error) {
-      console.error("Error fetching users:", error);
+    } catch (err) {
+      console.error("Error fetching users:", err);
       setError("Network error while fetching users");
     } finally {
       setLoading(false);
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
+  const formatDate = (dateString: string) =>
+    new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
-  };
 
   return (
     <DashboardLayout>
@@ -91,7 +90,7 @@ export default function Users() {
           </div>
         </div>
 
-        {/* Error State */}
+        {/* Error */}
         {error && (
           <Alert variant="destructive">
             <AlertDescription>

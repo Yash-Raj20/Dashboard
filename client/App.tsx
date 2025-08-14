@@ -1,4 +1,4 @@
-import "./global.css";
+import "./index.css";
 
 import React from "react";
 import { Toaster } from "@/components/ui/toaster";

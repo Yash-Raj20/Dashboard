@@ -9,6 +9,12 @@ export default defineConfig(({ mode }) => {
     server: {
       host: "::",
       port: 8080,
+      fs: {
+        strict: false,
+      },
+      open: true,
+      // fallback for SPA
+      historyApiFallback: true,
     },
     build: {
       outDir: "dist/spa",
@@ -22,6 +28,9 @@ export default defineConfig(({ mode }) => {
     },
     define: {
       "process.env.NODE_ENV": JSON.stringify(env.NODE_ENV || "development"),
+      "process.env.VITE_USERS_DATA_API": JSON.stringify(
+        env.VITE_USERS_DATA_API,
+      ),
     },
   };
 });

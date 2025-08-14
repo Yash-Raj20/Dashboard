@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { Link } from "react-router-dom";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -36,9 +37,10 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import DashboardLayout from "@/components/DashboardLayout";
+import { fetchApi } from "@shared/api";
 
 export type Problem = {
-  id: string;
+  _id: string;
   title: string;
   description: string;
   location: string;
@@ -106,12 +108,14 @@ export const columns: ColumnDef<Problem>[] = [
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
             <DropdownMenuItem
-              onClick={() => navigator.clipboard.writeText(problem.id)}
+              onClick={() => navigator.clipboard.writeText(problem._id)}
             >
               Copy Problem ID
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View Details</DropdownMenuItem>
+            <DropdownMenuItem asChild>
+              <Link to={`/problems/${problem._id}`}>View Details</Link>
+            </DropdownMenuItem>
             <DropdownMenuItem>Resolve</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -123,18 +127,25 @@ export const columns: ColumnDef<Problem>[] = [
 export default function AllProblems() {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [refreshing, setRefreshing] = React.useState(false);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>([]);
-  const [columnVisibility, setColumnVisibility] = React.useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    [],
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
   const [data, setData] = React.useState<Problem[]>([]);
+  const [loading, setLoading] = React.useState(true);
 
   const fetchProblems = async () => {
+    setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/problems");
-      const problems = await response.json();
-      setData(problems);
+      const response = await fetchApi<Problem[]>("problems");
+      console.log("Fetched problems:", response.map(problem => problem._id));
+      setData(response);
     } catch (error) {
       console.error("Error fetching problems:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -253,8 +264,30 @@ export default function AllProblems() {
                 </TableRow>
               ))}
             </TableHeader>
+
             <TableBody>
-              {table.getRowModel().rows?.length ? (
+              {loading ? (
+                // Loading row
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    Loading problems...
+                  </TableCell>
+                </TableRow>
+              ) : data.length === 0 ? (
+                // No data row
+                <TableRow>
+                  <TableCell
+                    colSpan={columns.length}
+                    className="h-24 text-center"
+                  >
+                    No problems yet.
+                  </TableCell>
+                </TableRow>
+              ) : (
+                // Render actual rows
                 table.getRowModel().rows.map((row) => (
                   <TableRow
                     key={row.id}
@@ -270,15 +303,6 @@ export default function AllProblems() {
                     ))}
                   </TableRow>
                 ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    No results.
-                  </TableCell>
-                </TableRow>
               )}
             </TableBody>
           </Table>
