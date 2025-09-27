@@ -1,4 +1,4 @@
-import { Schema, model, Document } from "mongoose";
+import { Schema, model, models, Document } from "mongoose";
 
 interface IWallpaper extends Document {
   title: string;
@@ -57,4 +57,4 @@ const wallpaperSchema = new Schema<IWallpaper>({
   createdAt: { type: Date, default: Date.now },
 });
 
-export default model<IWallpaper>("Wallpaper", wallpaperSchema);
+export default models.Wallpaper || model<IWallpaper>("Wallpaper", wallpaperSchema);
