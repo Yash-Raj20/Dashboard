@@ -148,7 +148,7 @@ export async function createServer() {
     }
   });
 
-  // Production SPA support
+  // Production SPA routing
   if (process.env.NODE_ENV === "production") {
     app.use(express.static(join(__dirname, "../spa")));
     app.get("*", (req, res) => {
