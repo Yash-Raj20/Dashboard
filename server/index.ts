@@ -156,11 +156,12 @@ export async function createServer() {
     handleTestNotification,
   );
 
-  // Demo
-  app.get("/api/demo/*", (req, res) => {
-    res.status(200).json({ message: "Hello from Express server" });
-  });
-  app.get("/api/demo", handleDemoData);
+// Demo route (single endpoint)
+app.get("/api/demo", handleDemoData);
+app.get(/^\/api\/demo\/.*$/, (req, res) => {
+  res.status(200).json({ message: "Hello from Express server" });
+});
+
 
   // 404 & Error
   app.use("/api/*", (req, res) => {
