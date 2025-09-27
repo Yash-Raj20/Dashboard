@@ -42,7 +42,7 @@ import {
   handleGetAuditLogs,
 } from "./routes/dashboard.js";
 
-import wallpaperRoutes from "./routes/wallpaperRoutes/wallpaperRoutes.js"
+import wallpaperRoutes from "./routes/wallpaperRoutes/wallpaperRoutes.js";
 import { handleDemoData } from "./routes/demo.js";
 
 // Load environment
@@ -67,7 +67,7 @@ export async function createServer() {
       origin: true,
       credentials: true,
       optionsSuccessStatus: 200,
-    })
+    }),
   );
   app.use(express.json());
 
@@ -81,7 +81,8 @@ export async function createServer() {
     res.json({
       status: "ok",
       timestamp: new Date().toISOString(),
-      database: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+      database:
+        mongoose.connection.readyState === 1 ? "connected" : "disconnected",
     });
   });
 
@@ -104,7 +105,7 @@ export async function createServer() {
   });
 
   //WallPaper Routes
-  app.use('/api/wallpapers', wallpaperRoutes);
+  app.use("/api/wallpapers", wallpaperRoutes);
 
   // Auth Routes
   app.post("/api/auth/login", handleLogin);
@@ -134,13 +135,32 @@ export async function createServer() {
   // Notifications
   app.get("/api/notifications", authenticateToken, handleGetNotifications);
   app.post("/api/notifications", authenticateToken, handleCreateNotification);
-  app.put("/api/notifications/:notificationId/read", authenticateToken, handleMarkAsRead);
-  app.put("/api/notifications/mark-all-read", authenticateToken, handleMarkAllAsRead);
-  app.delete("/api/notifications/:notificationId", authenticateToken, handleDeleteNotification);
-  app.post("/api/notifications/test", authenticateToken, handleTestNotification);
+  app.put(
+    "/api/notifications/:notificationId/read",
+    authenticateToken,
+    handleMarkAsRead,
+  );
+  app.put(
+    "/api/notifications/mark-all-read",
+    authenticateToken,
+    handleMarkAllAsRead,
+  );
+  app.delete(
+    "/api/notifications/:notificationId",
+    authenticateToken,
+    handleDeleteNotification,
+  );
+  app.post(
+    "/api/notifications/test",
+    authenticateToken,
+    handleTestNotification,
+  );
 
   // Demo
-  app.get("/api/demo/:rest(*)", handleDemoData);
+  app.get("/api/demo/*", (req, res) => {
+    res.status(200).json({ message: "Hello from Express server" });
+  });
+  app.get("/api/demo", handleDemoData);
 
   // 404 & Error
   app.use("/api/*", (req, res) => {
@@ -161,7 +181,9 @@ export async function createServer() {
   if (process.env.NODE_ENV === "production") {
     app.use(express.static(join(__dirname, "../spa")));
     app.get("*", (req, res) => {
-      if (!req.path.match(/\.(js|css|png|jpg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+      if (
+        !req.path.match(/\.(js|css|png|jpg|gif|ico|svg|woff|woff2|ttf|eot)$/)
+      ) {
         console.log(`Serving HTML for route: ${req.path}`);
       }
       res.sendFile(join(__dirname, "../spa/index.html"));
