@@ -41,6 +41,11 @@ export default defineConfig({
     minify: false, // Keep readable for debugging
     sourcemap: true,
   },
+  server: {
+    allowedHosts: [
+      "janseva-portal-dashboard-1.onrender.com",
+    ],
+  },
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
