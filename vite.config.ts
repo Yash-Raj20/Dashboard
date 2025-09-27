@@ -15,6 +15,9 @@ export default defineConfig(({ mode }) => {
       open: true,
       // fallback for SPA
       historyApiFallback: true,
+      allowedHosts: [
+        "janseva-portal-dashboard.onrender.com",
+      ],
     },
     build: {
       outDir: "dist/spa",
