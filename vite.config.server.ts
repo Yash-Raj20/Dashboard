@@ -5,7 +5,7 @@ import path from "path";
 export default defineConfig({
   build: {
     lib: {
-      entry: path.resolve(__dirname, "server/node-build.ts"), // Ensure this file exists
+      entry: path.resolve(__dirname, "server/node-build.ts"),
       name: "server",
       fileName: "production",
       formats: ["es"],
@@ -29,11 +29,9 @@ export default defineConfig({
         "buffer",
         "querystring",
         "child_process",
-        // External dependencies
+        // External dependencies that should not be bundled
         "express",
         "cors",
-        "dotenv",
-        "mongoose"
       ],
       output: {
         format: "es",
@@ -42,14 +40,6 @@ export default defineConfig({
     },
     minify: false, // Keep readable for debugging
     sourcemap: true,
-    chunkSizeWarningLimit: 2000, // Suppress large chunk warnings
-  },
-  server: {
-    allowedHosts: [
-      "janseva-portal-dashboard-1.onrender.com",
-      "localhost",
-    ],
-    port: 5173, // Optional: specify dev server port
   },
   resolve: {
     alias: {

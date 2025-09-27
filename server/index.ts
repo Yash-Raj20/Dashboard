@@ -1,8 +1,8 @@
+import dotenv from "dotenv";
 import express from "express";
 import cors from "cors";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
-import dotenv from "dotenv";
 import mongoose from "mongoose";
 
 import { initializeDefaultAdmin } from "./db/users.js";
@@ -42,8 +42,7 @@ import {
   handleGetAuditLogs,
 } from "./routes/dashboard.js";
 
-import wallpaperRoutes from "./routes/wallpaperRoutes/wallpaperRoutes.js";
-import { handleDemoData } from "./routes/demo.js";
+import wallpaperRoutes from "./routes/wallpaperRoutes/wallpaperRoutes.js"
 
 // Load environment
 dotenv.config();
@@ -67,7 +66,7 @@ export async function createServer() {
       origin: true,
       credentials: true,
       optionsSuccessStatus: 200,
-    }),
+    })
   );
   app.use(express.json());
 
@@ -81,8 +80,7 @@ export async function createServer() {
     res.json({
       status: "ok",
       timestamp: new Date().toISOString(),
-      database:
-        mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+      database: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
     });
   });
 
@@ -105,7 +103,7 @@ export async function createServer() {
   });
 
   //WallPaper Routes
-  app.use("/api/wallpapers", wallpaperRoutes);
+  app.use('/api/wallpapers', wallpaperRoutes);
 
   // Auth Routes
   app.post("/api/auth/login", handleLogin);
@@ -135,39 +133,11 @@ export async function createServer() {
   // Notifications
   app.get("/api/notifications", authenticateToken, handleGetNotifications);
   app.post("/api/notifications", authenticateToken, handleCreateNotification);
-  app.put(
-    "/api/notifications/:notificationId/read",
-    authenticateToken,
-    handleMarkAsRead,
-  );
-  app.put(
-    "/api/notifications/mark-all-read",
-    authenticateToken,
-    handleMarkAllAsRead,
-  );
-  app.delete(
-    "/api/notifications/:notificationId",
-    authenticateToken,
-    handleDeleteNotification,
-  );
-  app.post(
-    "/api/notifications/test",
-    authenticateToken,
-    handleTestNotification,
-  );
+  app.put("/api/notifications/:notificationId/read", authenticateToken, handleMarkAsRead);
+  app.put("/api/notifications/mark-all-read", authenticateToken, handleMarkAllAsRead);
+  app.delete("/api/notifications/:notificationId", authenticateToken, handleDeleteNotification);
+  app.post("/api/notifications/test", authenticateToken, handleTestNotification);
 
-// Demo route (single endpoint)
-app.get("/api/demo", handleDemoData);
-app.get(/^\/api\/demo\/.*$/, (req, res) => {
-  res.status(200).json({ message: "Hello from Express server" });
-});
-
-
-  // 404 & Error
-  app.use("/api/*", (req, res) => {
-    console.error(`API route not found: ${req.method} ${req.path}`);
-    res.status(404).json({ error: "API endpoint not found" });
-  });
 
   app.use((error, req, res, next) => {
     if (req.path.startsWith("/api/")) {
@@ -182,9 +152,7 @@ app.get(/^\/api\/demo\/.*$/, (req, res) => {
   if (process.env.NODE_ENV === "production") {
     app.use(express.static(join(__dirname, "../spa")));
     app.get("*", (req, res) => {
-      if (
-        !req.path.match(/\.(js|css|png|jpg|gif|ico|svg|woff|woff2|ttf|eot)$/)
-      ) {
+      if (!req.path.match(/\.(js|css|png|jpg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
         console.log(`Serving HTML for route: ${req.path}`);
       }
       res.sendFile(join(__dirname, "../spa/index.html"));
