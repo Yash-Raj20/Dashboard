@@ -1,7 +1,0 @@
-ignoredBuiltDependencies:
-  - '@swc/core'
-  - '@tailwindcss/oxide'
-  - core-js
-  - es5-ext
-  - esbuild
-  - uglifyjs-webpack-plugin
