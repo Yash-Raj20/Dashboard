@@ -140,7 +140,7 @@ export async function createServer() {
   app.post("/api/notifications/test", authenticateToken, handleTestNotification);
 
   // Demo
-  app.get("/api/demo/*", handleDemoData);
+  app.get("/api/demo/:rest(*)", handleDemoData);
 
   // 404 & Error
   app.use("/api/*", (req, res) => {
