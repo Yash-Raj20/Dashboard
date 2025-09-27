@@ -24,8 +24,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Mail, MoreHorizontal, Users as UsersIcon } from "lucide-react";
-import { fetchApi } from "@shared/api";
+import { Mail, MoreHorizontal, Users as UsersIcon, Search } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
 
 export type DashboardUser = {
   _id: string;
@@ -40,33 +48,29 @@ export type DashboardUser = {
 };
 
 export default function Users() {
-  const [users, setUsers] = useState<DashboardUser[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { loading, error, fetchUsers, users } = useAuth();
+  const [filteredUsers, setFilteredUsers] = useState<DashboardUser[]>([]);
+  const [filter, setFilter] = useState<string>("all");
+  const [search, setSearch] = useState<string>("");
 
   useEffect(() => {
     fetchUsers();
   }, []);
 
-  const fetchUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await fetchApi("auth/all");
-      console.log("Fetched users:", response);
+  useEffect(() => {
+    let result = users;
 
-      if (response.users && Array.isArray(response.users)) {
-        setUsers(response.users);
-        setError(null);
-      } else {
-        setError(response.message || "Failed to load users");
-      }
-    } catch (err) {
-      console.error("Error fetching users:", err);
-      setError("Network error while fetching users");
-    } finally {
-      setLoading(false);
+    if (filter !== "all") {
+      result = result.filter((u) => u.location === filter);
     }
-  };
+
+    if (search.trim() !== "") {
+      const lowerSearch = search.toLowerCase();
+      result = result.filter((u) => u.name.toLowerCase().includes(lowerSearch));
+    }
+
+    setFilteredUsers(result);
+  }, [filter, search, users]);
 
   const formatDate = (dateString: string) =>
     new Date(dateString).toLocaleDateString("en-US", {
@@ -75,18 +79,44 @@ export default function Users() {
       day: "numeric",
     });
 
+  const locations = Array.from(new Set(users.map((u) => u.location))).filter(Boolean);
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              User Management
-            </h1>
-            <p className="text-muted-foreground">
-              View and manage registered users
-            </p>
+            <h1 className="text-3xl font-bold tracking-tight">User Management</h1>
+            <p className="text-muted-foreground">View and manage registered users</p>
+          </div>
+
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
+            {/* Search */}
+            <div className="relative w-full sm:w-64">
+              <Input
+                placeholder="Search by name..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="pl-8"
+              />
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 text-muted-foreground w-4 h-4" />
+            </div>
+
+            {/* Location Filter */}
+            <Select onValueChange={setFilter} value={filter}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by location" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Locations</SelectItem>
+                {locations.map((loc) => (
+                  <SelectItem key={loc} value={loc}>
+                    {loc}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
 
@@ -95,11 +125,7 @@ export default function Users() {
           <Alert variant="destructive">
             <AlertDescription>
               {error}.{" "}
-              <Button
-                variant="link"
-                onClick={fetchUsers}
-                className="p-0 h-auto"
-              >
+              <Button variant="link" onClick={fetchUsers} className="p-0 h-auto">
                 Try again
               </Button>
             </AlertDescription>
@@ -109,10 +135,8 @@ export default function Users() {
         {/* Users Table */}
         <Card>
           <CardHeader>
-            <CardTitle>Users ({users.length})</CardTitle>
-            <CardDescription>
-              Manage user accounts and their status
-            </CardDescription>
+            <CardTitle>Users ({filteredUsers.length})</CardTitle>
+            <CardDescription>Manage user accounts and their status</CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (
@@ -129,11 +153,11 @@ export default function Users() {
                   </div>
                 ))}
               </div>
-            ) : users.length === 0 ? (
+            ) : filteredUsers.length === 0 ? (
               <div className="text-center py-6 text-muted-foreground">
                 <UsersIcon className="h-12 w-12 mx-auto mb-2 opacity-50" />
                 <p>No users found</p>
-                <p className="text-sm">Create your first user to get started</p>
+                <p className="text-sm">Try adjusting your filter or search</p>
               </div>
             ) : (
               <Table>
@@ -150,11 +174,10 @@ export default function Users() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {users.map((user) => {
+                  {filteredUsers.map((user) => {
                     const lastLogin =
                       user.loginActivity?.length > 0
-                        ? user.loginActivity[user.loginActivity.length - 1]
-                            .timestamp
+                        ? user.loginActivity[user.loginActivity.length - 1].timestamp
                         : null;
 
                     return (
@@ -162,9 +185,7 @@ export default function Users() {
                         <TableCell className="font-medium">
                           <div className="flex items-center space-x-2">
                             <img
-                              src={
-                                user.profileImage || "/placeholder-avatar.png"
-                              }
+                              src={user.profileImage || "/placeholder-avatar.png"}
                               alt={user.name}
                               className="h-8 w-8 rounded-full object-cover"
                             />
@@ -180,27 +201,19 @@ export default function Users() {
                         </TableCell>
 
                         <TableCell>
-                          <span className="text-sm">
-                            {user.location || "—"}
-                          </span>
+                          <span className="text-sm">{user.location || "—"}</span>
                         </TableCell>
 
                         <TableCell>
-                          <span className="text-sm capitalize">
-                            {user.gender || "—"}
-                          </span>
+                          <span className="text-sm capitalize">{user.gender || "—"}</span>
                         </TableCell>
 
                         <TableCell>
-                          <span className="text-sm">
-                            {user.dob ? formatDate(user.dob) : "—"}
-                          </span>
+                          <span className="text-sm">{user.dob ? formatDate(user.dob) : "—"}</span>
                         </TableCell>
 
                         <TableCell>
-                          <span className="text-sm">
-                            {formatDate(user.createdAt)}
-                          </span>
+                          <span className="text-sm">{formatDate(user.createdAt)}</span>
                         </TableCell>
 
                         <TableCell>
@@ -217,15 +230,11 @@ export default function Users() {
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
-                              <DropdownMenuItem
-                                onClick={() => alert("View Profile")}
-                              >
+                              <DropdownMenuItem onClick={() => alert("View Profile")}>
                                 View
                               </DropdownMenuItem>
                               <DropdownMenuItem>Edit</DropdownMenuItem>
-                              <DropdownMenuItem className="text-red-500">
-                                Delete
-                              </DropdownMenuItem>
+                              <DropdownMenuItem className="text-red-500">Delete</DropdownMenuItem>
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>

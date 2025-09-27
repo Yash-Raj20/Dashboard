@@ -4,6 +4,7 @@ import React, {
   useReducer,
   useEffect,
   ReactNode,
+  useState,
 } from "react";
 import {
   AuthUser,
@@ -11,6 +12,9 @@ import {
   LoginResponse,
   Permission,
 } from "@shared/auth";
+import { fetchApi } from "@shared/api";
+import { DashboardUser } from "@/pages/Users";
+import { Problem } from "@/pages/AllProblems";
 
 interface AuthState {
   user: AuthUser | null;
@@ -35,6 +39,12 @@ interface AuthContextType extends AuthState {
   hasAnyPermission: (permissions: Permission[]) => boolean;
   hasRole: (role: string) => boolean;
   clearAuth: () => void;
+  fetchUsers: () => Promise<void>;
+  fetchProblems: () => Promise<void>;
+  users: DashboardUser[];
+  loading: boolean;
+  error: string | null;
+  data: Problem[];
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -92,6 +102,10 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const [users, setUsers] = useState<DashboardUser[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [data, setData] = React.useState<Problem[]>([]);
 
   const login = async (credentials: LoginRequest): Promise<boolean> => {
     dispatch({ type: "LOGIN_START" });
@@ -127,6 +141,60 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error("Login failed:", error);
       dispatch({ type: "LOGIN_FAILURE" });
       return false;
+    }
+  };
+
+  //All Users of Janseva Portal Website
+  const fetchUsers = async () => {
+    try {
+      // check localStorage first
+      const cached = localStorage.getItem("users");
+      if (cached) {
+        setUsers(JSON.parse(cached));
+        return;
+      }
+
+      const response = await fetchApi("auth/all");
+      console.log("Fetched users:", response);
+
+      if (response.users && Array.isArray(response.users)) {
+        setUsers(response.users);
+        localStorage.setItem("users", JSON.stringify(response.users)); // cache
+        setError(null);
+      } else {
+        setError(response.message || "Failed to load users");
+      }
+    } catch (err) {
+      console.error("Error fetching users:", err);
+      setError("Network error while fetching users");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ✅ Problems fetch with local cache
+  const fetchProblems = async () => {
+    setLoading(true);
+    try {
+      // check localStorage first
+      const cached = localStorage.getItem("problems");
+      if (cached) {
+        setData(JSON.parse(cached));
+        setLoading(false);
+        return;
+      }
+
+      const response = await fetchApi<any[]>("problems");
+      const mapped = response.map((p) => ({
+        ...p,
+        id: p._id,
+      }));
+      setData(mapped);
+      localStorage.setItem("problems", JSON.stringify(mapped)); // cache
+    } catch (error) {
+      console.error("Error fetching problems:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -230,9 +298,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         verifyToken,
         hasPermission,
+        fetchUsers,
+        fetchProblems,
         hasAnyPermission,
         hasRole,
         clearAuth,
+        users,
+        loading,
+        error,
+        data,
       }}
     >
       {children}

@@ -42,6 +42,7 @@ import {
   handleGetAuditLogs,
 } from "./routes/dashboard.js";
 
+import wallpaperRoutes from "./routes/wallpaperRoutes/wallpaperRoutes.js"
 import { handleDemoData } from "./routes/demo.js";
 
 // Load environment
@@ -101,6 +102,9 @@ export async function createServer() {
       res.status(500).json({ error: "Failed to check admin user" });
     }
   });
+
+  //WallPaper Routes
+  app.use('/api/wallpapers', wallpaperRoutes);
 
   // Auth Routes
   app.post("/api/auth/login", handleLogin);

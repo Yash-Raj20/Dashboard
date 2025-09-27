@@ -26,6 +26,7 @@ import {
   Plus,
   Eye,
   Calendar,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -34,9 +35,18 @@ export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { fetchUsers, users, fetchProblems, data } = useAuth();
 
   useEffect(() => {
     fetchDashboardStats();
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    fetchProblems();
   }, []);
 
   const fetchDashboardStats = async () => {
@@ -146,8 +156,8 @@ export default function Dashboard() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
             <p className="text-muted-foreground">
-              Welcome back, {user?.name}. Here's what's happening in your Janseva
-              portal.
+              Welcome back, {user?.name}. Here's what's happening in your
+              Janseva portal.
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -192,13 +202,27 @@ export default function Dashboard() {
           ) : stats ? (
             <>
               <StatCard
-                title="Total Users"
-                value={stats.totalUsers}
+                title="Total Users on website"
+                value={users.length}
                 description="Registered users"
                 icon={Users}
                 action={
                   hasPermission("view_all_users")
                     ? { label: "View Users", href: "/dashboard/users" }
+                    : undefined
+                }
+              />
+              <StatCard
+                title="Total Problems on Website"
+                value={data.length}
+                description="Problems Submitted"
+                icon={AlertCircle}
+                action={
+                  hasPermission("view_users_problems")
+                    ? {
+                        label: "Manage User Problems",
+                        href: "/dashboard/users-problems",
+                      }
                     : undefined
                 }
               />
@@ -221,12 +245,6 @@ export default function Dashboard() {
                 value={stats.activeUsers}
                 description="Currently active accounts"
                 icon={Activity}
-              />
-              <StatCard
-                title="Today's Logins"
-                value={stats.todayLogins}
-                description="Login sessions today"
-                icon={Clock}
               />
             </>
           ) : null}

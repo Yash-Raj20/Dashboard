@@ -16,7 +16,10 @@ export type Permission =
   | "view_audit_logs"
   | "manage_notifications"
   | "view_dashboard"
-  | "edit_profile";
+  | "edit_profile"
+  | "view_problem_details"
+  | "upload_dreamwalls"
+  | "view_high_priority_problems";
 
 // Base User interface
 export interface User {
@@ -50,6 +53,7 @@ export interface LoginResponse {
   token: string;
   expiresIn: number;
 }
+
 
 export interface CreateSubAdminRequest {
   email: string;
@@ -123,6 +127,9 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "manage_notifications",
     "view_dashboard",
     "edit_profile",
+    "view_problem_details",
+    "upload_dreamwalls",
+    "view_high_priority_problems"
   ],
   "sub-admin": [
     "view_all_users",
@@ -131,6 +138,8 @@ export const ROLE_PERMISSIONS: Record<Role, Permission[]> = {
     "view_analytics",
     "view_dashboard",
     "edit_profile",
+    "view_problem_details",
+    "view_high_priority_problems"
   ],
   user: ["view_dashboard", "edit_profile"],
 };

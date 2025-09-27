@@ -23,8 +23,8 @@ import {
   Settings,
   LogOut,
   Menu,
-  Shield,
   ScrollText,
+  BookAIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -70,6 +70,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       permission: "view_users_problems",
     },
     {
+      label: "High Priority Problems",
+      href: "/dashboard/high-priority-problems",
+      icon: BookAIcon,
+      permission: "view_high_priority_problems",
+    },
+    {
       label: "Sub-Admins",
       href: "/dashboard/sub-admins",
       icon: UserCog,
@@ -80,6 +86,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       href: "/dashboard/users",
       icon: Users,
       permission: "view_all_users",
+    },
+    {
+      label: "DreamWalls",
+      href: "/dashboard/dreamwalls",
+      icon: Users,
+      permission: "upload_dreamwalls",
     },
     {
       label: "Audit Logs",
@@ -101,8 +113,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   const Sidebar = ({ className }: { className?: string }) => (
     <div className={cn("flex flex-col h-full", className)}>
-      <div className="flex items-center gap-2 px-6 py-5 border-b">
-        <Shield className="h-8 w-8 text-primary" />
+      <div className="flex flex-col items-center pt-4">
+        <img
+          src="/public/logo.png"
+          alt="logo"
+          className="h-12 w-12 rounded-full"
+        />
         <span className="font-bold text-lg">Janseva Portal</span>
       </div>
 
@@ -120,7 +136,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 "flex items-center gap-3 px-3 py-2 rounded-lg text-md font-medium transition-colors",
                 isActive
                   ? "bg-primary text-primary-foreground"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted",
+                  : "text-muted-foreground hover:text-foreground hover:bg-accent",
               )}
             >
               <Icon className="h-4 w-4" />
@@ -140,7 +156,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <div className="flex h-screen bg-background">
       {/* Desktop Sidebar */}
-      <div className="hidden lg:flex lg:w-64 lg:flex-col lg:border-r">
+      <div className="hidden lg:flex lg:w-64 lg:flex-col">
         <Sidebar />
       </div>
 
@@ -152,7 +168,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       </Sheet>
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden">
+      <div className="flex-1 flex flex-col overflow-hidden relative border rounded-l-3xl shadow-accent">
         {/* Header */}
         <header className="flex items-center justify-between px-4 py-3 border-b lg:px-6">
           <div className="flex items-center gap-4">

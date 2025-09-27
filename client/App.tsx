@@ -21,6 +21,9 @@ import Users from "./pages/Users";
 import AuditLogs from "./pages/AuditLogs";
 import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
+import ProblemDetails from "./pages/ProblemDetails";
+import DreamWalls from "./pages/WallPaperUpload";
+import HighDemandProblems from "./pages/HighDemandProblems";
 
 const queryClient = new QueryClient();
 
@@ -73,10 +76,32 @@ const App = () => (
                     }
                   />
                   <Route
+                    path="/dashboard/high-priority-problems"
+                    element={
+                      <ProtectedRoute requiredPermission="view_high_priority_problems">
+                        <HighDemandProblems />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route path="/problems/:id/:safeTitle" element={
+                    <ProtectedRoute requiredPermission="view_problem_details">
+                      <ProblemDetails />
+                    </ProtectedRoute>
+                  }
+                  />
+                  <Route
                     path="/dashboard/users"
                     element={
                       <ProtectedRoute requiredPermission="view_all_users">
                         <Users />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/dashboard/dreamwalls"
+                    element={
+                      <ProtectedRoute requiredPermission="upload_dreamwalls">
+                        <DreamWalls />
                       </ProtectedRoute>
                     }
                   />
