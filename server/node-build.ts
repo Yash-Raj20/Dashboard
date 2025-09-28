@@ -1,7 +1,7 @@
 import { createServer } from "./index.js";
 import http from "http";
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 3000;
 
 async function start() {
   const app = await createServer();
