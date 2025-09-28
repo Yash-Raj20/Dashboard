@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import Wallpaper from "../db/models/wallpaperModel/Wallpaper";
+import {Wallpaper} from "../db/models/wallpaperModel/Wallpaper";
 import cloudinary from "../cloudinary/cloudinary";
 
 export const getWallpapers = async (
