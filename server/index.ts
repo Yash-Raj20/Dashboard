@@ -65,7 +65,7 @@ export async function createServer() {
   app.use(
     cors({
       origin:
-        process.env.NODE_ENV === "development" ? "http://localhost:5173" : true,
+        process.env.NODE_ENV === "development" ? "https://home-dashboard-b7df.onrender.com" : true,
       credentials: true,
       optionsSuccessStatus: 200,
     }),
