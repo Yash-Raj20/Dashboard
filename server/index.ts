@@ -62,10 +62,20 @@ export async function createServer() {
   // Create default admin
   await initializeDefaultAdmin();
 
+  const allowedOrigins = [
+    "https://home-dashboard-b7df.onrender.com",
+    "http://localhost:5173",
+  ];
+
   app.use(
     cors({
-      origin:
-        process.env.NODE_ENV === "development" ? "https://home-dashboard-b7df.onrender.com" : true,
+      origin: (origin, callback) => {
+        if (!origin || allowedOrigins.includes(origin)) {
+          callback(null, true);
+        } else {
+          callback(new Error("Not allowed by CORS"));
+        }
+      },
       credentials: true,
       optionsSuccessStatus: 200,
     }),

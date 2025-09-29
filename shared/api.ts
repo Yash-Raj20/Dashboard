@@ -35,7 +35,7 @@ export async function fetchApiBackend<T = any>(
   options?: RequestInit
 ): Promise<T> {
   const token = localStorage.getItem("auth_token");
-  const url = `${API_BASE}/${endpoint.replace(/^\/+/, "")}`; 
+  const url = `${API_BASE}/api${endpoint.replace(/^\/+/, "")}`; 
 
   const res = await fetch(url, {
     headers: {
