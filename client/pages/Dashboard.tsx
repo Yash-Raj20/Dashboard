@@ -29,6 +29,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { fetchApiBackend } from "@shared/api";
 
 export default function Dashboard() {
   const { user, hasPermission } = useAuth();
@@ -50,29 +51,28 @@ export default function Dashboard() {
   }, []);
 
   const fetchDashboardStats = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+  try {
+    setLoading(true);
+    setError(null);
 
-      const token = localStorage.getItem("auth_token");
-      const response = await fetch("/api/dashboard/stats", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+    const token = localStorage.getItem("auth_token");
+    if (!token) throw new Error("No authentication token found. Please log in again.");
 
-      if (!response.ok) {
-        throw new Error("Failed to fetch dashboard stats");
-      }
+    const data = await fetchApiBackend("/dashboard/stats", {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
-      const data = await response.json();
-      setStats(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setStats(data);
+  } catch (err: any) {
+    console.error("Dashboard stats fetch error:", err);
+    setError(err.message || "An error occurred");
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {

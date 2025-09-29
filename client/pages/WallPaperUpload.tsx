@@ -23,6 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge, CloudUpload, Palette, Sparkle, Star, Tag } from "lucide-react";
+import { fetchApiBackend } from "@shared/api";
 
 type Wallpaper = {
   id: string;
@@ -47,12 +48,10 @@ export default function UploadPage() {
 
   const fetchWallpapers = async () => {
     try {
-      const response = await fetch("/api/wallpapers");
-      if (!response.ok) throw new Error("Failed to fetch wallpapers");
-      const data = await response.json();
-      setWallpapers(data);
-    } catch (error) {
-      console.error(error);
+      const data = await fetchApiBackend("/wallpapers");
+      setWallpapers(data || []);
+    } catch (error: any) {
+      console.error("Failed to fetch wallpapers:", error);
       toast({
         title: "Error",
         description: "Could not load wallpapers.",
@@ -73,16 +72,17 @@ export default function UploadPage() {
 
     setIsUploading(true);
 
-    const formData = new FormData();
-    formData.append("title", title);
-    formData.append("category", category);
-    formData.append("isFeatured", isFeatured.toString());
-    formData.append("image", image);
-
     try {
       const token = localStorage.getItem("auth_token");
+      if (!token) throw new Error("No authentication token found.");
 
-      const response = await fetch("/api/wallpapers", {
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("category", category);
+      formData.append("isFeatured", isFeatured.toString());
+      formData.append("image", image);
+
+      const response = await fetchApiBackend("/wallpapers", {
         method: "POST",
         body: formData,
         headers: {
@@ -90,26 +90,25 @@ export default function UploadPage() {
         },
       });
 
-      if (!response.ok) {
-        throw new Error("Upload failed");
-      }
-
       toast({
         title: "Success",
         description: "Wallpaper uploaded successfully.",
       });
 
+      // Reset form
       setTitle("");
       setCategory("");
       setIsFeatured(false);
       setImage(null);
       closeModal();
+
+      // Refresh wallpaper list
       fetchWallpapers();
-    } catch (error) {
-      console.error(error);
+    } catch (err: any) {
+      console.error("Wallpaper upload error:", err);
       toast({
         title: "Error",
-        description: "Failed to upload wallpaper.",
+        description: err.message || "Failed to upload wallpaper.",
       });
     } finally {
       setIsUploading(false);

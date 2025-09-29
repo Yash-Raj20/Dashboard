@@ -59,6 +59,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { fetchApiBackend } from "@shared/api";
 
 export default function SubAdmins() {
   const { hasPermission, logout } = useAuth();
@@ -91,28 +92,23 @@ export default function SubAdmins() {
       setError(null);
 
       const token = localStorage.getItem("auth_token");
-      const response = await fetch("/api/sub-admins", {
+      if (!token)
+        throw new Error("No authentication token found. Please log in again.");
+
+      const data = await fetchApiBackend("/sub-admins", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Authentication failed - clear tokens and redirect to login
-          localStorage.removeItem("auth_token");
-          logout();
-          throw new Error("Session expired. Please log in again.");
-        }
-        const errorText = await response.text();
-        console.error("API Error:", response.status, errorText);
-        throw new Error(`Failed to fetch sub-admins: ${response.status}`);
+      setSubAdmins(data.subAdmins || []);
+    } catch (err: any) {
+      console.error("Fetch sub-admins error:", err);
+      setError(err.message || "An error occurred");
+      if (err.message?.includes("401")) {
+        localStorage.removeItem("auth_token");
+        logout();
       }
-
-      const data = await response.json();
-      setSubAdmins(data.subAdmins);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
     }
@@ -126,7 +122,10 @@ export default function SubAdmins() {
       setFormErrors([]);
 
       const token = localStorage.getItem("auth_token");
-      const response = await fetch("/api/sub-admins", {
+      if (!token)
+        throw new Error("No authentication token found. Please log in.");
+
+      const response = await fetchApiBackend("/sub-admins", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -138,7 +137,7 @@ export default function SubAdmins() {
       let data;
       try {
         data = await response.json();
-      } catch (parseError) {
+      } catch {
         throw new Error("Invalid response from server");
       }
 
@@ -148,14 +147,18 @@ export default function SubAdmins() {
           logout();
           throw new Error("Session expired. Please log in again.");
         }
-        // Handle validation errors with details
+        // Handle validation errors
         if (data.details && Array.isArray(data.details)) {
           setFormErrors(data.details);
           return;
         }
         throw new Error(data.error || "Failed to create sub-admin");
       }
+
+      // Update sub-admin list
       setSubAdmins((prev) => [...prev, data.subAdmin]);
+
+      // Close modal & reset form
       setCreateDialogOpen(false);
       resetCreateForm();
 
@@ -178,19 +181,25 @@ export default function SubAdmins() {
       setFormErrors([]);
 
       const token = localStorage.getItem("auth_token");
-      const response = await fetch(`/api/sub-admins/${selectedSubAdmin.id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
+      if (!token)
+        throw new Error("No authentication token found. Please log in.");
+
+      const response = await fetchApiBackend(
+        `/sub-admins/${selectedSubAdmin.id}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(updateForm),
         },
-        body: JSON.stringify(updateForm),
-      });
+      );
 
       let data;
       try {
         data = await response.json();
-      } catch (parseError) {
+      } catch {
         throw new Error("Invalid response from server");
       }
 
@@ -200,18 +209,22 @@ export default function SubAdmins() {
           logout();
           throw new Error("Session expired. Please log in again.");
         }
-        // Handle validation errors with details
+        // Handle validation errors
         if (data.details && Array.isArray(data.details)) {
           setFormErrors(data.details);
           return;
         }
         throw new Error(data.error || "Failed to update sub-admin");
       }
+
+      // Update sub-admin list in state
       setSubAdmins((prev) =>
         prev.map((admin) =>
           admin.id === selectedSubAdmin.id ? data.subAdmin : admin,
         ),
       );
+
+      // Close edit modal and reset
       setEditDialogOpen(false);
       setSelectedSubAdmin(null);
       setUpdateForm({});
@@ -236,12 +249,23 @@ export default function SubAdmins() {
 
     try {
       const token = localStorage.getItem("auth_token");
-      const response = await fetch(`/api/sub-admins/${subAdmin.id}`, {
+      if (!token)
+        throw new Error("No authentication token found. Please log in.");
+
+      const response = await fetchApiBackend(`/sub-admins/${subAdmin.id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      let data;
+      try {
+        data = await response.json();
+      } catch {
+        // if no JSON returned, fallback
+        data = {};
+      }
 
       if (!response.ok) {
         if (response.status === 401) {
@@ -249,15 +273,10 @@ export default function SubAdmins() {
           logout();
           throw new Error("Session expired. Please log in again.");
         }
-        let errorData;
-        try {
-          errorData = await response.json();
-        } catch (parseError) {
-          throw new Error("Failed to delete sub-admin");
-        }
-        throw new Error(errorData.error || "Failed to delete sub-admin");
+        throw new Error(data.error || "Failed to delete sub-admin");
       }
 
+      // Remove from state
       setSubAdmins((prev) => prev.filter((admin) => admin.id !== subAdmin.id));
 
       toast({
@@ -618,7 +637,7 @@ export default function SubAdmins() {
                             {formatDate(
                               typeof subAdmin.createdAt === "string"
                                 ? subAdmin.createdAt
-                                : subAdmin.createdAt.toISOString()
+                                : subAdmin.createdAt.toISOString(),
                             )}
                           </span>
                         </div>

@@ -47,7 +47,4 @@ export default defineConfig({
       "@shared": path.resolve(__dirname, "./shared"),
     },
   },
-  define: {
-    "process.env.NODE_ENV": '"production"',
-  },
 });

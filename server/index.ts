@@ -1,8 +1,15 @@
 import dotenv from "dotenv";
-import express from "express";
-import cors from "cors";
+import path from "path";
 import { fileURLToPath } from "url";
 import { dirname, join } from "path";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+dotenv.config({ path: path.resolve(process.cwd(), ".env") });
+
+import express from "express";
+import cors from "cors";
 import mongoose from "mongoose";
 
 import { initializeDefaultAdmin } from "./db/users.js";
@@ -42,16 +49,10 @@ import {
   handleGetAuditLogs,
 } from "./routes/dashboard.js";
 
-import wallpaperRoutes from "./routes/wallpaperRoutes/wallpaperRoutes.js"
-
-// Load environment
-dotenv.config();
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
+import wallpaperRoutes from "./routes/wallpaperRoutes/wallpaperRoutes.js";
 
 export async function createServer() {
   const app = express();
-
   // Connect to MongoDB
   const uri = process.env.MONGODB_URI;
   if (!uri) throw new Error("MONGODB_URI not defined in .env");
@@ -63,16 +64,16 @@ export async function createServer() {
 
   app.use(
     cors({
-      origin: true,
+      origin:
+        process.env.NODE_ENV === "development" ? "http://localhost:5173" : true,
       credentials: true,
       optionsSuccessStatus: 200,
-    })
+    }),
   );
   app.use(express.json());
 
   app.use("/api", (req, res, next) => {
     res.setHeader("Content-Type", "application/json");
-    // console.log(`API Request: ${req.method} ${req.path}`);
     next();
   });
 
@@ -80,7 +81,8 @@ export async function createServer() {
     res.json({
       status: "ok",
       timestamp: new Date().toISOString(),
-      database: mongoose.connection.readyState === 1 ? "connected" : "disconnected",
+      database:
+        mongoose.connection.readyState === 1 ? "connected" : "disconnected",
     });
   });
 
@@ -103,7 +105,7 @@ export async function createServer() {
   });
 
   //WallPaper Routes
-  app.use('/api/wallpapers', wallpaperRoutes);
+  app.use("/api/wallpapers", wallpaperRoutes);
 
   // Auth Routes
   app.post("/api/auth/login", handleLogin);
@@ -133,11 +135,26 @@ export async function createServer() {
   // Notifications
   app.get("/api/notifications", authenticateToken, handleGetNotifications);
   app.post("/api/notifications", authenticateToken, handleCreateNotification);
-  app.put("/api/notifications/:notificationId/read", authenticateToken, handleMarkAsRead);
-  app.put("/api/notifications/mark-all-read", authenticateToken, handleMarkAllAsRead);
-  app.delete("/api/notifications/:notificationId", authenticateToken, handleDeleteNotification);
-  app.post("/api/notifications/test", authenticateToken, handleTestNotification);
-
+  app.put(
+    "/api/notifications/:notificationId/read",
+    authenticateToken,
+    handleMarkAsRead,
+  );
+  app.put(
+    "/api/notifications/mark-all-read",
+    authenticateToken,
+    handleMarkAllAsRead,
+  );
+  app.delete(
+    "/api/notifications/:notificationId",
+    authenticateToken,
+    handleDeleteNotification,
+  );
+  app.post(
+    "/api/notifications/test",
+    authenticateToken,
+    handleTestNotification,
+  );
 
   app.use((error, req, res, next) => {
     if (req.path.startsWith("/api/")) {
@@ -152,7 +169,9 @@ export async function createServer() {
   if (process.env.NODE_ENV === "production") {
     app.use(express.static(join(__dirname, "../spa")));
     app.get("*", (req, res) => {
-      if (!req.path.match(/\.(js|css|png|jpg|gif|ico|svg|woff|woff2|ttf|eot)$/)) {
+      if (
+        !req.path.match(/\.(js|css|png|jpg|gif|ico|svg|woff|woff2|ttf|eot)$/)
+      ) {
         console.log(`Serving HTML for route: ${req.path}`);
       }
       res.sendFile(join(__dirname, "../spa/index.html"));

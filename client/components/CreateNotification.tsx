@@ -20,6 +20,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, CheckCircle2, MessageSquare, Send } from "lucide-react";
+import { fetchApiBackend } from "@shared/api";
 
 interface CreateNotificationData {
   title: string;
@@ -51,49 +52,49 @@ export function CreateNotification({
     return null;
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
-    setSuccess(null);
+ const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setIsSubmitting(true);
+  setError(null);
+  setSuccess(null);
 
-    try {
-      const token = localStorage.getItem("auth_token");
-      const response = await fetch("/api/notifications", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
+  try {
+    const token = localStorage.getItem("auth_token");
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create notification");
-      }
-
-      const data = await response.json();
-      setSuccess(
-        `Notification sent to ${data.notifications} users successfully!`,
-      );
-
-      // Reset form
-      setFormData({
-        title: "",
-        message: "",
-        type: "info",
-        priority: "medium",
-      });
-
-      // Call callback to refresh notifications
-      onNotificationCreated?.();
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setIsSubmitting(false);
+    if (!token) {
+      throw new Error("No auth token found. Please login.");
     }
-  };
+
+    const data = await fetchApiBackend("/notifications", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(formData),
+    });
+
+    setSuccess(
+      `Notification sent to ${data.notifications} users successfully!`
+    );
+
+    // Reset form
+    setFormData({
+      title: "",
+      message: "",
+      type: "info",
+      priority: "medium",
+    });
+
+    // Call callback to refresh notifications
+    onNotificationCreated?.();
+  } catch (err: any) {
+    setError(err.message || "An error occurred");
+  } finally {
+    setIsSubmitting(false);
+  }
+};
+
 
   const handleInputChange = (
     field: keyof CreateNotificationData,

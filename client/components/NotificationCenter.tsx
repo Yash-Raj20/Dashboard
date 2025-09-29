@@ -19,6 +19,7 @@ import {
   CheckCircle,
   Loader2,
 } from "lucide-react";
+import { fetchApiBackend } from "@shared/api";
 
 interface Notification {
   id: string;
@@ -58,31 +59,24 @@ export function NotificationCenter() {
         return;
       }
 
-      const response = await fetch("/api/notifications", {
+      // Use fetchApiBackend directly
+      const data = await fetchApiBackend("/notifications", {
         headers: {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
       });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          console.warn("Authentication failed, logging out user");
-          localStorage.removeItem("auth_token");
-          logout();
-          return;
-        }
-        const errorText = await response.text();
-        console.error("API Error:", response.status, errorText);
-        throw new Error(
-          `Failed to fetch notifications: ${response.status} ${errorText}`,
-        );
-      }
-
-      const data = await response.json();
       setNotifications(data.notifications || []);
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
+    } catch (error: any) {
+      // If error is 401, logout user
+      if (error.message?.includes("401")) {
+        console.warn("Authentication failed, logging out user");
+        localStorage.removeItem("auth_token");
+        logout();
+      } else {
+        console.error("Error fetching notifications:", error);
+      }
     } finally {
       setLoading(false);
     }

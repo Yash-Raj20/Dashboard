@@ -45,6 +45,7 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts";
+import { fetchApiBackend } from "@shared/api";
 
 export default function Analytics() {
   const { logout } = useAuth();
@@ -74,12 +75,6 @@ export default function Analytics() {
     { day: "Sun", logins: 15 },
   ];
 
-  const roleDistributionData = [
-    { name: "Users", value: 45, color: "#8884d8" },
-    { name: "Sub-Admins", value: 6, color: "#82ca9d" },
-    { name: "Main Admins", value: 1, color: "#ffc658" },
-  ];
-
   const activityTrendsData = [
     { time: "00:00", activity: 5 },
     { time: "04:00", activity: 2 },
@@ -107,42 +102,16 @@ export default function Analytics() {
         throw new Error("No authentication token found. Please log in again.");
       }
 
-      const response = await fetch("/api/dashboard/stats", {
+      const data = await fetchApiBackend("/dashboard/stats", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Authentication failed - clear tokens and redirect to login
-          localStorage.removeItem("auth_token");
-          logout();
-          throw new Error("Session expired. Please log in again.");
-        } else if (response.status === 403) {
-          throw new Error(
-            "Access denied. You do not have permission to view analytics.",
-          );
-        } else {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.error ||
-              `Failed to fetch analytics data (${response.status})`,
-          );
-        }
-      }
-
-      const data = await response.json();
       setStats(data);
-
-      // Update role distribution with real data
-      if (data) {
-        roleDistributionData[0].value = data.totalUsers || 45;
-        roleDistributionData[1].value = data.totalSubAdmins || 6;
-      }
-    } catch (err) {
+    } catch (err: any) {
       console.error("Analytics fetch error:", err);
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err.message || "An error occurred");
     } finally {
       setLoading(false);
       setRefreshing(false);
@@ -417,31 +386,6 @@ export default function Analytics() {
                 Breakdown of user roles in the system
               </CardDescription>
             </CardHeader>
-            <CardContent>
-              <div className="h-80">
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={roleDistributionData}
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                      label={({ name, percent }) =>
-                        `${name} ${(percent * 100).toFixed(0)}%`
-                      }
-                    >
-                      {roleDistributionData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                    <Legend />
-                  </PieChart>
-                </ResponsiveContainer>
-              </div>
-            </CardContent>
           </Card>
 
           {/* Activity Trends Chart */}

@@ -15,6 +15,7 @@ import {
 import { fetchApi } from "@shared/api";
 import { DashboardUser } from "@/pages/Users";
 import { Problem } from "@/pages/AllProblems";
+import { fetchApiBackend } from "@shared/api";
 
 interface AuthState {
   user: AuthUser | null;
@@ -114,23 +115,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const controller = new AbortController();
       const timeout = setTimeout(() => controller.abort(), 15000);
 
-      const res = await fetch("/api/auth/login", {
+      const data: LoginResponse = await fetchApiBackend("/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
         signal: controller.signal,
       });
 
       clearTimeout(timeout);
 
-      if (!res.ok) {
-        dispatch({ type: "LOGIN_FAILURE" });
-        return false;
-      }
-
-      const data: LoginResponse = await res.json();
+      // Save token and user
       localStorage.setItem("auth_token", data.token);
-
       dispatch({
         type: "LOGIN_SUCCESS",
         payload: { user: data.user, token: data.token },
@@ -201,7 +195,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const logout = async () => {
     try {
       if (state.token) {
-        await fetch("/api/auth/logout", {
+        await fetchApiBackend("/auth/logout", {
           method: "POST",
           headers: {
             Authorization: `Bearer ${state.token}`,
@@ -225,26 +219,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
 
     try {
-      const controller = new AbortController();
-      const timeout = setTimeout(() => controller.abort(), 10000);
-
-      const res = await fetch("/api/auth/profile", {
+      const data = await fetchApiBackend("/auth/profile", {
         method: "GET",
         headers: {
           Authorization: `Bearer ${token}`,
         },
-        signal: controller.signal,
       });
 
-      clearTimeout(timeout);
-
-      if (!res.ok) {
-        localStorage.removeItem("auth_token");
-        dispatch({ type: "LOGIN_FAILURE" });
-        return false;
-      }
-
-      const data = await res.json();
       dispatch({
         type: "TOKEN_VERIFIED",
         payload: { user: data.user },
@@ -252,17 +233,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       return true;
     } catch (err: any) {
-      if (
-        err.name === "AbortError" ||
-        err.message?.includes("fetch") ||
-        err.message?.includes("NetworkError")
-      ) {
-        dispatch({ type: "SET_LOADING", payload: false });
-        return false;
-      }
+      console.error("Token verification failed:", err);
 
       localStorage.removeItem("auth_token");
       dispatch({ type: "LOGIN_FAILURE" });
+
       return false;
     }
   };

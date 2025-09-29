@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect, useState } from "react";
+import { fetchApiBackend } from "@shared/api";
 
 type SubAdmin = {
   id: number;
@@ -37,24 +38,24 @@ export default function AssignProblemModal({
 
     const fetchSubAdmins = async () => {
       setSubAdminsLoading(true);
+
       try {
         const token = localStorage.getItem("auth_token");
-        const res = await fetch("/api/sub-admins", {
+        if (!token) throw new Error("No auth token found. Please login.");
+
+        const data = await fetchApiBackend("/sub-admins", {
           headers: {
-            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         });
 
-        if (!res.ok) {
-          if (res.status === 401) alert("Unauthorized. Please login.");
-          throw new Error(`HTTP error! status: ${res.status}`);
-        }
-
-        const data = await res.json();
+        // Ensure data is always an array
         setSubAdmins(Array.isArray(data) ? data : data.subAdmins || []);
-      } catch (err) {
+      } catch (err: any) {
         console.error("Error fetching sub-admins:", err);
+        if (err.message.includes("401")) {
+          alert("Unauthorized. Please login.");
+        }
         setSubAdmins([]);
       } finally {
         setSubAdminsLoading(false);

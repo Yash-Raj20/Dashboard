@@ -30,6 +30,7 @@ import {
   RefreshCw,
   Filter,
 } from "lucide-react";
+import { fetchApiBackend } from "@shared/api";
 
 export default function AuditLogs() {
   const { logout } = useAuth();
@@ -53,8 +54,8 @@ export default function AuditLogs() {
         throw new Error("No authentication token found. Please log in again.");
       }
 
-      const response = await fetch(
-        `/api/dashboard/audit-logs?limit=${limit}&offset=${offset}`,
+      const data = await fetchApiBackend(
+        `/dashboard/audit-logs?limit=${limit}&offset=${offset}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -62,30 +63,10 @@ export default function AuditLogs() {
         },
       );
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          // Authentication failed - clear tokens and redirect to login
-          localStorage.removeItem("auth_token");
-          logout();
-          throw new Error("Session expired. Please log in again.");
-        } else if (response.status === 403) {
-          throw new Error(
-            "Access denied. You do not have permission to view audit logs.",
-          );
-        } else {
-          const errorData = await response.json().catch(() => ({}));
-          throw new Error(
-            errorData.error ||
-              `Failed to fetch audit logs (${response.status})`,
-          );
-        }
-      }
-
-      const data = await response.json();
-      setLogs(data.logs);
-    } catch (err) {
+      setLogs(data.logs || []);
+    } catch (err: any) {
       console.error("Audit logs fetch error:", err);
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err.message || "An error occurred");
     } finally {
       setLoading(false);
     }

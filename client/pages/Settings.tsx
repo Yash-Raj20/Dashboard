@@ -36,6 +36,7 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { fetchApiBackend } from "@shared/api";
 
 export default function Settings() {
   const { user, logout } = useAuth();
@@ -60,41 +61,34 @@ export default function Settings() {
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
 
   const handleUpdateProfile = async () => {
-    if (!validateProfileForm()) return;
+  if (!validateProfileForm()) return;
 
-    try {
-      setProfileLoading(true);
-      setProfileErrors([]);
+  try {
+    setProfileLoading(true);
+    setProfileErrors([]);
 
-      const token = localStorage.getItem("auth_token");
-      const response = await fetch(`/api/profile/update`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          name: profileForm.name,
-        }),
-      });
+    const token = localStorage.getItem("auth_token");
+    if (!token) throw new Error("No authentication token found. Please log in again.");
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error || "Failed to update profile");
-      }
+    await fetchApiBackend("/profile/update", {
+      method: "PUT",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ name: profileForm.name }),
+    });
 
-      toast({
-        title: "Success",
-        description: "Profile updated successfully",
-      });
-    } catch (err) {
-      setProfileErrors([
-        err instanceof Error ? err.message : "An error occurred",
-      ]);
-    } finally {
-      setProfileLoading(false);
-    }
-  };
+    toast({
+      title: "Success",
+      description: "Profile updated successfully",
+    });
+  } catch (err: any) {
+    setProfileErrors([err.message || "An error occurred"]);
+  } finally {
+    setProfileLoading(false);
+  }
+};
+
 
   const handleChangePassword = async () => {
     if (!validatePasswordForm()) return;
@@ -104,7 +98,7 @@ export default function Settings() {
       setPasswordErrors([]);
 
       const token = localStorage.getItem("auth_token");
-      const response = await fetch(`/api/profile/change-password`, {
+      const response = await fetchApiBackend("/profile/change-password", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

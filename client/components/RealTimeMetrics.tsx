@@ -25,7 +25,7 @@ interface RealTimeMetricsProps {
 
 export function RealTimeMetrics({ className }: RealTimeMetricsProps) {
   const { data, isConnected, error, refetch } = useRealTimeData({
-    endpoint: "/api/real-time/stats",
+    endpoint: "localhost:8080/api/real-time/stats",
     interval: 10000, // Update every 10 seconds
     enabled: true,
   });
