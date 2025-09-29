@@ -115,7 +115,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className={cn("flex flex-col h-full", className)}>
       <div className="flex flex-col items-center pt-4">
         <img
-          src="/public/logo.png"
+          src="/Logo.png"
           alt="logo"
           className="h-12 w-12 rounded-full"
         />
