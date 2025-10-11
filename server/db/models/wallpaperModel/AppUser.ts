@@ -56,4 +56,4 @@ userSchema.pre('save', function(next) {
   next();
 });
 
-export const User: Model<IUser> = mongoose.model<IUser>('User', userSchema);
+export const AppUser: Model<IUser> = mongoose.model<IUser>('AppUser', userSchema);

@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { OAuth2Client } from 'google-auth-library';
 import jwt from 'jsonwebtoken';
-import { User } from '../db/models/wallpaperModel/User';
+import { AppUser } from '../db/models/wallpaperModel/AppUser';
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
 const client = new OAuth2Client(CLIENT_ID);
@@ -27,10 +27,10 @@ export const googleAuth = async (req: GoogleAuthRequest, res: Response): Promise
     }
 
     const { sub: googleId, email, name, picture } = payload;
-    let user = await User.findOne({ googleId });
+    let user = await AppUser.findOne({ googleId });
 
     if (!user) {
-      user = new User({ googleId, email, name, picture: picture || '' });
+      user = new AppUser({ googleId, email, name, picture: picture || '' });
       await user.save();
     } else {
       user.picture = picture || user.picture;

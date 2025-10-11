@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { Wallpaper } from "../db/models/wallpaperModel/Wallpaper";
-import { User } from "../db/models/wallpaperModel/User";
+import { AppUser } from "../db/models/wallpaperModel/AppUser";
 import cloudinary from "../cloudinary/cloudinary";
 
 interface AuthRequest extends Request {
@@ -15,7 +15,7 @@ export const getWallpapers = async (req: AuthRequest, res: Response): Promise<vo
 
     // Enrich with user likes if authenticated
     if (req.user?.userId) {
-      const user = await User.findById(req.user.userId).select('likes');
+      const user = await AppUser.findById(req.user.userId).select('likes');
       const likedIds = user?.likes.map(id => id.toString()) || [];
       const enriched = wallpapers.map(w => ({
         ...w.toObject(),
@@ -99,7 +99,7 @@ export const incrementLikes = async (req: AuthRequest, res: Response): Promise<v
       return;
     }
 
-    await User.findByIdAndUpdate(userId, { $addToSet: { likes: id } }, { new: true });
+    await AppUser.findByIdAndUpdate(userId, { $addToSet: { likes: id } }, { new: true });
     res.json({ ...wallpaper.toObject(), likes: wallpaper.likes + 1 });
   } catch (error) {
     console.error('Increment likes error:', error);
@@ -123,7 +123,7 @@ export const incrementDownloads = async (req: AuthRequest, res: Response): Promi
       return;
     }
 
-    await User.findByIdAndUpdate(userId, { $addToSet: { downloads: id } }, { new: true });
+    await AppUser.findByIdAndUpdate(userId, { $addToSet: { downloads: id } }, { new: true });
     res.json({ ...wallpaper.toObject(), downloads: wallpaper.downloads + 1 });
   } catch (error) {
     console.error('Increment downloads error:', error);
