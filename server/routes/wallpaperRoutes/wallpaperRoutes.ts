@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import upload from '../../middleware/upload';
 import { getWallpapers, addWallpaper, incrementViews, incrementLikes, incrementDownloads } from '../../controllers/wallpaperController';
-import { authMiddleware } from 'server/middleware/dreamWalls/auth';
+import { authMiddleware } from '../../middleware/dreamWalls/auth';
 
 const router = Router();
 
