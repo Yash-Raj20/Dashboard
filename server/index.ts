@@ -50,6 +50,7 @@ import {
 } from "./routes/dashboard.js";
 
 import wallpaperRoutes from "./routes/wallpaperRoutes/wallpaperRoutes.js";
+import authRoutes from "./routes/wallpaperRoutes/auth.js";
 
 export async function createServer() {
   const app = express();
@@ -115,6 +116,7 @@ export async function createServer() {
   });
 
   //WallPaper Routes
+  app.use('/api/auth', authRoutes);
   app.use("/api/wallpapers", wallpaperRoutes);
 
   // Auth Routes
