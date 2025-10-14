@@ -40,6 +40,7 @@ import DashboardLayout from "@/components/DashboardLayout";
 import { useAuth } from "@/contexts/AuthContext";
 import Modal from "@/components/Modal";
 import { fetchApi } from "@shared/api";
+import { toast } from "sonner";
 
 // ✅ Define Problem type
 export type Problem = {
@@ -60,6 +61,32 @@ export type Problem = {
   upvotes: string[];
   status: "Pending" | "Process" | "Resolved";
   createdAt: string;
+};
+
+interface StatusDropdownProps {
+  problemId: string;
+}
+
+// ✅ Update problem status
+// ✅ Update problem status
+const updateStatus = async (problemId: string, status: string) => {
+  try {
+    const updatedProblem = await fetchApi(`problems/${problemId}/status`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("auth_token")}`,
+      },
+      body: JSON.stringify({ status }),
+    });
+
+    toast.success("Status updated successfully!");
+    return updatedProblem;
+  } catch (error) {
+    console.error("Error updating problem status:", error);
+    toast.error("Failed to update status");
+    return null;
+  }
 };
 
 // ✅ Actions dropdown
@@ -100,15 +127,28 @@ function ActionsCell({
             </Link>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <StatusDropdown />
+          <StatusDropdown problemId={problem.id} />
         </DropdownMenuContent>
       </DropdownMenu>
     </>
   );
 }
 
-// ✅ Status submenu
-function StatusDropdown() {
+// ✅ StatusDropdown with state update
+function StatusDropdown({ problemId }: StatusDropdownProps) {
+  const { data, setData } = useAuth();
+
+  const handleStatusChange = async (newStatus: string) => {
+    const updated = await updateStatus(problemId, newStatus);
+    if (updated) {
+      setData((prev) =>
+        prev.map((p) =>
+          p.id === updated.id ? { ...p, status: updated.status } : p,
+        ),
+      );
+    }
+  };
+
   return (
     <span className="ml-2 flex items-center">
       Status
@@ -119,15 +159,15 @@ function StatusDropdown() {
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" sideOffset={5}>
-          <DropdownMenuItem onClick={() => console.log("Resolve clicked")}>
-            Resolve
+          <DropdownMenuItem onClick={() => handleStatusChange("Resolved")}>
+            Resolved
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => console.log("Process clicked")}>
+          <DropdownMenuItem onClick={() => handleStatusChange("Process")}>
             Process
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <DropdownMenuItem onClick={() => console.log("Pending clicked")}>
+          <DropdownMenuItem onClick={() => handleStatusChange("Pending")}>
             Pending
           </DropdownMenuItem>
         </DropdownMenuContent>
@@ -158,32 +198,32 @@ export default function AllProblems() {
     setAssignOpen(true);
   };
   const handleAssign = async (subAdminId: number) => {
-  if (!selectedProblem?.id) return;
+    if (!selectedProblem?.id) return;
 
-  try {
-    const token = localStorage.getItem("auth_token");
-    if (!token) {
-      alert("You must be logged in to assign a problem.");
-      return;
+    try {
+      const token = localStorage.getItem("auth_token");
+      if (!token) {
+        alert("You must be logged in to assign a problem.");
+        return;
+      }
+
+      // API request
+      const data = await fetchApi(`problems/${selectedProblem.id}/assign`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ subAdminId }),
+      });
+
+      alert(data.message || "Problem assigned successfully!");
+      setAssignOpen(false); // close modal
+    } catch (error) {
+      console.error("Error assigning problem:", error);
+      alert("Something went wrong.");
     }
-
-    // API request
-    const data = await fetchApi(`problems/${selectedProblem.id}/assign`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ subAdminId }),
-    });
-
-    alert(data.message || "Problem assigned successfully!");
-    setAssignOpen(false); // close modal
-  } catch (error) {
-    console.error("Error assigning problem:", error);
-    alert("Something went wrong.");
-  }
-};
+  };
 
   React.useEffect(() => {
     fetchProblems();

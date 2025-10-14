@@ -46,6 +46,7 @@ interface AuthContextType extends AuthState {
   loading: boolean;
   error: string | null;
   data: Problem[];
+  setData: React.Dispatch<React.SetStateAction<Problem[]>>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -282,6 +283,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         loading,
         error,
         data,
+        setData,
       }}
     >
       {children}

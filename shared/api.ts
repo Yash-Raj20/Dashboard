@@ -5,7 +5,7 @@ export async function fetchApi<T = any>(
   const baseUrl = import.meta.env.VITE_USERS_DATA_API;
   if (!baseUrl) throw new Error("VITE_USERS_DATA_API is not defined!");
 
-  const token = localStorage.getItem("token");
+  const token = localStorage.getItem("auth_token");
 
   const res = await fetch(`${baseUrl}/api/${endpoint}`, {
     headers: {
